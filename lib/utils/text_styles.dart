@@ -3,6 +3,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'colors.dart';
 
 class AppTextStyles {
+  static Color _textColor = Colors.black; // Default color
+
+  static void initialize(BuildContext context) {
+    _textColor = Theme.of(context).textTheme.bodyLarge?.color ?? Colors.black;
+  }
   // Regular
   static final TextStyle regular12 = _textStyle(12, FontWeight.w400);
   static final TextStyle regular14 = _textStyle(14, FontWeight.w400);
@@ -53,9 +58,7 @@ class AppTextStyles {
     return GoogleFonts.lexend(
       fontSize: size,
       fontWeight: weight,
-      color: AppColors.black,
+      color: _textColor,
     );
   }
 }
-
-

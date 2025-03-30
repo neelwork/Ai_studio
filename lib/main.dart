@@ -1,5 +1,6 @@
 import 'package:ai_studio/src/auth_bloc/auth_bloc.dart';
 import 'package:ai_studio/src/auth_bloc/auth_screen.dart';
+import 'package:ai_studio/src/chat_bloc/chat_screen.dart';
 import 'package:ai_studio/src/login_bloc/login_screen.dart';
 import 'package:ai_studio/src/setting_bloc/setting_screen.dart';
 import 'package:ai_studio/src/signup_bloc/signup_screen.dart';
@@ -11,7 +12,6 @@ import 'package:provider/provider.dart';
 void main() {
   runApp(const MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -28,13 +28,13 @@ class MyApp extends StatelessWidget {
         create: (_) => ThemeProvider(),
         child: Consumer<ThemeProvider>(
           builder: (context, themeProvider, _) {
-            return  MaterialApp(
+            return MaterialApp(
               debugShowCheckedModeBanner: false,
               title: 'Flutter Demo',
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
               themeMode: themeProvider.themeMode,
-              home: const AuthScreen(),
+              home: AuthScreen(),
               routes: {
                 '/auth': (context) => AuthScreen(),
                 '/login': (context) => LoginScreen(),
@@ -52,29 +52,29 @@ class MyApp extends StatelessWidget {
               onGenerateRoute: (settings) {
                 switch (settings.name) {
                   case '/login':
-                    return _createRoute( LoginScreen());
+                    return _createRoute(LoginScreen());
                   case '/signup':
-                    return _createRoute( SignupScreen());
-                //   case '/menu':
-                //     return _createRoute( MenuScreen());
-                //   case '/dashboard':
-                //     return _createRoute( DashboardScreen());
-                // // case '/appointments':
-                // //   return _createRoute(const AppointmentScreen());
-                // // case '/messages':
-                // //   return _createRoute( ChatScreen());
-                //   case '/subscription':
-                //     return _createRoute( const SubscriptionScreen());
-                //   case '/support':
-                //     return _createRoute(const SupportScreen());
-                //   case '/settings':
-                //     return _createRoute(const SettingsScreen());
-                //   case '/organization-detail':
-                //     return _createRoute( OrganizationDetailScreen());
-                // // case '/schedule':
-                //   return _createRoute(const ScheduleScreen());
+                    return _createRoute(SignupScreen());
+                  //   case '/menu':
+                  //     return _createRoute( MenuScreen());
+                  //   case '/dashboard':
+                  //     return _createRoute( DashboardScreen());
+                  // // case '/appointments':
+                  // //   return _createRoute(const AppointmentScreen());
+                  // // case '/messages':
+                  // //   return _createRoute( ChatScreen());
+                  //   case '/subscription':
+                  //     return _createRoute( const SubscriptionScreen());
+                  //   case '/support':
+                  //     return _createRoute(const SupportScreen());
+                  //   case '/settings':
+                  //     return _createRoute(const SettingsScreen());
+                  //   case '/organization-detail':
+                  //     return _createRoute( OrganizationDetailScreen());
+                  // // case '/schedule':
+                  //   return _createRoute(const ScheduleScreen());
                   default:
-                    return _createRoute( AuthScreen());
+                    return _createRoute(AuthScreen());
                 }
               },
             );
@@ -83,6 +83,7 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
+
   PageRoute _createRoute(Widget page) {
     // return PageRouteBuilder(
     //   pageBuilder: (context, animation, secondaryAnimation) => page,
@@ -93,7 +94,7 @@ class MyApp extends StatelessWidget {
     //     );
     //   },
     // );
-    return  PageRouteBuilder(
+    return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => page,
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var slideAnimation = Tween<Offset>(
@@ -114,4 +115,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

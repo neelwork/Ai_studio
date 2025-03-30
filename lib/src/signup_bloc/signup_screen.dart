@@ -116,7 +116,7 @@ class _SignupStep1Card extends StatelessWidget {
                   CustomTextField(
                     label: 'Email',
                     hintText: 'motionizestudio@gmail.com',
-                    obscureText: true,
+
                     borderColor: isDarkMode ? AppColors.white : AppColors.black,
                     hintColor: isDarkMode
                         ? AppColors.white.withOpacity(.6)
@@ -253,6 +253,7 @@ class _SignupStep2Card extends StatelessWidget {
                   CustomTextField(
                     label: 'Password',
                     hintText: '⚫⚫⚫⚫⚫⚫⚫',
+                    obscureText: true,
                     borderColor: isDarkMode ? AppColors.white : AppColors.black,
                     hintColor: isDarkMode
                         ? AppColors.white.withOpacity(.6)

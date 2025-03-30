@@ -147,7 +147,7 @@ class _AuthCard extends StatelessWidget {
                       desktop: 50.0,
                     ),
                     onPressed: () {
-                      nextPage(context, '/settings');
+                      nextPage(context, '/chat');
                     },
                     // onPressed: () =>
                     //     context.read<AuthBloc>().add(AuthGoogleLoginEvent()),

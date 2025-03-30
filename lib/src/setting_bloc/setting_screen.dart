@@ -1,3 +1,4 @@
+import 'package:ai_studio/utils/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:ui';
@@ -15,7 +16,8 @@ class SettingsScreen extends StatefulWidget {
 
 class _SettingsScreenState extends State<SettingsScreen> {
   final nameController = TextEditingController(text: "Motionize Studio");
-  final emailController = TextEditingController(text: "motionizestudio@gmail.com");
+  final emailController =
+      TextEditingController(text: "motionizestudio@gmail.com");
   final passwordController = TextEditingController(text: "•••••••");
   final confirmPasswordController = TextEditingController(text: "•••••••");
   String themeMode = "System";
@@ -29,11 +31,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     super.dispose();
   }
 
+  double horizontalPadding(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    return width <= 600 ? 12 : 120;
+  }
+
+  double verticalPadding(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    return width >= 400 ? 40 : 12;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final responsive = Responsive(context);
-
+    print("Width :: ${MediaQuery.of(context).size.width}");
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.light
           ? AppColors.lightTheme
@@ -41,7 +53,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: responsive.screenPadding,
+            padding: EdgeInsets.symmetric(
+              horizontal: horizontalPadding(context),
+              vertical: verticalPadding(context),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -55,9 +70,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(width: 8),
                     Text(
                       'Settings',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      style: AppTextStyles.regular28.copyWith(
+                        color: theme.textTheme.bodyLarge?.color,
                       ),
                     ),
                   ],
@@ -67,7 +81,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // Main settings card
                 Container(
                   decoration: BoxDecoration(
-                    color: Theme.of(context).cardColor,
+                    border: Border.all(
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? AppColors.darkTheme
+                          : AppColors.lightTheme,
+                    ),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   padding: const EdgeInsets.all(24),
@@ -81,7 +99,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Name :'),
+                                Text(
+                                  'Name :',
+                                  style: AppTextStyles.regular18.copyWith(
+                                    color: theme.textTheme.bodyLarge?.color,
+                                  ),
+                                ),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: nameController,
@@ -89,7 +112,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 12),
                                   ),
                                 ),
                               ],
@@ -100,7 +124,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Email :'),
+                                 Text('Email :',  style: AppTextStyles.regular18.copyWith(
+                                  color: theme.textTheme.bodyLarge?.color,
+                                ),),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: emailController,
@@ -108,7 +134,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 12),
                                   ),
                                 ),
                               ],
@@ -126,7 +153,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Password:'),
+                                 Text('Password:',  style: AppTextStyles.regular18.copyWith(
+                                   color: theme.textTheme.bodyLarge?.color,
+                                 ),),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: passwordController,
@@ -135,7 +164,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 12),
                                   ),
                                 ),
                               ],
@@ -146,7 +176,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Text('Confirm Password:'),
+                                 Text('Confirm Password:',  style: AppTextStyles.regular18.copyWith(
+                                   color: theme.textTheme.bodyLarge?.color,
+                                 ),),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: confirmPasswordController,
@@ -155,7 +187,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),
-                                    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 12),
                                   ),
                                 ),
                               ],
@@ -175,11 +208,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             onPressed: () {
                               // Save user settings
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Settings saved successfully')),
+                                const SnackBar(
+                                    content:
+                                        Text('Settings saved successfully')),
                               );
                             },
-                            backgroundColor: Colors.black87,
-                            textColor: Colors.white,
+                            backgroundColor:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? AppColors.black.withOpacity(.79)
+                                    : AppColors.white.withOpacity(.79),
+                            textColor:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? AppColors.white
+                                    : AppColors.black,
                             borderRadius: 4,
                           ),
                         ),
@@ -196,7 +237,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // Theme selector
                           Row(
                             children: [
-                              const Text('Theme Mode : '),
+                              Text(
+                                'Theme Mode : ',
+                                style: AppTextStyles.medium20.copyWith(
+                                  color: theme.textTheme.bodyLarge?.color,
+                                ),
+                              ),
                               const SizedBox(width: 8),
                               Container(
                                 decoration: BoxDecoration(
@@ -206,7 +252,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 child: DropdownButton<String>(
                                   value: themeMode,
                                   underline: const SizedBox(),
-                                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12),
                                   onChanged: (String? newValue) {
                                     if (newValue != null) {
                                       setState(() {
@@ -214,18 +261,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                       });
 
                                       // Update app theme
-                                      final themeProvider = ThemeProvider.of(context);
+                                      final themeProvider =
+                                          ThemeProvider.of(context);
                                       if (newValue == 'System') {
-                                        themeProvider.setThemeMode(ThemeMode.system);
+                                        themeProvider
+                                            .setThemeMode(ThemeMode.system);
                                       } else if (newValue == 'Light') {
-                                        themeProvider.setThemeMode(ThemeMode.light);
+                                        themeProvider
+                                            .setThemeMode(ThemeMode.light);
                                       } else if (newValue == 'Dark') {
-                                        themeProvider.setThemeMode(ThemeMode.dark);
+                                        themeProvider
+                                            .setThemeMode(ThemeMode.dark);
                                       }
                                     }
                                   },
                                   items: <String>['System', 'Light', 'Dark']
-                                      .map<DropdownMenuItem<String>>((String value) {
+                                      .map<DropdownMenuItem<String>>(
+                                          (String value) {
                                     return DropdownMenuItem<String>(
                                       value: value,
                                       child: Text(value),
@@ -239,31 +291,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           // Delete chats
                           Row(
                             children: [
-                              const Text('Delete All Chats : '),
+                              Text(
+                                'Delete All Chats : ',
+                                style: AppTextStyles.medium20.copyWith(
+                                  color: theme.textTheme.bodyLarge?.color,
+                                ),
+                              ),
                               const SizedBox(width: 8),
                               AppButton(
                                 text: 'Delete All Chats',
+                                width: 264,
                                 onPressed: () {
                                   // Show confirmation dialog
                                   showDialog(
                                     context: context,
                                     builder: (context) => AlertDialog(
                                       title: const Text('Delete All Chats'),
-                                      content: const Text('Are you sure you want to delete all chats? This action cannot be undone.'),
+                                      content: const Text(
+                                          'Are you sure you want to delete all chats? This action cannot be undone.'),
                                       actions: [
                                         TextButton(
-                                          onPressed: () => Navigator.pop(context),
+                                          onPressed: () =>
+                                              Navigator.pop(context),
                                           child: const Text('Cancel'),
                                         ),
                                         TextButton(
                                           onPressed: () {
                                             // Delete chats logic
                                             Navigator.pop(context);
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              const SnackBar(content: Text('All chats have been deleted')),
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              const SnackBar(
+                                                  content: Text(
+                                                      'All chats have been deleted')),
                                             );
                                           },
-                                          child: const Text('Delete', style: TextStyle(color: Colors.red)),
+                                          child: const Text('Delete',
+                                              style:
+                                                  TextStyle(color: Colors.red)),
                                         ),
                                       ],
                                     ),
@@ -272,7 +337,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                 backgroundColor: Colors.red,
                                 textColor: Colors.white,
                                 borderRadius: 4,
-                                height: 36,
+                                height: 57,
                               ),
                             ],
                           ),
@@ -403,9 +468,7 @@ class AppTheme {
     primaryColor: Colors.blue,
     scaffoldBackgroundColor: AppColors.lightTheme,
     cardColor: AppColors.lightTheme,
-      buttonTheme: ButtonThemeData(
-        buttonColor: AppColors.black.withOpacity(.83)
-      ),
+    buttonTheme: ButtonThemeData(buttonColor: AppColors.black.withOpacity(.83)),
     colorScheme: ColorScheme.light(
       primary: Colors.blue,
       secondary: Colors.blueAccent,
@@ -417,9 +480,7 @@ class AppTheme {
     primaryColor: Colors.blue,
     scaffoldBackgroundColor: AppColors.darkTheme,
     cardColor: AppColors.darkTheme,
-    buttonTheme: ButtonThemeData(
-        buttonColor: AppColors.white.withOpacity(.83)
-    ),
+    buttonTheme: ButtonThemeData(buttonColor: AppColors.white.withOpacity(.83)),
     colorScheme: ColorScheme.dark(
       primary: Colors.blue,
       secondary: Colors.blueAccent,

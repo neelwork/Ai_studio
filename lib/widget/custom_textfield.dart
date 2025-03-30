@@ -20,13 +20,13 @@ class CustomTextField extends StatelessWidget {
   final int? maxLines;
   final Function(String)? onChanged;
 
-   CustomTextField({
+  CustomTextField({
     super.key,
     required this.label,
     required this.hintText,
     this.prefixIcon,
     this.suffixIcon,
-    this.borderColor =  AppColors.black,
+    this.borderColor = AppColors.black,
     this.textColor = Colors.black,
     this.labelColor = Colors.black,
     this.borderRadius = 12,
@@ -46,8 +46,7 @@ class CustomTextField extends StatelessWidget {
         if (label.isNotEmpty)
           Text(
             label,
-            style: AppTextStyles.medium16
-                .copyWith(color: labelColor),
+            style: AppTextStyles.medium16.copyWith(color: labelColor),
           ),
         const SizedBox(height: 4),
         Material(
