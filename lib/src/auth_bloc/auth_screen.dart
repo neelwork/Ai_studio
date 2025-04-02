@@ -78,7 +78,7 @@ class _AuthCard extends StatelessWidget {
                     ),
                   ),
                   SvgPicture.asset(
-                    "icons/ai_icon.svg",
+                    "assets/icons/ai_icon.svg",
                     height: responsive.getResponsiveValue(
                       mobile: 60.0,
                       tablet: 70.0,

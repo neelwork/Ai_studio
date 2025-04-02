@@ -4,21 +4,35 @@ import 'chat_event.dart';
 import 'chat_state.dart';
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
-  ChatBloc() : super(ChatState(
-    messages: [
-      ChatMessage(
-        text: "Hi Jay!\nHow can I help you?",
-        isUser: false,
-        timestamp: DateTime.now(),
-      ),
-    ],
-    isSidebarVisible: false,
-    isFirstMessageSent: false,
-  )) {
+  ChatBloc()
+      : super(ChatState(
+          messages: [
+            ChatMessage(
+              text: "Hi Jay!\nHow can I help you?",
+              isUser: false,
+              timestamp: DateTime.now(),
+            ),
+          ],
+          isSidebarVisible: false,
+          isFirstMessageSent: false,
+        )) {
     on<SendMessageEvent>(_onSendMessage);
     on<ToggleSidebarEvent>(_onToggleSidebar);
+    on<ResetChatEvent>(_onResetChat);
   }
-
+  void _onResetChat(ResetChatEvent event, Emitter<ChatState> emit) {
+    emit(ChatState(
+      messages: [
+        ChatMessage(
+          text: "Hi Jay!\nHow can I help you?",
+          isUser: false,
+          timestamp: DateTime.now(),
+        ),
+      ],
+      isSidebarVisible: false, // Hide sidebar on mobile until first message
+      isFirstMessageSent: false,
+    ));
+  }
   void _onSendMessage(SendMessageEvent event, Emitter<ChatState> emit) async {
     if (event.message.trim().isEmpty) return;
 
@@ -42,7 +56,8 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     if (emit.isDone) return;
 
     final aiResponse = ChatMessage(
-      text: "As a manager, here is a summary of the key points from the document:\n\n"
+      text:
+          "As a manager, here is a summary of the key points from the document:\n\n"
           "[Main Topic]: [Brief summary of the document's overall purpose]\n\n"
           "Key Sections:\n"
           "• [Section 1 Title]: [Summary of this section]\n"

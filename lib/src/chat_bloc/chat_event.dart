@@ -9,3 +9,4 @@ class ToggleSidebarEvent extends ChatEvent {
   final bool isVisible;
   ToggleSidebarEvent(this.isVisible);
 }
+class ResetChatEvent extends ChatEvent {}

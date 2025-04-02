@@ -6,7 +6,6 @@ import 'dart:ui';
 import '../../utils/colors.dart';
 import '../../utils/responsive.dart';
 import '../../widget/app_button.dart';
-
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);
 
@@ -17,7 +16,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final nameController = TextEditingController(text: "Motionize Studio");
   final emailController =
-      TextEditingController(text: "motionizestudio@gmail.com");
+  TextEditingController(text: "motionizestudio@gmail.com");
   final passwordController = TextEditingController(text: "•••••••");
   final confirmPasswordController = TextEditingController(text: "•••••••");
   String themeMode = "System";
@@ -33,7 +32,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   double horizontalPadding(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    return width <= 600 ? 12 : 120;
+    if (width <= 400) return 8;
+    if (width <= 600) return 12;
+    return 120;
   }
 
   double verticalPadding(BuildContext context) {
@@ -41,10 +42,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return width >= 400 ? 40 : 12;
   }
 
+  bool isSmallScreen(BuildContext context) {
+    return MediaQuery.of(context).size.width < 600;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final responsive = Responsive(context);
+    final isSmall = isSmallScreen(context);
     print("Width :: ${MediaQuery.of(context).size.width}");
     return Scaffold(
       backgroundColor: Theme.of(context).brightness == Brightness.light
@@ -88,12 +94,56 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  padding: const EdgeInsets.all(24),
+                  padding: EdgeInsets.all(isSmall ? 16 : 24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Name and Email fields
-                      Row(
+                      // Name and Email fields - Responsive layout
+                      isSmall
+                          ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Name field
+                          Text(
+                            'Name :',
+                            style: AppTextStyles.regular18.copyWith(
+                              color: theme.textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: nameController,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Email field
+                          Text(
+                            'Email :',
+                            style: AppTextStyles.regular18.copyWith(
+                              color: theme.textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: emailController,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                            ),
+                          ),
+                        ],
+                      )
+                          : Row(
                         children: [
                           Expanded(
                             child: Column(
@@ -124,9 +174,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                 Text('Email :',  style: AppTextStyles.regular18.copyWith(
-                                  color: theme.textTheme.bodyLarge?.color,
-                                ),),
+                                Text(
+                                  'Email :',
+                                  style: AppTextStyles.regular18.copyWith(
+                                    color: theme.textTheme.bodyLarge?.color,
+                                  ),
+                                ),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: emailController,
@@ -146,16 +199,65 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                       const SizedBox(height: 16),
 
-                      // Password fields
-                      Row(
+                      // Password fields - Responsive layout
+                      isSmall
+                          ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Password field
+                          Text(
+                            'Password:',
+                            style: AppTextStyles.regular18.copyWith(
+                              color: theme.textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: passwordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Confirm Password field
+                          Text(
+                            'Confirm Password:',
+                            style: AppTextStyles.regular18.copyWith(
+                              color: theme.textTheme.bodyLarge?.color,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          TextField(
+                            controller: confirmPasswordController,
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 12),
+                            ),
+                          ),
+                        ],
+                      )
+                          : Row(
                         children: [
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                 Text('Password:',  style: AppTextStyles.regular18.copyWith(
-                                   color: theme.textTheme.bodyLarge?.color,
-                                 ),),
+                                Text(
+                                  'Password:',
+                                  style: AppTextStyles.regular18.copyWith(
+                                    color: theme.textTheme.bodyLarge?.color,
+                                  ),
+                                ),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: passwordController,
@@ -176,9 +278,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                 Text('Confirm Password:',  style: AppTextStyles.regular18.copyWith(
-                                   color: theme.textTheme.bodyLarge?.color,
-                                 ),),
+                                Text(
+                                  'Confirm Password:',
+                                  style: AppTextStyles.regular18.copyWith(
+                                    color: theme.textTheme.bodyLarge?.color,
+                                  ),
+                                ),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: confirmPasswordController,
@@ -210,17 +315,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                     content:
-                                        Text('Settings saved successfully')),
+                                    Text('Settings saved successfully')),
                               );
                             },
                             backgroundColor:
-                                Theme.of(context).brightness == Brightness.light
-                                    ? AppColors.black.withOpacity(.79)
-                                    : AppColors.white.withOpacity(.79),
+                            Theme.of(context).brightness == Brightness.light
+                                ? AppColors.black.withOpacity(.79)
+                                : AppColors.white.withOpacity(.79),
                             textColor:
-                                Theme.of(context).brightness == Brightness.light
-                                    ? AppColors.white
-                                    : AppColors.black,
+                            Theme.of(context).brightness == Brightness.light
+                                ? AppColors.white
+                                : AppColors.black,
                             borderRadius: 4,
                           ),
                         ),
@@ -230,8 +335,122 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       const Divider(),
                       const SizedBox(height: 24),
 
-                      // Theme and Delete options
-                      Row(
+                      // Theme and Delete options - Responsive layout
+                      isSmall
+                          ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Theme selector
+                          Row(
+                            children: [
+                              Text(
+                                'Theme Mode : ',
+                                style: AppTextStyles.medium20.copyWith(
+                                  color: theme.textTheme.bodyLarge?.color,
+                                  fontSize: isSmall ? 16 : 20,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: DropdownButton<String>(
+                                  value: themeMode,
+                                  underline: const SizedBox(),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12),
+                                  onChanged: (String? newValue) {
+                                    if (newValue != null) {
+                                      setState(() {
+                                        themeMode = newValue;
+                                      });
+
+                                      // Update app theme
+                                      final themeProvider =
+                                      ThemeProvider.of(context);
+                                      if (newValue == 'System') {
+                                        themeProvider
+                                            .setThemeMode(ThemeMode.system);
+                                      } else if (newValue == 'Light') {
+                                        themeProvider
+                                            .setThemeMode(ThemeMode.light);
+                                      } else if (newValue == 'Dark') {
+                                        themeProvider
+                                            .setThemeMode(ThemeMode.dark);
+                                      }
+                                    }
+                                  },
+                                  items: <String>['System', 'Light', 'Dark']
+                                      .map<DropdownMenuItem<String>>(
+                                          (String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Delete chats
+                          Text(
+                            'Delete All Chats : ',
+                            style: AppTextStyles.medium20.copyWith(
+                              color: theme.textTheme.bodyLarge?.color,
+                              fontSize: isSmall ? 16 : 20,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: AppButton(
+                              text: 'Delete All Chats',
+                              onPressed: () {
+                                // Show confirmation dialog
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Delete All Chats'),
+                                    content: const Text(
+                                        'Are you sure you want to delete all chats? This action cannot be undone.'),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () =>
+                                            Navigator.pop(context),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          // Delete chats logic
+                                          Navigator.pop(context);
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(
+                                            const SnackBar(
+                                                content: Text(
+                                                    'All chats have been deleted')),
+                                          );
+                                        },
+                                        child: const Text('Delete',
+                                            style:
+                                            TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              },
+                              backgroundColor: Colors.red,
+                              textColor: Colors.white,
+                              borderRadius: 4,
+                              height: 50,
+                            ),
+                          ),
+                        ],
+                      )
+                          : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           // Theme selector
@@ -262,7 +481,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                                       // Update app theme
                                       final themeProvider =
-                                          ThemeProvider.of(context);
+                                      ThemeProvider.of(context);
                                       if (newValue == 'System') {
                                         themeProvider
                                             .setThemeMode(ThemeMode.system);
@@ -278,11 +497,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   items: <String>['System', 'Light', 'Dark']
                                       .map<DropdownMenuItem<String>>(
                                           (String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(value),
-                                    );
-                                  }).toList(),
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value),
+                                        );
+                                      }).toList(),
                                 ),
                               ),
                             ],
@@ -328,7 +547,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           },
                                           child: const Text('Delete',
                                               style:
-                                                  TextStyle(color: Colors.red)),
+                                              TextStyle(color: Colors.red)),
                                         ),
                                       ],
                                     ),
@@ -360,8 +579,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 const SizedBox(height: 16),
 
-                // About buttons
-                Row(
+                // About buttons - Responsive layout
+                isSmall
+                    ? Column(
+                  children: [
+                    _buildAboutButton(
+                      icon: Icons.help_outline,
+                      text: 'Help Center',
+                      onTap: () {
+                        // Navigate to help center
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildAboutButton(
+                      icon: Icons.article_outlined,
+                      text: 'Terms of Use',
+                      onTap: () {
+                        // Navigate to terms of use
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    _buildAboutButton(
+                      icon: Icons.privacy_tip_outlined,
+                      text: 'Privacy Policy',
+                      onTap: () {
+                        // Navigate to privacy policy
+                      },
+                    ),
+                  ],
+                )
+                    : Row(
                   children: [
                     Expanded(
                       child: _buildAboutButton(
