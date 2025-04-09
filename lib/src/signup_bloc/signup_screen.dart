@@ -1,9 +1,7 @@
-import 'package:ai_studio/global_functions_variable.dart';
+import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-
 import '../../utils/colors.dart';
 import '../../utils/text_styles.dart';
 import '../../utils/responsive.dart';
@@ -116,7 +114,6 @@ class _SignupStep1Card extends StatelessWidget {
                   CustomTextField(
                     label: 'Email',
                     hintText: 'motionizestudio@gmail.com',
-
                     borderColor: isDarkMode ? AppColors.white : AppColors.black,
                     hintColor: isDarkMode
                         ? AppColors.white.withOpacity(.6)
@@ -236,13 +233,13 @@ class _SignupStep2Card extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: responsive
                         .getResponsiveValue(
-                      mobile: AppTextStyles.medium20,
-                      desktop: AppTextStyles.medium24,
-                    )
+                          mobile: AppTextStyles.medium20,
+                          desktop: AppTextStyles.medium24,
+                        )
                         .copyWith(
-                      color: theme.textTheme.bodyLarge
-                          ?.color, // Use theme text color
-                    ),
+                          color: theme.textTheme.bodyLarge
+                              ?.color, // Use theme text color
+                        ),
                   ),
                   SizedBox(
                     height: responsive.getResponsiveValue(

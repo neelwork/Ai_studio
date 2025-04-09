@@ -1,14 +1,12 @@
-import 'package:ai_studio/global_functions_variable.dart';
+import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-
 import '../../utils/colors.dart';
 import '../../utils/text_styles.dart';
 import '../../utils/responsive.dart';
 import '../../widget/app_button.dart';
 import 'auth_bloc.dart';
-import 'auth_event.dart';
 import 'auth_state.dart';
 
 class AuthScreen extends StatelessWidget {
@@ -93,12 +91,15 @@ class _AuthCard extends StatelessWidget {
                   Text(
                     'Where Innovation Meets\nSimplicity.',
                     textAlign: TextAlign.center,
-                    style: responsive.getResponsiveValue(
-                      mobile: AppTextStyles.medium20,
-                      desktop: AppTextStyles.medium24,
-                    ).copyWith(
-                      color: theme.textTheme.bodyLarge?.color, // Use theme text color
-                    ),
+                    style: responsive
+                        .getResponsiveValue(
+                          mobile: AppTextStyles.medium20,
+                          desktop: AppTextStyles.medium24,
+                        )
+                        .copyWith(
+                          color: theme.textTheme.bodyLarge
+                              ?.color, // Use theme text color
+                        ),
                   ),
                   SizedBox(
                     height: responsive.getResponsiveValue(
@@ -116,9 +117,10 @@ class _AuthCard extends StatelessWidget {
                     onPressed: () {
                       nextPage(context, '/login');
                     },
-                    borderColor: isDarkMode ? AppColors.white.withOpacity(.83)  :  AppColors.black.withOpacity(.83),
+                    borderColor: isDarkMode
+                        ? AppColors.white.withOpacity(.83)
+                        : AppColors.black.withOpacity(.83),
                     textColor: isDarkMode ? AppColors.white : AppColors.black,
-
                     textStyle: AppTextStyles.medium14,
                   ),
                   const SizedBox(height: 16),
@@ -132,9 +134,9 @@ class _AuthCard extends StatelessWidget {
                     onPressed: () {
                       nextPage(context, '/signup');
                     },
-                    borderColor: isDarkMode ? AppColors.white.withOpacity(.83)  :  AppColors.black.withOpacity(.83),
-
-
+                    borderColor: isDarkMode
+                        ? AppColors.white.withOpacity(.83)
+                        : AppColors.black.withOpacity(.83),
                     textColor: isDarkMode ? AppColors.white : AppColors.black,
                     textStyle: AppTextStyles.medium14,
                   ),
@@ -151,7 +153,9 @@ class _AuthCard extends StatelessWidget {
                     },
                     // onPressed: () =>
                     //     context.read<AuthBloc>().add(AuthGoogleLoginEvent()),
-                    backgroundColor: isDarkMode ? Colors.white.withOpacity(0.83) : AppColors.black.withOpacity(.83),
+                    backgroundColor: isDarkMode
+                        ? Colors.white.withOpacity(0.83)
+                        : AppColors.black.withOpacity(.83),
                     textColor: isDarkMode ? AppColors.black : AppColors.white,
                     textStyle: AppTextStyles.medium14,
                   ),
@@ -162,8 +166,8 @@ class _AuthCard extends StatelessWidget {
           BlocBuilder<AuthBloc, AuthState>(
             builder: (context, state) {
               if (state is AuthLoadingState) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 16.0),
+                return const Padding(
+                  padding: EdgeInsets.only(top: 16.0),
                   child: CircularProgressIndicator(
                     color: AppColors.black,
                   ),
