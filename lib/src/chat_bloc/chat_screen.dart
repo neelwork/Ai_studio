@@ -370,14 +370,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: _buildDropdownItem(
                   "Settings",
                   () {
-                    print("Button tapped");
-
-                    try {
-                      nextPage(context, '/settings');
-                    } catch (e) {
-                      print('Navigation error: $e');
-                      // Optionally show a snackbar or dialog
-                    }
+                    nextPage(context, '/settings');
                   },
                 )),
                 Divider(

@@ -1,8 +1,9 @@
+import 'package:ai_studio/src/login_bloc/login_bloc.dart';
+import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-
 import '../../utils/colors.dart';
 import '../../utils/text_styles.dart';
 import '../../utils/responsive.dart';
@@ -28,6 +29,9 @@ class LoginScreen extends StatelessWidget {
 }
 
 class _LoginCard extends StatelessWidget {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final responsive = Responsive.of(context);
@@ -110,7 +114,7 @@ class _LoginCard extends StatelessWidget {
                     ),
                   ),
                   CustomTextField(
-
+                    controller: emailController,
                     label: 'Email',
                     borderColor: isDarkMode ? AppColors.white : AppColors.black,
                     hintColor: isDarkMode
@@ -124,6 +128,7 @@ class _LoginCard extends StatelessWidget {
                   const SizedBox(height: 16),
                   CustomTextField(
                     label: 'Password',
+                    controller: passwordController,
                     borderColor: isDarkMode ? AppColors.white : AppColors.black,
                     hintColor: isDarkMode
                         ? AppColors.white.withOpacity(.6)
@@ -132,7 +137,6 @@ class _LoginCard extends StatelessWidget {
                     labelColor: isDarkMode ? AppColors.white : AppColors.black,
                     hintText: '⚫⚫⚫⚫⚫⚫⚫',
                     obscureText: true,
-
                   ),
                   SizedBox(
                     height: responsive.getResponsiveValue(
@@ -140,21 +144,48 @@ class _LoginCard extends StatelessWidget {
                       desktop: 32.0,
                     ),
                   ),
-                  AppButton.filled(
-                    text: 'Login',
-                    width: double.infinity,
-                    height: responsive.getResponsiveValue(
-                      mobile: 45.0,
-                      desktop: 50.0,
-                    ),
-                    borderRadius: 24,
-                    onPressed: () {},
-                    // Use theme colors for the button
-                    backgroundColor: isDarkMode
-                        ? AppColors.white.withOpacity(0.83)
-                        : AppColors.black.withOpacity(.83),
-                    textColor: isDarkMode ? AppColors.black : AppColors.white,
-                    textStyle: AppTextStyles.medium14,
+                  BlocConsumer<LoginBloc, LoginState>(
+                    listener: (context, state) {
+                      if (state is LoginSuccess) {
+                        nextReplacePage(context, '/chat');
+                      }
+                    },
+                    builder: (context, state) {
+                      return AppButton.filled(
+                        text: state is LoginLoading ? 'Loading...' : 'Login',
+                        width: double.infinity,
+                        height: responsive.getResponsiveValue(
+                          mobile: 45.0,
+                          desktop: 50.0,
+                        ),
+                        borderRadius: 24,
+                        onPressed: () {
+                          if (emailController.text.isEmpty ||
+                              passwordController.text.isEmpty) {
+                            // Show error message
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Please fill in all fields.'),
+                              ),
+                            );
+                          } else {
+                            context.read<LoginBloc>().add(
+                                  LoginRequested(
+                                    phone: emailController.text,
+                                    password: passwordController.text,
+                                  ),
+                                );
+                          }
+                        },
+                        // Use theme colors for the button
+                        backgroundColor: isDarkMode
+                            ? AppColors.white.withOpacity(0.83)
+                            : AppColors.black.withOpacity(.83),
+                        textColor:
+                            isDarkMode ? AppColors.black : AppColors.white,
+                        textStyle: AppTextStyles.medium14,
+                      );
+                    },
                   ),
                 ],
               ),

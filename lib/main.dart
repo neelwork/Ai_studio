@@ -1,7 +1,11 @@
 import 'package:ai_studio/src/auth_bloc/auth_bloc.dart';
 import 'package:ai_studio/src/auth_bloc/auth_screen.dart';
+import 'package:ai_studio/src/login_bloc/login_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_screen.dart';
+import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
 import 'package:ai_studio/src/setting_bloc/setting_screen.dart';
+import 'package:ai_studio/src/setting_bloc/update_user_bloc.dart';
+import 'package:ai_studio/src/signup_bloc/signup_bloc.dart';
 import 'package:ai_studio/src/signup_bloc/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -21,6 +25,18 @@ class MyApp extends StatelessWidget {
         BlocProvider<AuthBloc>(
           create: (_) => AuthBloc(),
         ),
+        BlocProvider<LoginBloc>(
+          create: (_) => LoginBloc(),
+        ),
+        BlocProvider<ProfileBloc>(
+          create: (_) => ProfileBloc(),
+        ),
+        BlocProvider<UpdateUserBloc>(
+          create: (_) => UpdateUserBloc(),
+        ),
+        BlocProvider<SignUpBloc>(
+          create: (_) => SignUpBloc(),
+        ),
       ],
       child: ChangeNotifierProvider(
         create: (_) => ThemeProvider(),
@@ -32,47 +48,20 @@ class MyApp extends StatelessWidget {
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
               themeMode: themeProvider.themeMode,
-              home: AuthScreen(),
+              home: const AuthScreen(),
               routes: {
-                '/auth': (context) => AuthScreen(),
-                '/login': (context) => LoginScreen(),
-                '/signup': (context) => SignupScreen(),
-                // '/menu': (context) =>  MenuScreen(),
-                // '/dashboard': (context) => DashboardScreen(),
-                // // '/appointments': (context) => AppointmentScreen(),
-                // // '/messages': (context) => ChatScreen(),
-                // '/subscription': (context) => const SubscriptionScreen(),
-                // '/support': (context) => const SupportScreen(),
-                // '/settings': (context) => const SettingsScreen(),
-                // // '/practitioner-detail': (context) => PractitionerDetailScreen(),
-                // '/schedule': (context) => ScheduleScreen(),
+                '/auth': (context) => const AuthScreen(),
+                '/login': (context) => const LoginScreen(),
+                '/signup': (context) => const SignupScreen(),
               },
               onGenerateRoute: (settings) {
                 switch (settings.name) {
                   case '/login':
-                    return _createRoute(LoginScreen());
+                    return _createRoute(const LoginScreen());
                   case '/signup':
-                    return _createRoute(SignupScreen());
-                  //   case '/menu':
-                  //     return _createRoute( MenuScreen());
-                  //   case '/dashboard':
-                  //     return _createRoute( DashboardScreen());
-                  // // case '/appointments':
-                  // //   return _createRoute(const AppointmentScreen());
-                  // // case '/messages':
-                  // //   return _createRoute( ChatScreen());
-                  //   case '/subscription':
-                  //     return _createRoute( const SubscriptionScreen());
-                  //   case '/support':
-                  //     return _createRoute(const SupportScreen());
-                  //   case '/settings':
-                  //     return _createRoute(const SettingsScreen());
-                  //   case '/organization-detail':
-                  //     return _createRoute( OrganizationDetailScreen());
-                  // // case '/schedule':
-                  //   return _createRoute(const ScheduleScreen());
+                    return _createRoute(const SignupScreen());
                   default:
-                    return _createRoute(AuthScreen());
+                    return _createRoute(const AuthScreen());
                 }
               },
             );

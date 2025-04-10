@@ -1,6 +1,8 @@
+import 'package:ai_studio/src/signup_bloc/signup_bloc.dart';
 import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../utils/colors.dart';
 import '../../utils/text_styles.dart';
@@ -24,6 +26,9 @@ class SignupScreen extends StatelessWidget {
 }
 
 class _SignupStep1Card extends StatelessWidget {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final responsive = Responsive.of(context);
@@ -101,6 +106,7 @@ class _SignupStep1Card extends StatelessWidget {
                     ),
                   ),
                   CustomTextField(
+                    controller: nameController,
                     label: 'Name',
                     hintText: 'Motionize Studio',
                     borderColor: isDarkMode ? AppColors.white : AppColors.black,
@@ -113,6 +119,7 @@ class _SignupStep1Card extends StatelessWidget {
                   const SizedBox(height: 16),
                   CustomTextField(
                     label: 'Email',
+                    controller: emailController,
                     hintText: 'motionizestudio@gmail.com',
                     borderColor: isDarkMode ? AppColors.white : AppColors.black,
                     hintColor: isDarkMode
@@ -136,7 +143,17 @@ class _SignupStep1Card extends StatelessWidget {
                     ),
                     borderRadius: 24,
                     onPressed: () {
-                      nextPage(context, '/signupStep2');
+                      // nextPage(context, '/signupStep2');
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SignupScreenDetails(
+                            email: emailController.text,
+                            userName: nameController.text,
+                          ),
+                        ),
+                      );
                     },
                     backgroundColor: isDarkMode
                         ? AppColors.white.withOpacity(0.83)
@@ -155,7 +172,11 @@ class _SignupStep1Card extends StatelessWidget {
 }
 
 class SignupScreenDetails extends StatelessWidget {
-  const SignupScreenDetails({super.key});
+  final String email;
+  final String userName;
+
+  const SignupScreenDetails(
+      {super.key, required this.email, required this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -163,14 +184,32 @@ class SignupScreenDetails extends StatelessWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: Center(
-          child: _SignupStep2Card(),
+          child: _SignupStep2Card(
+            email: email,
+            userName: userName,
+          ),
         ),
       ),
     );
   }
 }
 
-class _SignupStep2Card extends StatelessWidget {
+class _SignupStep2Card extends StatefulWidget {
+  final String email;
+  final String userName;
+
+  const _SignupStep2Card({required this.email, required this.userName});
+
+  @override
+  State<_SignupStep2Card> createState() => _SignupStep2CardState();
+}
+
+class _SignupStep2CardState extends State<_SignupStep2Card> {
+  final TextEditingController passwordController = TextEditingController();
+
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     final responsive = Responsive.of(context);
@@ -248,6 +287,7 @@ class _SignupStep2Card extends StatelessWidget {
                     ),
                   ),
                   CustomTextField(
+                    controller: passwordController,
                     label: 'Password',
                     hintText: '⚫⚫⚫⚫⚫⚫⚫',
                     obscureText: true,
@@ -260,6 +300,7 @@ class _SignupStep2Card extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
+                    controller: confirmPasswordController,
                     label: 'Confirm Password',
                     hintText: '⚫⚫⚫⚫⚫⚫⚫',
                     obscureText: true,
@@ -276,20 +317,48 @@ class _SignupStep2Card extends StatelessWidget {
                       desktop: 32.0,
                     ),
                   ),
-                  AppButton.filled(
-                    text: 'Signup',
-                    width: double.infinity,
-                    height: responsive.getResponsiveValue(
-                      mobile: 45.0,
-                      desktop: 50.0,
-                    ),
-                    borderRadius: 24,
-                    onPressed: () {},
-                    backgroundColor: isDarkMode
-                        ? AppColors.white.withOpacity(0.83)
-                        : AppColors.black.withOpacity(.83),
-                    textColor: isDarkMode ? AppColors.black : AppColors.white,
-                    textStyle: AppTextStyles.medium14,
+                  BlocConsumer<SignUpBloc, SignUpState>(
+                    listener: (context, state) {
+                      if (state is SignUpSuccess) {
+                        nextReplacePage(context, '/login');
+                      }
+                    },
+                    builder: (context, state) {
+                      return AppButton.filled(
+                        text: state is SignUpLoading ? 'Loading...' : 'Signup',
+                        width: double.infinity,
+                        height: responsive.getResponsiveValue(
+                          mobile: 45.0,
+                          desktop: 50.0,
+                        ),
+                        borderRadius: 24,
+                        onPressed: () {
+                          if (passwordController.text ==
+                              confirmPasswordController.text) {
+                            context.read<SignUpBloc>().add(
+                                  SignUpRequested(
+                                    email: widget.email,
+                                    password: passwordController.text,
+                                    userName: widget.userName,
+                                  ),
+                                );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                    'Password and confirum password do not match'),
+                              ),
+                            );
+                          }
+                        },
+                        backgroundColor: isDarkMode
+                            ? AppColors.white.withOpacity(0.83)
+                            : AppColors.black.withOpacity(.83),
+                        textColor:
+                            isDarkMode ? AppColors.black : AppColors.white,
+                        textStyle: AppTextStyles.medium14,
+                      );
+                    },
                   ),
                 ],
               ),
