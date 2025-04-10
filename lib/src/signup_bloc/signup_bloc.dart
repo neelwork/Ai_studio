@@ -13,7 +13,7 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
   Future<void> _onSignUpRequested(
       SignUpRequested event, Emitter<SignUpState> emit) async {
     emit(SignUpLoading());
-    final response = await PostServices.createUser(
+    final response = await PostServices().createUser(
       event.email,
       event.password,
       event.userName,

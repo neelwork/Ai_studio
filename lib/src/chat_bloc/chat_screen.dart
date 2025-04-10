@@ -1,3 +1,4 @@
+import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
 import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/utils/colors.dart';
 import 'package:ai_studio/utils/text_styles.dart';
@@ -13,7 +14,7 @@ import 'chat_event.dart';
 import 'chat_state.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({Key? key}) : super(key: key);
+  const ChatScreen({super.key});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -22,7 +23,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   bool _isHoveringLogo = false;
-  bool _keepSidebarOpen = false;
+  final bool _keepSidebarOpen = false;
   bool _isDropdownOpen = false;
   bool _isFileOptionsVisible = false;
 
@@ -457,19 +458,15 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       IconButton(
                           onPressed: () {
-                            print("Closing Sidebar...");
                             setState(() {
                               _isHoveringLogo = false;
                             });
 
-                            // Don't close immediately, add a small delay
                             if (!state.isFirstMessageSent &&
                                 !_keepSidebarOpen) {
-                              print("isSideBar Open");
                               Future.delayed(const Duration(milliseconds: 100),
                                   () {
                                 if (!_isHoveringLogo && !_keepSidebarOpen) {
-                                  print("isHovering");
                                   context
                                       .read<ChatBloc>()
                                       .add(ToggleSidebarEvent(false));
@@ -532,71 +529,170 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
 
-            // Scrollable chat history
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Today section
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Today',
-                          style: responsive
-                              .getResponsiveValue(
-                                mobile: AppTextStyles.medium16,
-                                tablet: AppTextStyles.medium18,
-                                desktop: AppTextStyles.regular20,
-                              )
-                              .copyWith(
-                                color: !isDarkMode
-                                    ? AppColors.black
-                                    : AppColors.white,
+              child:
+                  BlocConsumer<GetAllChatHistoryBloc, GetAllChatHistoryState>(
+                listener: (context, state) {},
+                builder: (context, state) {
+                  if (state is GetAllChatHistoryLoading) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (state is GetAllChatHistorySuccess) {
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Today section
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Today',
+                                style: responsive
+                                    .getResponsiveValue(
+                                      mobile: AppTextStyles.medium16,
+                                      tablet: AppTextStyles.medium18,
+                                      desktop: AppTextStyles.regular20,
+                                    )
+                                    .copyWith(
+                                      color: !isDarkMode
+                                          ? AppColors.black
+                                          : AppColors.white,
+                                    ),
                               ),
-                        ),
-                      ),
-                    ),
+                            ),
+                          ),
 
-                    // Chat history
-                    _buildChatHistoryItem(
-                        'Strategy For Online E-Commerce Bus...', responsive),
-                    _buildChatHistoryItem(
-                        'Strategy For Online E-Commerce Bus...', responsive),
-                    _buildChatHistoryItem(
-                        'Strategy For Online E-Commerce Bus...', responsive),
+                          for (var chat in state.response.data!.today!.prompts!)
+                            _buildChatHistoryItem(
+                              chat.title.toString(),
+                              responsive,
+                            ),
 
-                    // Yesterday section
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Yesterday',
-                          style: responsive
-                              .getResponsiveValue(
-                                mobile: AppTextStyles.medium16,
-                                tablet: AppTextStyles.medium18,
-                                desktop: AppTextStyles.regular20,
-                              )
-                              .copyWith(
-                                color: !isDarkMode
-                                    ? AppColors.black
-                                    : AppColors.white,
+                          // Yesterday section
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Yesterday',
+                                style: responsive
+                                    .getResponsiveValue(
+                                      mobile: AppTextStyles.medium16,
+                                      tablet: AppTextStyles.medium18,
+                                      desktop: AppTextStyles.regular20,
+                                    )
+                                    .copyWith(
+                                      color: !isDarkMode
+                                          ? AppColors.black
+                                          : AppColors.white,
+                                    ),
                               ),
-                        ),
-                      ),
-                    ),
+                            ),
+                          ),
 
-                    // Chat history
-                    _buildChatHistoryItem(
-                        'Strategy For Online E-Commerce Bus...', responsive),
-                    _buildChatHistoryItem(
-                        'Strategy For Online E-Commerce Bus...', responsive),
-                  ],
-                ),
+                          for (var chat
+                              in state.response.data!.yesterday!.prompts!)
+                            _buildChatHistoryItem(
+                              chat.title.toString(),
+                              responsive,
+                            ),
+
+                          // last 7 days section
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Last 7 Days',
+                                style: responsive
+                                    .getResponsiveValue(
+                                      mobile: AppTextStyles.medium16,
+                                      tablet: AppTextStyles.medium18,
+                                      desktop: AppTextStyles.regular20,
+                                    )
+                                    .copyWith(
+                                      color: !isDarkMode
+                                          ? AppColors.black
+                                          : AppColors.white,
+                                    ),
+                              ),
+                            ),
+                          ),
+
+                          for (var chat
+                              in state.response.data!.last7Days!.prompts!)
+                            _buildChatHistoryItem(
+                              chat.title.toString(),
+                              responsive,
+                            ),
+
+                          // last 30 days section
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Last 30 Days',
+                                style: responsive
+                                    .getResponsiveValue(
+                                      mobile: AppTextStyles.medium16,
+                                      tablet: AppTextStyles.medium18,
+                                      desktop: AppTextStyles.regular20,
+                                    )
+                                    .copyWith(
+                                      color: !isDarkMode
+                                          ? AppColors.black
+                                          : AppColors.white,
+                                    ),
+                              ),
+                            ),
+                          ),
+
+                          for (var chat
+                              in state.response.data!.last30Days!.prompts!)
+                            _buildChatHistoryItem(
+                              chat.title.toString(),
+                              responsive,
+                            ),
+
+                          // previous month section
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: Text(
+                                'Previous Month',
+                                style: responsive
+                                    .getResponsiveValue(
+                                      mobile: AppTextStyles.medium16,
+                                      tablet: AppTextStyles.medium18,
+                                      desktop: AppTextStyles.regular20,
+                                    )
+                                    .copyWith(
+                                      color: !isDarkMode
+                                          ? AppColors.black
+                                          : AppColors.white,
+                                    ),
+                              ),
+                            ),
+                          ),
+
+                          for (var chat
+                              in state.response.data!.previousMonth!.prompts!)
+                            _buildChatHistoryItem(
+                              chat.title.toString(),
+                              responsive,
+                            ),
+                        ],
+                      ),
+                    );
+                  } else {
+                    return const Center(
+                      child: Text('Data Not Found'),
+                    );
+                  }
+                },
               ),
             ),
 
@@ -722,23 +818,19 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       decoration: BoxDecoration(
         color: !isDarkMode ? AppColors.lightTheme : AppColors.darkTheme,
-        // boxShadow: [
-        //   BoxShadow(
-        //     color: Colors.grey.withOpacity(0.1),
-        //     blurRadius: 4,
-        //     offset: const Offset(0, 2),
-        //   ),
-        // ],
       ),
       child: Row(
         children: [
-          // Show menu icon for mobile view
           if (responsive.isMobile)
             IconButton(
               icon: Icon(Icons.menu,
                   size: 20,
                   color: !isDarkMode ? AppColors.black : AppColors.white),
               onPressed: () {
+                context.read<GetAllChatHistoryBloc>().add(
+                      GetAllChatHistoryRequested(),
+                    );
+
                 Scaffold.of(context).openDrawer();
               },
               padding: EdgeInsets.zero,
@@ -748,70 +840,11 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 4,
           ),
 
-          // Back arrow for larger screens
           if (!responsive.isMobile) ...[
             const Spacer(),
-            // Center(
-            //   child: Container(
-            //     width: 200, // Make this wider to prevent accidental mouse exits
-            //     child: MouseRegion(
-            //       onEnter: (_) {
-            //         setState(() {
-            //           _isHoveringLogo = true;
-            //         });
-            //         if (!state.isFirstMessageSent) {
-            //           context.read<ChatBloc>().add(ToggleSidebarEvent(true));
-            //         }
-            //       },
-            //       onExit: (_) {
-            //         setState(() {
-            //           _isHoveringLogo = false;
-            //         });
-            //
-            //         // Don't close immediately, add a small delay
-            //         if (!state.isFirstMessageSent && !_keepSidebarOpen) {
-            //           Future.delayed(Duration(milliseconds: 300), () {
-            //             if (!_isHoveringLogo && !_keepSidebarOpen) {
-            //               context.read<ChatBloc>().add(ToggleSidebarEvent(false));
-            //             }
-            //           });
-            //         }
-            //       },
-            //       child: Row(
-            //         children: [
-            //           IconButton(
-            //             icon: const Icon(Icons.arrow_back,
-            //                 size: 20, color: AppColors.black),
-            //             onPressed: () {
-            //               // Toggle sidebar on click to make it stay open
-            //               setState(() {
-            //                 _keepSidebarOpen = !_keepSidebarOpen;
-            //               });
-            //             },
-            //           ),
-            //           const SizedBox(width: 8),
-            //           Text(
-            //             'New Chat',
-            //             style: responsive.getResponsiveValue(
-            //               mobile: AppTextStyles.medium20.copyWith(
-            //                 color: !isDarkMode ? AppColors.black : AppColors.white,
-            //               ),
-            //               tablet: AppTextStyles.regular24.copyWith(
-            //                 color: !isDarkMode ? AppColors.black : AppColors.white,
-            //               ),
-            //               desktop: AppTextStyles.regular28.copyWith(
-            //                 color: !isDarkMode ? AppColors.black : AppColors.white,
-            //               ),
-            //             ),
-            //           ),
-            //         ],
-            //       ),
-            //     ),
-            //   ),
-            // ),
             Center(
-              child: Container(
-                width: 200, // Make this wider to prevent accidental mouse exits
+              child: SizedBox(
+                width: 200,
                 child: MouseRegion(
                   onEnter: (_) {
                     setState(() {
@@ -821,20 +854,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       context.read<ChatBloc>().add(ToggleSidebarEvent(true));
                     }
                   },
-                  // onExit: (_) {
-                  //   setState(() {
-                  //     _isHoveringLogo = false;
-                  //   });
-                  //
-                  //   // Don't close immediately, add a small delay
-                  //   if (!state.isFirstMessageSent && !_keepSidebarOpen) {
-                  //     Future.delayed(Duration(milliseconds: 300), () {
-                  //       if (!_isHoveringLogo && !_keepSidebarOpen) {
-                  //         context.read<ChatBloc>().add(ToggleSidebarEvent(false));
-                  //       }
-                  //     });
-                  //   }
-                  // },
                   child: Text(
                     'New Chat',
                     style: responsive.getResponsiveValue(

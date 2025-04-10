@@ -1,5 +1,6 @@
 import 'package:ai_studio/src/auth_bloc/auth_bloc.dart';
 import 'package:ai_studio/src/auth_bloc/auth_screen.dart';
+import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_screen.dart';
 import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
@@ -7,6 +8,7 @@ import 'package:ai_studio/src/setting_bloc/setting_screen.dart';
 import 'package:ai_studio/src/setting_bloc/update_user_bloc.dart';
 import 'package:ai_studio/src/signup_bloc/signup_bloc.dart';
 import 'package:ai_studio/src/signup_bloc/signup_screen.dart';
+import 'package:ai_studio/src/splash_screen/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +39,9 @@ class MyApp extends StatelessWidget {
         BlocProvider<SignUpBloc>(
           create: (_) => SignUpBloc(),
         ),
+        BlocProvider<GetAllChatHistoryBloc>(
+          create: (_) => GetAllChatHistoryBloc(),
+        ),
       ],
       child: ChangeNotifierProvider(
         create: (_) => ThemeProvider(),
@@ -48,8 +53,8 @@ class MyApp extends StatelessWidget {
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
               themeMode: themeProvider.themeMode,
-              home: const AuthScreen(),
               routes: {
+                '/': (context) => const SplashScreen(),
                 '/auth': (context) => const AuthScreen(),
                 '/login': (context) => const LoginScreen(),
                 '/signup': (context) => const SignupScreen(),

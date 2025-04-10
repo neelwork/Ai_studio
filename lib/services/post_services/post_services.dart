@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:ai_studio/model/get_chat_history_model.dart';
 import 'package:ai_studio/model/get_profile_model.dart';
 import 'package:ai_studio/model/login_model.dart';
 import 'package:ai_studio/model/signup_model.dart';
@@ -9,7 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:ai_studio/utils/api_endpoint.dart';
 
 class PostServices {
-  static Future<LoginModel?> login(String email, String password) async {
+  Future<LoginModel?> login(String email, String password) async {
     const String url = ApiEndpoints.login;
 
     try {
@@ -102,7 +103,7 @@ class PostServices {
     return null;
   }
 
-  static Future<SignupModel?> createUser(
+  Future<SignupModel?> createUser(
       String email, String password, String userName) async {
     try {
       final response = await http.post(
@@ -131,5 +132,32 @@ class PostServices {
       log("Exception: $e");
       return null;
     }
+  }
+
+  Future<GetChatHistoryModel?> getAllChatHistory() async {
+    final token = await StorageService.read(StorageService.authToken);
+
+    try {
+      final response = await http.get(
+        Uri.parse(
+          'http://15.206.136.228/api/prompt/getUserPrompts?page=1&pageSize=1000',
+        ),
+        headers: {
+          'accept': 'application/json',
+          'UserToken': token!,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+
+        final result = GetChatHistoryModel.fromJson(data);
+
+        return result;
+      }
+    } catch (e) {
+      log(e.toString());
+    }
+    return null;
   }
 }

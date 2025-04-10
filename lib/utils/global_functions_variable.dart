@@ -3,6 +3,7 @@ import 'package:ai_studio/src/chat_bloc/chat_screen.dart';
 import 'package:ai_studio/src/login_bloc/login_screen.dart';
 import 'package:ai_studio/src/setting_bloc/setting_screen.dart';
 import 'package:ai_studio/src/signup_bloc/signup_screen.dart';
+import 'package:ai_studio/src/splash_screen/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 Future<T?> nextPage<T>(BuildContext context, String routeName,
@@ -76,6 +77,8 @@ Future<T?> slideFadeTransition<T>(BuildContext context, Widget page) {
 
 Widget _buildRouteFromName(BuildContext context, String routeName) {
   switch (routeName) {
+    case '/':
+      return const SplashScreen();
     case '/auth':
       return const AuthScreen();
     case '/login':

@@ -13,7 +13,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   Future<void> _onLoginRequested(
       LoginRequested event, Emitter<LoginState> emit) async {
     emit(LoginLoading());
-    final response = await PostServices.login(event.phone, event.password);
+    final response = await PostServices().login(event.phone, event.password);
     if (response != null) {
       await StorageService.write(
         StorageService.authToken,
