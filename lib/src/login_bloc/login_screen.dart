@@ -147,7 +147,22 @@ class _LoginCard extends StatelessWidget {
                   BlocConsumer<LoginBloc, LoginState>(
                     listener: (context, state) {
                       if (state is LoginSuccess) {
-                        nextReplacePage(context, '/chat');
+                        if (state.response.status == 'false') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(state.response.message.toString()),
+                            ),
+                          );
+                        } else if (state.response.status == 'true') {
+                          nextReplacePage(context, '/chat');
+                        }
+                      }
+                      if (state is LoginFailure) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.error),
+                          ),
+                        );
                       }
                     },
                     builder: (context, state) {

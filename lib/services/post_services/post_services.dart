@@ -33,7 +33,11 @@ class PostServices {
 
         return result;
       } else {
-        return null;
+        final data = json.decode(response.body);
+
+        final result = LoginModel.fromJson(data);
+
+        return result;
       }
     } catch (e) {
       log("Exception: $e");
