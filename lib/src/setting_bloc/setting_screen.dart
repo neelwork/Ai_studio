@@ -20,6 +20,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController(text: "•••••••");
   final confirmPasswordController = TextEditingController(text: "•••••••");
+  final referralByController = TextEditingController();
   String themeMode = "System";
 
   @override
@@ -106,6 +107,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             state.response.user!.password.toString();
                         confirmPasswordController.text =
                             state.response.user!.password.toString();
+                        referralByController.text =
+                            state.response.user!.referralUserName.toString();
                       }
                     },
                     builder: (context, state) {
@@ -308,6 +311,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                               });
                                             },
                                           ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 12, vertical: 12),
+                                        ),
+                                      ),
+
+                                      const SizedBox(height: 16),
+
+                                      // Confirm Password field
+                                      Text(
+                                        'Referral By:',
+                                        style: AppTextStyles.regular18.copyWith(
+                                          color:
+                                              theme.textTheme.bodyLarge?.color,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: referralByController,
+                                        readOnly: true,
+                                        decoration: InputDecoration(
                                           border: OutlineInputBorder(
                                             borderRadius:
                                                 BorderRadius.circular(8),
