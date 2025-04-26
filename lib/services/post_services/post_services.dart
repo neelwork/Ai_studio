@@ -50,12 +50,11 @@ class PostServices {
     final token = await StorageService.read(StorageService.authToken);
 
     try {
-      // Make the GET request with the 'UserToken' header instead of 'token'
       final response = await http.get(
         Uri.parse(ApiEndpoints.getProfile),
         headers: {
           'accept': 'application/json',
-          'UserToken': token!, // Ensure the token is included in the header
+          'UserToken': token!,
         },
       );
 
@@ -123,6 +122,9 @@ class PostServices {
         },
       );
 
+      log("Status Code: ${response.statusCode}");
+      print("Response Body: ${response.body}");
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
@@ -130,7 +132,11 @@ class PostServices {
 
         return result;
       } else {
-        return null;
+        final data = json.decode(response.body);
+
+        final result = SignupModel.fromJson(data);
+
+        return result;
       }
     } catch (e) {
       log("Exception: $e");

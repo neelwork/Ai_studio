@@ -24,16 +24,22 @@ class GetProfileModel {
 }
 
 class User {
-  int? userId;
+  String? userId;
   String? userName;
   String? email;
   String? password;
+  String? referralLink;
+  dynamic userReferralCode;
+  dynamic referralUserName;
 
   User({
     this.userId,
     this.userName,
     this.email,
     this.password,
+    this.referralLink,
+    this.userReferralCode,
+    this.referralUserName,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => User(
@@ -41,6 +47,9 @@ class User {
         userName: json["user_name"],
         email: json["email"],
         password: json["password"],
+        referralLink: json["referral_link"],
+        userReferralCode: json["user_referral_code"],
+        referralUserName: json["referral_user_name"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -48,5 +57,8 @@ class User {
         "user_name": userName,
         "email": email,
         "password": password,
+        "referral_link": referralLink,
+        "user_referral_code": userReferralCode,
+        "referral_user_name": referralUserName,
       };
 }

@@ -320,7 +320,28 @@ class _SignupStep2CardState extends State<_SignupStep2Card> {
                   BlocConsumer<SignUpBloc, SignUpState>(
                     listener: (context, state) {
                       if (state is SignUpSuccess) {
-                        nextReplacePage(context, '/login');
+                        if (state.response.status == 'false') {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(state.response.message.toString()),
+                            ),
+                          );
+                        } else if (state.response.status == 'true') {
+                          nextReplacePage(context, '/login');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Internal Server Error"),
+                            ),
+                          );
+                        }
+                      }
+                      if (state is SignUpFailure) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.error),
+                          ),
+                        );
                       }
                     },
                     builder: (context, state) {

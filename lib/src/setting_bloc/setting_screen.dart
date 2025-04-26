@@ -4,6 +4,7 @@ import 'package:ai_studio/utils/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../utils/colors.dart';
 import '../../widget/app_button.dart';
 
@@ -92,577 +93,467 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // Main settings card
-                BlocConsumer<ProfileBloc, ProfileState>(
-                  listener: (context, state) {
-                    if (state is ProfileSuccess) {
-                      nameController.text =
-                          state.response.user!.userName.toString();
-                      emailController.text =
-                          state.response.user!.email.toString();
-                      passwordController.text =
-                          state.response.user!.password.toString();
-                      confirmPasswordController.text =
-                          state.response.user!.password.toString();
-                    }
-                  },
-                  builder: (context, state) {
-                    return Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color:
-                              Theme.of(context).brightness == Brightness.light
-                                  ? AppColors.darkTheme
-                                  : AppColors.lightTheme,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: BlocConsumer<ProfileBloc, ProfileState>(
+                    listener: (context, state) {
+                      if (state is ProfileSuccess) {
+                        nameController.text =
+                            state.response.user!.userName.toString();
+                        emailController.text =
+                            state.response.user!.email.toString();
+                        passwordController.text =
+                            state.response.user!.password.toString();
+                        confirmPasswordController.text =
+                            state.response.user!.password.toString();
+                      }
+                    },
+                    builder: (context, state) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? AppColors.darkTheme
+                                    : AppColors.lightTheme,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: EdgeInsets.all(isSmall ? 16 : 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Name and Email fields - Responsive layout
-                          isSmall
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Name field
-                                    Text(
-                                      'Name :',
-                                      style: AppTextStyles.regular18.copyWith(
-                                        color: theme.textTheme.bodyLarge?.color,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextField(
-                                      controller: nameController,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                        padding: EdgeInsets.all(isSmall ? 16 : 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Name and Email fields - Responsive layout
+                            isSmall
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Name field
+                                      Text(
+                                        'Name :',
+                                        style: AppTextStyles.regular18.copyWith(
+                                          color:
+                                              theme.textTheme.bodyLarge?.color,
                                         ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 12, vertical: 12),
                                       ),
-                                    ),
-                                    const SizedBox(height: 16),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: nameController,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 12, vertical: 12),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
 
-                                    // Email field
-                                    Text(
-                                      'Email :',
-                                      style: AppTextStyles.regular18.copyWith(
-                                        color: theme.textTheme.bodyLarge?.color,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextField(
-                                      controller: emailController,
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                      // Email field
+                                      Text(
+                                        'Email :',
+                                        style: AppTextStyles.regular18.copyWith(
+                                          color:
+                                              theme.textTheme.bodyLarge?.color,
                                         ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 12, vertical: 12),
                                       ),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Name :',
-                                            style: AppTextStyles.regular18
-                                                .copyWith(
-                                              color: theme
-                                                  .textTheme.bodyLarge?.color,
-                                            ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: emailController,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
-                                          const SizedBox(height: 8),
-                                          TextField(
-                                            controller: nameController,
-                                            decoration: InputDecoration(
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 12, vertical: 12),
+                                        ),
+                                      ),
+                                    ],
+                                  )
+                                : Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Name :',
+                                              style: AppTextStyles.regular18
+                                                  .copyWith(
+                                                color: theme
+                                                    .textTheme.bodyLarge?.color,
                                               ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 12),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Email :',
-                                            style: AppTextStyles.regular18
-                                                .copyWith(
-                                              color: theme
-                                                  .textTheme.bodyLarge?.color,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          TextField(
-                                            controller: emailController,
-                                            decoration: InputDecoration(
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller: nameController,
+                                              decoration: InputDecoration(
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 12),
                                               ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 12),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Email :',
+                                              style: AppTextStyles.regular18
+                                                  .copyWith(
+                                                color: theme
+                                                    .textTheme.bodyLarge?.color,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller: emailController,
+                                              decoration: InputDecoration(
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 12),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
 
-                          const SizedBox(height: 16),
+                            const SizedBox(height: 16),
 
-                          // Password fields - Responsive layout
-                          isSmall
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Password field
-                                    Text(
-                                      'Password:',
-                                      style: AppTextStyles.regular18.copyWith(
-                                        color: theme.textTheme.bodyLarge?.color,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextField(
-                                      controller: passwordController,
-                                      obscureText: isPasswordShow,
-                                      decoration: InputDecoration(
-                                        suffixIcon: IconButton(
-                                          icon: Icon(isPasswordShow
-                                              ? Icons.visibility_off
-                                              : Icons.visibility),
-                                          onPressed: () {
-                                            setState(() {
-                                              isPasswordShow = !isPasswordShow;
-                                            });
-                                          },
+                            // Password fields - Responsive layout
+                            isSmall
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Password field
+                                      Text(
+                                        'Password:',
+                                        style: AppTextStyles.regular18.copyWith(
+                                          color:
+                                              theme.textTheme.bodyLarge?.color,
                                         ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 12, vertical: 12),
                                       ),
-                                    ),
-                                    const SizedBox(height: 16),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: passwordController,
+                                        obscureText: isPasswordShow,
+                                        decoration: InputDecoration(
+                                          suffixIcon: IconButton(
+                                            icon: Icon(isPasswordShow
+                                                ? Icons.visibility_off
+                                                : Icons.visibility),
+                                            onPressed: () {
+                                              setState(() {
+                                                isPasswordShow =
+                                                    !isPasswordShow;
+                                              });
+                                            },
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 12, vertical: 12),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
 
-                                    // Confirm Password field
-                                    Text(
-                                      'Confirm Password:',
-                                      style: AppTextStyles.regular18.copyWith(
-                                        color: theme.textTheme.bodyLarge?.color,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    TextField(
-                                      controller: confirmPasswordController,
-                                      obscureText: isConfirumPasswordShow,
-                                      decoration: InputDecoration(
-                                        suffixIcon: IconButton(
-                                          icon: Icon(isConfirumPasswordShow
-                                              ? Icons.visibility_off
-                                              : Icons.visibility),
-                                          onPressed: () {
-                                            setState(() {
-                                              isConfirumPasswordShow =
-                                                  !isConfirumPasswordShow;
-                                            });
-                                          },
+                                      // Confirm Password field
+                                      Text(
+                                        'Confirm Password:',
+                                        style: AppTextStyles.regular18.copyWith(
+                                          color:
+                                              theme.textTheme.bodyLarge?.color,
                                         ),
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      TextField(
+                                        controller: confirmPasswordController,
+                                        obscureText: isConfirumPasswordShow,
+                                        decoration: InputDecoration(
+                                          suffixIcon: IconButton(
+                                            icon: Icon(isConfirumPasswordShow
+                                                ? Icons.visibility_off
+                                                : Icons.visibility),
+                                            onPressed: () {
+                                              setState(() {
+                                                isConfirumPasswordShow =
+                                                    !isConfirumPasswordShow;
+                                              });
+                                            },
+                                          ),
+                                          border: OutlineInputBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.symmetric(
+                                                  horizontal: 12, vertical: 12),
                                         ),
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                                horizontal: 12, vertical: 12),
                                       ),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Password:',
-                                            style: AppTextStyles.regular18
-                                                .copyWith(
-                                              color: theme
-                                                  .textTheme.bodyLarge?.color,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          TextField(
-                                            controller: passwordController,
-                                            obscureText: isPasswordShow,
-                                            decoration: InputDecoration(
-                                              suffixIcon: IconButton(
-                                                icon: Icon(isPasswordShow
-                                                    ? Icons.visibility_off
-                                                    : Icons.visibility),
-                                                onPressed: () {
-                                                  setState(() {
-                                                    isPasswordShow =
-                                                        !isPasswordShow;
-                                                  });
-                                                },
+                                    ],
+                                  )
+                                : Row(
+                                    children: [
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Password:',
+                                              style: AppTextStyles.regular18
+                                                  .copyWith(
+                                                color: theme
+                                                    .textTheme.bodyLarge?.color,
                                               ),
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 12),
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller: passwordController,
+                                              obscureText: isPasswordShow,
+                                              decoration: InputDecoration(
+                                                suffixIcon: IconButton(
+                                                  icon: Icon(isPasswordShow
+                                                      ? Icons.visibility_off
+                                                      : Icons.visibility),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      isPasswordShow =
+                                                          !isPasswordShow;
+                                                    });
+                                                  },
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 12),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Confirm Password:',
-                                            style: AppTextStyles.regular18
-                                                .copyWith(
-                                              color: theme
-                                                  .textTheme.bodyLarge?.color,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          TextField(
-                                            controller:
-                                                confirmPasswordController,
-                                            obscureText: isConfirumPasswordShow,
-                                            decoration: InputDecoration(
-                                              suffixIcon: IconButton(
-                                                icon: Icon(
-                                                    isConfirumPasswordShow
-                                                        ? Icons.visibility_off
-                                                        : Icons.visibility),
-                                                onPressed: () {
-                                                  setState(() {
-                                                    isConfirumPasswordShow =
-                                                        !isConfirumPasswordShow;
-                                                  });
-                                                },
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Confirm Password:',
+                                              style: AppTextStyles.regular18
+                                                  .copyWith(
+                                                color: theme
+                                                    .textTheme.bodyLarge?.color,
                                               ),
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(8),
-                                              ),
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 12,
-                                                      vertical: 12),
                                             ),
-                                          ),
-                                        ],
+                                            const SizedBox(height: 8),
+                                            TextField(
+                                              controller:
+                                                  confirmPasswordController,
+                                              obscureText:
+                                                  isConfirumPasswordShow,
+                                              decoration: InputDecoration(
+                                                suffixIcon: IconButton(
+                                                  icon: Icon(
+                                                      isConfirumPasswordShow
+                                                          ? Icons.visibility_off
+                                                          : Icons.visibility),
+                                                  onPressed: () {
+                                                    setState(() {
+                                                      isConfirumPasswordShow =
+                                                          !isConfirumPasswordShow;
+                                                    });
+                                                  },
+                                                ),
+                                                border: OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 12),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
+                                    ],
+                                  ),
 
-                          const SizedBox(height: 24),
+                            const SizedBox(height: 24),
 
-                          // Save button
-                          Center(
-                            child: Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 100),
-                              // width: 120,
-                              child:
-                                  BlocConsumer<UpdateUserBloc, UpdateUserState>(
-                                listener: (context, state) {
-                                  if (state is UpdateUserSuccess) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text(
-                                          'Settings saved successfully',
+                            // Save button
+                            Center(
+                              child: Container(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 100),
+                                // width: 120,
+                                child: BlocConsumer<UpdateUserBloc,
+                                    UpdateUserState>(
+                                  listener: (context, state) {
+                                    if (state is UpdateUserSuccess) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Settings saved successfully',
+                                          ),
                                         ),
-                                      ),
+                                      );
+                                    }
+                                  },
+                                  builder: (context, state) {
+                                    return AppButton(
+                                      text: state is UpdateUserLoading
+                                          ? 'Loading...'
+                                          : 'Save',
+                                      onPressed: () {
+                                        context.read<UpdateUserBloc>().add(
+                                              UpdateUserRequested(
+                                                emailController.text,
+                                                passwordController.text,
+                                                nameController.text,
+                                              ),
+                                            );
+                                      },
+                                      backgroundColor: Theme.of(context)
+                                                  .brightness ==
+                                              Brightness.light
+                                          ? AppColors.black.withOpacity(.79)
+                                          : AppColors.white.withOpacity(.79),
+                                      textColor: Theme.of(context).brightness ==
+                                              Brightness.light
+                                          ? AppColors.white
+                                          : AppColors.black,
+                                      borderRadius: 4,
                                     );
-                                  }
-                                },
-                                builder: (context, state) {
-                                  return AppButton(
-                                    text: state is UpdateUserLoading
-                                        ? 'Loading...'
-                                        : 'Save',
-                                    onPressed: () {
-                                      context.read<UpdateUserBloc>().add(
-                                            UpdateUserRequested(
-                                              emailController.text,
-                                              passwordController.text,
-                                              nameController.text,
-                                            ),
-                                          );
-                                    },
-                                    backgroundColor:
-                                        Theme.of(context).brightness ==
-                                                Brightness.light
-                                            ? AppColors.black.withOpacity(.79)
-                                            : AppColors.white.withOpacity(.79),
-                                    textColor: Theme.of(context).brightness ==
-                                            Brightness.light
-                                        ? AppColors.white
-                                        : AppColors.black,
-                                    borderRadius: 4,
-                                  );
-                                },
+                                  },
+                                ),
                               ),
                             ),
-                          ),
 
-                          const SizedBox(height: 24),
-                          const Divider(),
-                          const SizedBox(height: 24),
+                            const SizedBox(height: 24),
+                            const Divider(),
+                            const SizedBox(height: 24),
 
-                          // Theme and Delete options - Responsive layout
-                          isSmall
-                              ? Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Theme selector
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Theme Mode : ',
-                                          style:
-                                              AppTextStyles.medium20.copyWith(
-                                            color: theme
-                                                .textTheme.bodyLarge?.color,
-                                            fontSize: isSmall ? 16 : 20,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            border:
-                                                Border.all(color: Colors.grey),
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                          ),
-                                          child: DropdownButton<String>(
-                                            value: themeMode,
-                                            underline: const SizedBox(),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 12),
-                                            onChanged: (String? newValue) {
-                                              if (newValue != null) {
-                                                setState(() {
-                                                  themeMode = newValue;
-                                                });
-
-                                                // Update app theme
-                                                final themeProvider =
-                                                    ThemeProvider.of(context);
-                                                if (newValue == 'System') {
-                                                  themeProvider.setThemeMode(
-                                                      ThemeMode.system);
-                                                } else if (newValue ==
-                                                    'Light') {
-                                                  themeProvider.setThemeMode(
-                                                      ThemeMode.light);
-                                                } else if (newValue == 'Dark') {
-                                                  themeProvider.setThemeMode(
-                                                      ThemeMode.dark);
-                                                }
-                                              }
-                                            },
-                                            items: <String>[
-                                              'System',
-                                              'Light',
-                                              'Dark'
-                                            ].map<DropdownMenuItem<String>>(
-                                                (String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 20),
-
-                                    // Delete chats
-                                    Text(
-                                      'Delete All Chats : ',
-                                      style: AppTextStyles.medium20.copyWith(
-                                        color: theme.textTheme.bodyLarge?.color,
-                                        fontSize: isSmall ? 16 : 20,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      child: AppButton(
-                                        text: 'Delete All Chats',
-                                        onPressed: () {
-                                          // Show confirmation dialog
-                                          showDialog(
-                                            context: context,
-                                            builder: (context) => AlertDialog(
-                                              title: const Text(
-                                                  'Delete All Chats'),
-                                              content: const Text(
-                                                  'Are you sure you want to delete all chats? This action cannot be undone.'),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(context),
-                                                  child: const Text('Cancel'),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    // Delete chats logic
-                                                    Navigator.pop(context);
-                                                    ScaffoldMessenger.of(
-                                                            context)
-                                                        .showSnackBar(
-                                                      const SnackBar(
-                                                          content: Text(
-                                                              'All chats have been deleted')),
-                                                    );
-                                                  },
-                                                  child: const Text('Delete',
-                                                      style: TextStyle(
-                                                          color: Colors.red)),
-                                                ),
-                                              ],
+                            // Theme and Delete options - Responsive layout
+                            isSmall
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Theme selector
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Theme Mode : ',
+                                            style:
+                                                AppTextStyles.medium20.copyWith(
+                                              color: theme
+                                                  .textTheme.bodyLarge?.color,
+                                              fontSize: isSmall ? 16 : 20,
                                             ),
-                                          );
-                                        },
-                                        backgroundColor: Colors.red,
-                                        textColor: Colors.white,
-                                        borderRadius: 4,
-                                        height: 50,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              : Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    // Theme selector
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Theme Mode : ',
-                                          style:
-                                              AppTextStyles.medium20.copyWith(
-                                            color: theme
-                                                .textTheme.bodyLarge?.color,
                                           ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            border:
-                                                Border.all(color: Colors.grey),
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                          ),
-                                          child: DropdownButton<String>(
-                                            value: themeMode,
-                                            underline: const SizedBox(),
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 12),
-                                            onChanged: (String? newValue) {
-                                              if (newValue != null) {
-                                                setState(() {
-                                                  themeMode = newValue;
-                                                });
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.grey),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: DropdownButton<String>(
+                                              value: themeMode,
+                                              underline: const SizedBox(),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 12),
+                                              onChanged: (String? newValue) {
+                                                if (newValue != null) {
+                                                  setState(() {
+                                                    themeMode = newValue;
+                                                  });
 
-                                                // Update app theme
-                                                final themeProvider =
-                                                    ThemeProvider.of(context);
-                                                if (newValue == 'System') {
-                                                  themeProvider.setThemeMode(
-                                                      ThemeMode.system);
-                                                } else if (newValue ==
-                                                    'Light') {
-                                                  themeProvider.setThemeMode(
-                                                      ThemeMode.light);
-                                                } else if (newValue == 'Dark') {
-                                                  themeProvider.setThemeMode(
-                                                      ThemeMode.dark);
+                                                  // Update app theme
+                                                  final themeProvider =
+                                                      ThemeProvider.of(context);
+                                                  if (newValue == 'System') {
+                                                    themeProvider.setThemeMode(
+                                                        ThemeMode.system);
+                                                  } else if (newValue ==
+                                                      'Light') {
+                                                    themeProvider.setThemeMode(
+                                                        ThemeMode.light);
+                                                  } else if (newValue ==
+                                                      'Dark') {
+                                                    themeProvider.setThemeMode(
+                                                        ThemeMode.dark);
+                                                  }
                                                 }
-                                              }
-                                            },
-                                            items: <String>[
-                                              'System',
-                                              'Light',
-                                              'Dark'
-                                            ].map<DropdownMenuItem<String>>(
-                                                (String value) {
-                                              return DropdownMenuItem<String>(
-                                                value: value,
-                                                child: Text(value),
-                                              );
-                                            }).toList(),
+                                              },
+                                              items: <String>[
+                                                'System',
+                                                'Light',
+                                                'Dark'
+                                              ].map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(value),
+                                                );
+                                              }).toList(),
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 20),
 
-                                    // Delete chats
-                                    Row(
-                                      children: [
-                                        Text(
-                                          'Delete All Chats : ',
-                                          style:
-                                              AppTextStyles.medium20.copyWith(
-                                            color: theme
-                                                .textTheme.bodyLarge?.color,
-                                          ),
+                                      // Delete chats
+                                      Text(
+                                        'Delete All Chats : ',
+                                        style: AppTextStyles.medium20.copyWith(
+                                          color:
+                                              theme.textTheme.bodyLarge?.color,
+                                          fontSize: isSmall ? 16 : 20,
                                         ),
-                                        const SizedBox(width: 8),
-                                        AppButton(
+                                      ),
+                                      const SizedBox(height: 8),
+                                      SizedBox(
+                                        width: double.infinity,
+                                        child: AppButton(
                                           text: 'Delete All Chats',
-                                          width: 264,
                                           onPressed: () {
                                             // Show confirmation dialog
                                             showDialog(
@@ -701,26 +592,256 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                           backgroundColor: Colors.red,
                                           textColor: Colors.white,
                                           borderRadius: 4,
-                                          height: 57,
+                                          height: 50,
                                         ),
-                                      ],
-                                    ),
-                                  ],
+                                      ),
+                                    ],
+                                  )
+                                : Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      // Theme selector
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Theme Mode : ',
+                                            style:
+                                                AppTextStyles.medium20.copyWith(
+                                              color: theme
+                                                  .textTheme.bodyLarge?.color,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              border: Border.all(
+                                                  color: Colors.grey),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: DropdownButton<String>(
+                                              value: themeMode,
+                                              underline: const SizedBox(),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 12),
+                                              onChanged: (String? newValue) {
+                                                if (newValue != null) {
+                                                  setState(() {
+                                                    themeMode = newValue;
+                                                  });
+
+                                                  // Update app theme
+                                                  final themeProvider =
+                                                      ThemeProvider.of(context);
+                                                  if (newValue == 'System') {
+                                                    themeProvider.setThemeMode(
+                                                        ThemeMode.system);
+                                                  } else if (newValue ==
+                                                      'Light') {
+                                                    themeProvider.setThemeMode(
+                                                        ThemeMode.light);
+                                                  } else if (newValue ==
+                                                      'Dark') {
+                                                    themeProvider.setThemeMode(
+                                                        ThemeMode.dark);
+                                                  }
+                                                }
+                                              },
+                                              items: <String>[
+                                                'System',
+                                                'Light',
+                                                'Dark'
+                                              ].map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                                return DropdownMenuItem<String>(
+                                                  value: value,
+                                                  child: Text(value),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+
+                                      // Delete chats
+                                      Row(
+                                        children: [
+                                          Text(
+                                            'Delete All Chats : ',
+                                            style:
+                                                AppTextStyles.medium20.copyWith(
+                                              color: theme
+                                                  .textTheme.bodyLarge?.color,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          AppButton(
+                                            text: 'Delete All Chats',
+                                            width: 264,
+                                            onPressed: () {
+                                              // Show confirmation dialog
+                                              showDialog(
+                                                context: context,
+                                                builder: (context) =>
+                                                    AlertDialog(
+                                                  title: const Text(
+                                                      'Delete All Chats'),
+                                                  content: const Text(
+                                                      'Are you sure you want to delete all chats? This action cannot be undone.'),
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () =>
+                                                          Navigator.pop(
+                                                              context),
+                                                      child:
+                                                          const Text('Cancel'),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        // Delete chats logic
+                                                        Navigator.pop(context);
+                                                        ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                          const SnackBar(
+                                                              content: Text(
+                                                                  'All chats have been deleted')),
+                                                        );
+                                                      },
+                                                      child: const Text(
+                                                          'Delete',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.red)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            backgroundColor: Colors.red,
+                                            textColor: Colors.white,
+                                            borderRadius: 4,
+                                            height: 57,
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 24),
+
+                BlocConsumer<ProfileBloc, ProfileState>(
+                  listener: (context, state) {},
+                  builder: (context, state) {
+                    if (state is ProfileSuccess) {
+                      return Container(
+                        width: double.infinity,
+                        margin: const EdgeInsets.symmetric(horizontal: 10),
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? AppColors.darkTheme
+                                    : AppColors.lightTheme,
+                          ),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: EdgeInsets.all(isSmall ? 16 : 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Referral Link: ',
+                              style: AppTextStyles.regular16.copyWith(
+                                color: theme.textTheme.bodyLarge?.color,
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 14,
+                            ),
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 12, vertical: 15),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? AppColors.darkTheme
+                                      : AppColors.lightTheme,
                                 ),
-                        ],
-                      ),
-                    );
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                state.response.user!.referralLink.toString(),
+                                style: AppTextStyles.regular16.copyWith(
+                                  color: theme.textTheme.bodyLarge?.color,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 14,
+                            ),
+                            Center(
+                              child: GestureDetector(
+                                onTap: () {
+                                  final params = ShareParams(
+                                    uri: Uri.parse(
+                                      state.response.user!.referralLink
+                                          .toString(),
+                                    ),
+                                  );
+
+                                  SharePlus.instance.share(params);
+                                },
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 25, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: Theme.of(context).brightness ==
+                                              Brightness.light
+                                          ? AppColors.darkTheme
+                                          : AppColors.lightTheme,
+                                    ),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    'Share',
+                                    style: AppTextStyles.regular16.copyWith(
+                                      color: theme.textTheme.bodyLarge?.color,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return const Center();
+                    }
                   },
                 ),
 
                 const SizedBox(height: 24),
 
-                // About section
-                Text(
-                  'About',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  child: Text(
+                    'About',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
 
@@ -728,71 +849,77 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
                 // About buttons - Responsive layout
                 isSmall
-                    ? Column(
-                        children: [
-                          _buildAboutButton(
-                            icon: Icons.help_outline,
-                            text: 'Help Center',
-                            onTap: () {
-                              // Navigate to help center
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          _buildAboutButton(
-                            icon: Icons.article_outlined,
-                            text: 'Terms of Use',
-                            onTap: () {
-                              // Navigate to terms of use
-                            },
-                          ),
-                          const SizedBox(height: 12),
-                          _buildAboutButton(
-                            icon: Icons.privacy_tip_outlined,
-                            text: 'Privacy Policy',
-                            onTap: () {
-                              // Navigate to privacy policy
-                            },
-                          ),
-                        ],
-                      )
-                    : Row(
-                        children: [
-                          Expanded(
-                            child: _buildAboutButton(
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Column(
+                          children: [
+                            _buildAboutButton(
                               icon: Icons.help_outline,
                               text: 'Help Center',
                               onTap: () {
                                 // Navigate to help center
                               },
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildAboutButton(
+                            const SizedBox(height: 12),
+                            _buildAboutButton(
                               icon: Icons.article_outlined,
                               text: 'Terms of Use',
                               onTap: () {
                                 // Navigate to terms of use
                               },
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildAboutButton(
+                            const SizedBox(height: 12),
+                            _buildAboutButton(
                               icon: Icons.privacy_tip_outlined,
                               text: 'Privacy Policy',
                               onTap: () {
                                 // Navigate to privacy policy
                               },
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: _buildAboutButton(
+                                icon: Icons.help_outline,
+                                text: 'Help Center',
+                                onTap: () {
+                                  // Navigate to help center
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildAboutButton(
+                                icon: Icons.article_outlined,
+                                text: 'Terms of Use',
+                                onTap: () {
+                                  // Navigate to terms of use
+                                },
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildAboutButton(
+                                icon: Icons.privacy_tip_outlined,
+                                text: 'Privacy Policy',
+                                onTap: () {
+                                  // Navigate to privacy policy
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
 
                 const SizedBox(height: 40),
 
                 // Version info
-                Center(
+                const Center(
                   child: Text(
                     'AINAME Version : 1.0.0',
                     style: TextStyle(
@@ -863,7 +990,7 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.lightTheme,
     cardColor: AppColors.lightTheme,
     buttonTheme: ButtonThemeData(buttonColor: AppColors.black.withOpacity(.83)),
-    colorScheme: ColorScheme.light(
+    colorScheme: const ColorScheme.light(
       primary: Colors.blue,
       secondary: Colors.blueAccent,
     ),
@@ -875,7 +1002,7 @@ class AppTheme {
     scaffoldBackgroundColor: AppColors.darkTheme,
     cardColor: AppColors.darkTheme,
     buttonTheme: ButtonThemeData(buttonColor: AppColors.white.withOpacity(.83)),
-    colorScheme: ColorScheme.dark(
+    colorScheme: const ColorScheme.dark(
       primary: Colors.blue,
       secondary: Colors.blueAccent,
     ),

@@ -98,7 +98,7 @@ class Last30Days {
 }
 
 class Prompt {
-  int? promptId;
+  String? promptId;
   String? title;
   DateTime? createdAt;
 

@@ -1,5 +1,6 @@
 import 'package:ai_studio/src/auth_bloc/auth_bloc.dart';
 import 'package:ai_studio/src/auth_bloc/auth_screen.dart';
+import 'package:ai_studio/src/chat_bloc/chat_bloc.dart';
 import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_screen.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -38,6 +40,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<SignUpBloc>(
           create: (_) => SignUpBloc(),
+        ),
+        BlocProvider<ChatBloc>(
+          create: (_) => ChatBloc(),
         ),
         BlocProvider<GetAllChatHistoryBloc>(
           create: (_) => GetAllChatHistoryBloc(),

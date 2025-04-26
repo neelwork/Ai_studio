@@ -1,9 +1,12 @@
+import 'dart:developer';
+import 'package:ai_studio/services/shared_preference/shared_preference.dart';
 import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
-import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/utils/colors.dart';
+import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/utils/text_styles.dart';
 import 'package:ai_studio/widget/app_button.dart';
 import 'package:flutter/material.dart';
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -26,6 +29,93 @@ class _ChatScreenState extends State<ChatScreen> {
   final bool _keepSidebarOpen = false;
   bool _isDropdownOpen = false;
   bool _isFileOptionsVisible = false;
+
+  late IO.Socket socket;
+  bool isBotTyping = false;
+  final ScrollController _scrollController = ScrollController();
+  List<ChatMessage> milanMessage = [];
+
+  @override
+  void initState() {
+    initSocket();
+    context.read<GetAllChatHistoryBloc>().add(GetAllChatHistoryRequested());
+    super.initState();
+  }
+
+  void initSocket() async {
+    final token = await StorageService.read(StorageService.authToken);
+
+    socket = IO.io(
+      'ws://15.206.136.228:8000',
+      <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': false,
+        'extraHeaders': {
+          'token': '$token',
+        }
+      },
+    );
+
+    socket.connect();
+
+    socket.onConnect((_) => print('Connected'));
+
+    socket.on('send_message', (data) {
+      print('Bot says: $data');
+      setState(() {
+        isBotTyping = false;
+
+        milanMessage.add(
+          ChatMessage(
+            text: data['message'],
+            isUser: false,
+            timestamp: DateTime.now(),
+          ),
+        );
+      });
+      scrollToBottom();
+    });
+
+    socket.onDisconnect((_) => print('Disconnected'));
+    socket.onConnectError((err) => print('Connection Error: $err'));
+    socket.onError((err) => print('Socket Error: $err'));
+  }
+
+  void sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isNotEmpty) {
+      setState(() {
+        milanMessage.add(
+          ChatMessage(
+            text: text,
+            isUser: true,
+            timestamp: DateTime.now(),
+          ),
+        );
+
+        isBotTyping = true;
+        _messageController.clear();
+      });
+
+      socket.emit('send_message', {"message": text});
+      scrollToBottom();
+    }
+  }
+
+  void scrollToBottom() {
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  bool isFirstMessageSent = false;
+  bool isSidebarVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -57,19 +147,19 @@ class _ChatScreenState extends State<ChatScreen> {
                                 if (!responsive.isMobile)
                                   AnimatedContainer(
                                     duration: const Duration(milliseconds: 300),
-                                    width: (state.isSidebarVisible ||
-                                            state.isFirstMessageSent)
-                                        ? responsive.responsiveWidth(
-                                            mobile: 0,
-                                            tablet: 250,
-                                            desktop: 300,
-                                          )
-                                        : 0,
-                                    child: (state.isSidebarVisible ||
-                                            state.isFirstMessageSent)
-                                        ? _buildSidebar(
-                                            context, responsive, state)
-                                        : null,
+                                    width:
+                                        (isSidebarVisible || isFirstMessageSent)
+                                            ? responsive.responsiveWidth(
+                                                mobile: 0,
+                                                tablet: 250,
+                                                desktop: 300,
+                                              )
+                                            : 0,
+                                    child:
+                                        (isSidebarVisible || isFirstMessageSent)
+                                            ? _buildSidebar(
+                                                context, responsive, state)
+                                            : null,
                                   ),
 
                                 // Main Chat Area
@@ -86,16 +176,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
                                         // Chat messages area - uses Expanded to take available space
                                         Expanded(
-                                          child: state.messages.length <= 1 &&
-                                                  !state.isFirstMessageSent
+                                          child: milanMessage.length <= 1 &&
+                                                  !isFirstMessageSent
                                               ? _buildWelcomeMessage()
                                               : _buildChatMessages(context,
-                                                  state.messages, responsive),
+                                                  milanMessage, responsive),
                                         ),
 
                                         // Quick action buttons
-                                        if (state.messages.length == 1 &&
-                                            !state.isFirstMessageSent)
+                                        if (milanMessage.isEmpty &&
+                                            !isFirstMessageSent)
                                           _buildQuickActionButtons(
                                               context, responsive),
 
@@ -129,7 +219,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                       right: 0,
                                       child: Center(
                                         child: _buildFileMobileOptionsRow(),
-                                      )),
+                                      ),
+                                    ),
                           ],
                         );
                       },
@@ -185,7 +276,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // Helper method to create file option items
   Widget _buildFileMobileOptionItem(
       {required IconData icon,
       required String label,
@@ -284,7 +374,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // Welcome message displayed in center when no messages sent
   Widget _buildWelcomeMessage() {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
@@ -371,7 +460,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     child: _buildDropdownItem(
                   "Settings",
                   () {
-                    nextPage(context, '/settings');
+                    log("Button tapped");
+
+                    try {
+                      nextPage(context, '/settings');
+                    } catch (e) {
+                      log('Navigation error: $e');
+                      // Optionally show a snackbar or dialog
+                    }
                   },
                 )),
                 Divider(
@@ -381,7 +477,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         : AppColors.white.withOpacity(.31)),
                 _buildDropdownItem(
                   "Log Out",
-                  () {
+                  () async {
+                    await StorageService.remove(StorageService.authToken);
+
                     nextPage(context, '/auth');
                   },
                 ),
@@ -418,6 +516,8 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildSidebar(
       BuildContext context, Responsive responsive, ChatState state) {
+    context.read<GetAllChatHistoryBloc>().add(GetAllChatHistoryRequested());
+
     final sidebarPadding = responsive.getResponsiveValue(
       mobile: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       tablet: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -457,29 +557,34 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                       ),
                       IconButton(
-                          onPressed: () {
-                            setState(() {
-                              _isHoveringLogo = false;
-                            });
+                        onPressed: () {
+                          log("Closing Sidebar...");
+                          setState(() {
+                            _isHoveringLogo = false;
+                          });
 
-                            if (!state.isFirstMessageSent &&
-                                !_keepSidebarOpen) {
-                              Future.delayed(const Duration(milliseconds: 100),
-                                  () {
-                                if (!_isHoveringLogo && !_keepSidebarOpen) {
-                                  context
-                                      .read<ChatBloc>()
-                                      .add(ToggleSidebarEvent(false));
-                                }
-                              });
-                            }
-                          },
-                          icon: SvgPicture.asset("assets/icons/expand_icon.svg",
-                              colorFilter: ColorFilter.mode(
-                                  !isDarkMode
-                                      ? AppColors.black
-                                      : AppColors.white,
-                                  BlendMode.srcIn)))
+                          // Don't close immediately, add a small delay
+                          if (!isFirstMessageSent && !_keepSidebarOpen) {
+                            log("isSideBar Open");
+                            Future.delayed(const Duration(milliseconds: 100),
+                                () {
+                              if (!_isHoveringLogo && !_keepSidebarOpen) {
+                                log("isHovering");
+                                context
+                                    .read<ChatBloc>()
+                                    .add(ToggleSidebarEvent(false));
+                              }
+                            });
+                          }
+                        },
+                        icon: SvgPicture.asset(
+                          "assets/icons/expand_icon.svg",
+                          colorFilter: ColorFilter.mode(
+                            !isDarkMode ? AppColors.black : AppColors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -529,13 +634,18 @@ class _ChatScreenState extends State<ChatScreen> {
               ],
             ),
 
+            // Scrollable chat history
             Expanded(
               child:
                   BlocConsumer<GetAllChatHistoryBloc, GetAllChatHistoryState>(
                 listener: (context, state) {},
                 builder: (context, state) {
                   if (state is GetAllChatHistoryLoading) {
-                    return const Center(child: CircularProgressIndicator());
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: !isDarkMode ? AppColors.black : AppColors.white,
+                      ),
+                    );
                   } else if (state is GetAllChatHistorySuccess) {
                     return SingleChildScrollView(
                       child: Column(
@@ -563,11 +673,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
 
-                          for (var chat in state.response.data!.today!.prompts!)
-                            _buildChatHistoryItem(
-                              chat.title.toString(),
-                              responsive,
-                            ),
+                          ...state.response.data!.today!.prompts!.map((e) {
+                            return _buildChatHistoryItem(
+                                e.title.toString(), responsive);
+                          }).toList(),
 
                           // Yesterday section
                           Padding(
@@ -591,14 +700,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
 
-                          for (var chat
-                              in state.response.data!.yesterday!.prompts!)
-                            _buildChatHistoryItem(
-                              chat.title.toString(),
-                              responsive,
-                            ),
+                          ...state.response.data!.yesterday!.prompts!.map((e) {
+                            return _buildChatHistoryItem(
+                                e.title.toString(), responsive);
+                          }).toList(),
 
-                          // last 7 days section
+                          // last 7 days
                           Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Align(
@@ -620,14 +727,13 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
 
-                          for (var chat
-                              in state.response.data!.last7Days!.prompts!)
-                            _buildChatHistoryItem(
-                              chat.title.toString(),
-                              responsive,
-                            ),
+                          ...state.response.data!.last7Days!.prompts!.map((e) {
+                            return _buildChatHistoryItem(
+                                e.title.toString(), responsive);
+                          }).toList(),
 
-                          // last 30 days section
+                          // last 30 days
+
                           Padding(
                             padding: const EdgeInsets.all(16.0),
                             child: Align(
@@ -649,47 +755,22 @@ class _ChatScreenState extends State<ChatScreen> {
                             ),
                           ),
 
-                          for (var chat
-                              in state.response.data!.last30Days!.prompts!)
-                            _buildChatHistoryItem(
-                              chat.title.toString(),
-                              responsive,
-                            ),
-
-                          // previous month section
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Previous Month',
-                                style: responsive
-                                    .getResponsiveValue(
-                                      mobile: AppTextStyles.medium16,
-                                      tablet: AppTextStyles.medium18,
-                                      desktop: AppTextStyles.regular20,
-                                    )
-                                    .copyWith(
-                                      color: !isDarkMode
-                                          ? AppColors.black
-                                          : AppColors.white,
-                                    ),
-                              ),
-                            ),
-                          ),
-
-                          for (var chat
-                              in state.response.data!.previousMonth!.prompts!)
-                            _buildChatHistoryItem(
-                              chat.title.toString(),
-                              responsive,
-                            ),
+                          ...state.response.data!.last30Days!.prompts!.map((e) {
+                            return _buildChatHistoryItem(
+                                e.title.toString(), responsive);
+                          }).toList(),
                         ],
                       ),
                     );
                   } else {
-                    return const Center(
-                      child: Text('Data Not Found'),
+                    return Center(
+                      child: Text(
+                        "No Chat History",
+                        style: AppTextStyles.regular16.copyWith(
+                          color:
+                              !isDarkMode ? AppColors.black : AppColors.white,
+                        ),
+                      ),
                     );
                   }
                 },
@@ -821,16 +902,13 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       child: Row(
         children: [
+          // Show menu icon for mobile view
           if (responsive.isMobile)
             IconButton(
               icon: Icon(Icons.menu,
                   size: 20,
                   color: !isDarkMode ? AppColors.black : AppColors.white),
               onPressed: () {
-                context.read<GetAllChatHistoryBloc>().add(
-                      GetAllChatHistoryRequested(),
-                    );
-
                 Scaffold.of(context).openDrawer();
               },
               padding: EdgeInsets.zero,
@@ -840,6 +918,7 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 4,
           ),
 
+          // Back arrow for larger screens
           if (!responsive.isMobile) ...[
             const Spacer(),
             Center(
@@ -850,10 +929,24 @@ class _ChatScreenState extends State<ChatScreen> {
                     setState(() {
                       _isHoveringLogo = true;
                     });
-                    if (!state.isFirstMessageSent) {
+                    if (!isFirstMessageSent) {
                       context.read<ChatBloc>().add(ToggleSidebarEvent(true));
                     }
                   },
+                  // onExit: (_) {
+                  //   setState(() {
+                  //     _isHoveringLogo = false;
+                  //   });
+                  //
+                  //   // Don't close immediately, add a small delay
+                  //   if (!state.isFirstMessageSent && !_keepSidebarOpen) {
+                  //     Future.delayed(Duration(milliseconds: 300), () {
+                  //       if (!_isHoveringLogo && !_keepSidebarOpen) {
+                  //         context.read<ChatBloc>().add(ToggleSidebarEvent(false));
+                  //       }
+                  //     });
+                  //   }
+                  // },
                   child: Text(
                     'New Chat',
                     style: responsive.getResponsiveValue(
@@ -913,6 +1006,21 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildChatMessages(
       BuildContext context, List<ChatMessage> messages, Responsive responsive) {
+    // final messagePadding = responsive.getResponsiveValue(
+    //   mobile: const EdgeInsets.all(12),
+    //   tablet: const EdgeInsets.all(14),
+    //   desktop: const EdgeInsets.all(16),
+    // );
+
+    // return ListView.builder(
+    //   padding: messagePadding,
+    //   itemCount: messages.length,
+    //   itemBuilder: (context, index) {
+    //     final message = messages[index];
+    //     return _buildMessageItem(message, responsive);
+    //   },
+    // );
+
     final messagePadding = responsive.getResponsiveValue(
       mobile: const EdgeInsets.all(12),
       tablet: const EdgeInsets.all(14),
@@ -920,12 +1028,88 @@ class _ChatScreenState extends State<ChatScreen> {
     );
 
     return ListView.builder(
+      controller: _scrollController,
       padding: messagePadding,
-      itemCount: messages.length,
+      itemCount:
+          messages.length + (isBotTyping ? 1 : 0), // Add 1 for typing indicator
       itemBuilder: (context, index) {
+        // If we're at the last item and the bot is typing, show the typing animation
+        if (index == messages.length && isBotTyping) {
+          return _buildTypingAnimation(responsive);
+        }
+        // Otherwise show the regular message
         final message = messages[index];
         return _buildMessageItem(message, responsive);
       },
+    );
+  }
+
+  Widget _buildTypingAnimation(Responsive responsive) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+    final avatarRadius = responsive.getResponsiveValue(
+      mobile: 14.0,
+      tablet: 15.0,
+      desktop: 16.0,
+    );
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          // Bot avatar
+          CircleAvatar(
+            backgroundColor: Colors.grey[300],
+            radius: avatarRadius,
+            child:
+                Icon(Icons.assistant, size: avatarRadius, color: Colors.grey),
+          ),
+          SizedBox(
+            width: responsive.getResponsiveValue(
+              mobile: 8.0,
+              tablet: 10.0,
+              desktop: 12.0,
+            ),
+          ),
+          // Typing animation container
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(
+                left: 0,
+                right: responsive.isMobile ? 40.0 : 300.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.all(13),
+                    decoration: BoxDecoration(
+                      color:
+                          !isDarkMode ? AppColors.white : AppColors.darkTheme,
+                      border: Border.all(
+                        color: !isDarkMode ? AppColors.white : AppColors.white,
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Image.asset(
+                      'assets/images/chat_animation.gif',
+                      color: Theme.of(context).brightness == Brightness.light
+                          ? AppColors.darkTheme
+                          : AppColors.lightTheme,
+                      height: 40,
+                      width: 80,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1020,8 +1204,7 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildQuickActionButtons(BuildContext context, Responsive responsive) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    Theme.of(context);
 
     final buttonSpacing = responsive.getResponsiveValue(
       mobile: 6.0,
@@ -1062,7 +1245,7 @@ class _ChatScreenState extends State<ChatScreen> {
       desktop: 14.0,
     );
 
-    final buttonPadding = responsive.getResponsiveValue(
+    responsive.getResponsiveValue(
       mobile: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       tablet: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       desktop: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1073,9 +1256,6 @@ class _ChatScreenState extends State<ChatScreen> {
         _messageController.text = label;
         // Optionally, you can also focus the text field
         FocusScope.of(context).requestFocus(FocusNode());
-        const message =
-            "Imagine that you are the manager and make me the list of summary points of this documents";
-        context.read<ChatBloc>().add(SendMessageEvent(message));
       },
       style: OutlinedButton.styleFrom(
         side: BorderSide(
@@ -1160,12 +1340,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         // Shift + Enter: Add a new line
                         _messageController.text += '\n';
                       } else {
-                        // Enter: Send the message
                         if (_messageController.text.isNotEmpty) {
-                          context
-                              .read<ChatBloc>()
-                              .add(SendMessageEvent(_messageController.text));
+                          sendMessage();
+
                           _messageController.clear();
+                          scrollToBottom();
                         }
                       }
                     }
@@ -1208,10 +1387,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 onPressed: () {
                   if (_messageController.text.isNotEmpty) {
-                    context
-                        .read<ChatBloc>()
-                        .add(SendMessageEvent(_messageController.text));
+                    sendMessage();
+                    scrollToBottom();
                     _messageController.clear();
+                    setState(() {
+                      isFirstMessageSent = true;
+                      isSidebarVisible = true;
+                    });
                   }
                 },
                 padding: EdgeInsets.zero,
