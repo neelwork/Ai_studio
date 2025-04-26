@@ -1,6 +1,8 @@
 import 'dart:developer';
+import 'package:ai_studio/model/get_profile_model.dart';
 import 'package:ai_studio/services/shared_preference/shared_preference.dart';
 import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
+import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
 import 'package:ai_studio/utils/colors.dart';
 import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/utils/text_styles.dart';
@@ -652,23 +654,27 @@ class _ChatScreenState extends State<ChatScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           // Today section
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Today',
-                                style: responsive
-                                    .getResponsiveValue(
-                                      mobile: AppTextStyles.medium16,
-                                      tablet: AppTextStyles.medium18,
-                                      desktop: AppTextStyles.regular20,
-                                    )
-                                    .copyWith(
-                                      color: !isDarkMode
-                                          ? AppColors.black
-                                          : AppColors.white,
-                                    ),
+                          Visibility(
+                            visible:
+                                state.response.data!.today!.prompts!.isNotEmpty,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Today',
+                                  style: responsive
+                                      .getResponsiveValue(
+                                        mobile: AppTextStyles.medium16,
+                                        tablet: AppTextStyles.medium18,
+                                        desktop: AppTextStyles.regular20,
+                                      )
+                                      .copyWith(
+                                        color: !isDarkMode
+                                            ? AppColors.black
+                                            : AppColors.white,
+                                      ),
+                                ),
                               ),
                             ),
                           ),
@@ -676,26 +682,30 @@ class _ChatScreenState extends State<ChatScreen> {
                           ...state.response.data!.today!.prompts!.map((e) {
                             return _buildChatHistoryItem(
                                 e.title.toString(), responsive);
-                          }).toList(),
+                          }),
 
                           // Yesterday section
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Yesterday',
-                                style: responsive
-                                    .getResponsiveValue(
-                                      mobile: AppTextStyles.medium16,
-                                      tablet: AppTextStyles.medium18,
-                                      desktop: AppTextStyles.regular20,
-                                    )
-                                    .copyWith(
-                                      color: !isDarkMode
-                                          ? AppColors.black
-                                          : AppColors.white,
-                                    ),
+                          Visibility(
+                            visible: state
+                                .response.data!.yesterday!.prompts!.isNotEmpty,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Yesterday',
+                                  style: responsive
+                                      .getResponsiveValue(
+                                        mobile: AppTextStyles.medium16,
+                                        tablet: AppTextStyles.medium18,
+                                        desktop: AppTextStyles.regular20,
+                                      )
+                                      .copyWith(
+                                        color: !isDarkMode
+                                            ? AppColors.black
+                                            : AppColors.white,
+                                      ),
+                                ),
                               ),
                             ),
                           ),
@@ -703,26 +713,30 @@ class _ChatScreenState extends State<ChatScreen> {
                           ...state.response.data!.yesterday!.prompts!.map((e) {
                             return _buildChatHistoryItem(
                                 e.title.toString(), responsive);
-                          }).toList(),
+                          }),
 
                           // last 7 days
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Last 7 Days',
-                                style: responsive
-                                    .getResponsiveValue(
-                                      mobile: AppTextStyles.medium16,
-                                      tablet: AppTextStyles.medium18,
-                                      desktop: AppTextStyles.regular20,
-                                    )
-                                    .copyWith(
-                                      color: !isDarkMode
-                                          ? AppColors.black
-                                          : AppColors.white,
-                                    ),
+                          Visibility(
+                            visible: state
+                                .response.data!.last7Days!.prompts!.isNotEmpty,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Last 7 Days',
+                                  style: responsive
+                                      .getResponsiveValue(
+                                        mobile: AppTextStyles.medium16,
+                                        tablet: AppTextStyles.medium18,
+                                        desktop: AppTextStyles.regular20,
+                                      )
+                                      .copyWith(
+                                        color: !isDarkMode
+                                            ? AppColors.black
+                                            : AppColors.white,
+                                      ),
+                                ),
                               ),
                             ),
                           ),
@@ -730,27 +744,31 @@ class _ChatScreenState extends State<ChatScreen> {
                           ...state.response.data!.last7Days!.prompts!.map((e) {
                             return _buildChatHistoryItem(
                                 e.title.toString(), responsive);
-                          }).toList(),
+                          }),
 
                           // last 30 days
 
-                          Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Last 30 Days',
-                                style: responsive
-                                    .getResponsiveValue(
-                                      mobile: AppTextStyles.medium16,
-                                      tablet: AppTextStyles.medium18,
-                                      desktop: AppTextStyles.regular20,
-                                    )
-                                    .copyWith(
-                                      color: !isDarkMode
-                                          ? AppColors.black
-                                          : AppColors.white,
-                                    ),
+                          Visibility(
+                            visible: state
+                                .response.data!.last30Days!.prompts!.isNotEmpty,
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Last 30 Days',
+                                  style: responsive
+                                      .getResponsiveValue(
+                                        mobile: AppTextStyles.medium16,
+                                        tablet: AppTextStyles.medium18,
+                                        desktop: AppTextStyles.regular20,
+                                      )
+                                      .copyWith(
+                                        color: !isDarkMode
+                                            ? AppColors.black
+                                            : AppColors.white,
+                                      ),
+                                ),
                               ),
                             ),
                           ),
@@ -758,7 +776,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           ...state.response.data!.last30Days!.prompts!.map((e) {
                             return _buildChatHistoryItem(
                                 e.title.toString(), responsive);
-                          }).toList(),
+                          }),
                         ],
                       ),
                     );
@@ -816,20 +834,28 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                         const SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            'motionizestudio@gmail.com',
-                            style: responsive
-                                .getResponsiveValue(
-                                  mobile: AppTextStyles.medium14,
-                                  tablet: AppTextStyles.medium16,
-                                  desktop: AppTextStyles.regular18,
-                                )
-                                .copyWith(
-                                  color: !isDarkMode
-                                      ? AppColors.black
-                                      : AppColors.white,
-                                ),
-                            overflow: TextOverflow.ellipsis,
+                          child: BlocBuilder<ProfileBloc, ProfileState>(
+                            builder: (context, state) {
+                              if (state is ProfileSuccess) {
+                                return Text(
+                                  state.response.user!.email.toString(),
+                                  style: responsive
+                                      .getResponsiveValue(
+                                        mobile: AppTextStyles.medium14,
+                                        tablet: AppTextStyles.medium16,
+                                        desktop: AppTextStyles.regular18,
+                                      )
+                                      .copyWith(
+                                        color: !isDarkMode
+                                            ? AppColors.black
+                                            : AppColors.white,
+                                      ),
+                                  overflow: TextOverflow.ellipsis,
+                                );
+                              } else {
+                                return Center();
+                              }
+                            },
                           ),
                         ),
                         Icon(
@@ -1099,8 +1125,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       color: Theme.of(context).brightness == Brightness.light
                           ? AppColors.darkTheme
                           : AppColors.lightTheme,
-                      height: 40,
-                      width: 80,
+                      height: 20,
+                      width: 60,
                       fit: BoxFit.contain,
                     ),
                   ),

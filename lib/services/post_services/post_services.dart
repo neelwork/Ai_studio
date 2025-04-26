@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:ai_studio/model/delete_all_chat_model.dart';
 import 'package:ai_studio/model/get_chat_history_model.dart';
 import 'package:ai_studio/model/get_profile_model.dart';
 import 'package:ai_studio/model/login_model.dart';
@@ -167,6 +168,31 @@ class PostServices {
       }
     } catch (e) {
       log(e.toString());
+    }
+    return null;
+  }
+
+  Future<DeleteAllChatModel?> deleteAllChats() async {
+    final url = Uri.parse('http://15.206.136.228/api/prompt/delete-all-chat');
+
+    final token = await StorageService.read(StorageService.authToken);
+
+    final response = await http.delete(
+      url,
+      headers: {
+        'accept': 'application/json',
+        'UserToken': '$token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final result = DeleteAllChatModel.fromJson(data);
+
+      return result;
+    } else {
+      print('Failed to delete chats. Status code: ${response.statusCode}');
+      print('Response body: ${response.body}');
     }
     return null;
   }

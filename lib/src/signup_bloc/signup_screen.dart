@@ -327,7 +327,7 @@ class _SignupStep2CardState extends State<_SignupStep2Card> {
                             ),
                           );
                         } else if (state.response.status == 'true') {
-                          nextReplacePage(context, '/login');
+                          nextReplacePage(context, '/chat');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(

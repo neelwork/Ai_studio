@@ -4,6 +4,7 @@ import 'package:ai_studio/src/chat_bloc/chat_bloc.dart';
 import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_screen.dart';
+import 'package:ai_studio/src/setting_bloc/delete_all_chat_bloc.dart';
 import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
 import 'package:ai_studio/src/setting_bloc/setting_screen.dart';
 import 'package:ai_studio/src/setting_bloc/update_user_bloc.dart';
@@ -46,6 +47,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<GetAllChatHistoryBloc>(
           create: (_) => GetAllChatHistoryBloc(),
+        ),
+        BlocProvider<DeleteAllChatBloc>(
+          create: (_) => DeleteAllChatBloc(),
         ),
       ],
       child: ChangeNotifierProvider(
