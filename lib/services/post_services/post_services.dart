@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:ai_studio/model/delete_all_chat_model.dart';
 import 'package:ai_studio/model/get_chat_history_model.dart';
 import 'package:ai_studio/model/get_profile_model.dart';
+import 'package:ai_studio/model/get_prompt_by_id_model.dart';
 import 'package:ai_studio/model/login_model.dart';
 import 'package:ai_studio/model/signup_model.dart';
 import 'package:ai_studio/model/update_user_model.dart';
@@ -193,6 +194,37 @@ class PostServices {
     } else {
       print('Failed to delete chats. Status code: ${response.statusCode}');
       print('Response body: ${response.body}');
+    }
+    return null;
+  }
+
+  Future<GetPromptByIdModel?> getMessagesByPrompt({
+    required String promptId,
+    int limit = 10,
+    int offset = 0,
+  }) async {
+    final url = Uri.parse(
+      'http://15.206.136.228/api/message/getMessagesByPrompt?prompt_id=$promptId&limit=$limit&offset=$offset',
+    );
+
+    final token = await StorageService.read(StorageService.authToken);
+
+    final response = await http.get(
+      url,
+      headers: {
+        'accept': 'application/json',
+        'UserToken': '$token',
+      },
+    );
+
+    log('Response status: ${response.statusCode}');
+    print("Response body: ${response.body}");
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final result = GetPromptByIdModel.fromJson(data);
+
+      return result;
     }
     return null;
   }

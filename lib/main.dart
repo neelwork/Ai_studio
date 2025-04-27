@@ -2,6 +2,7 @@ import 'package:ai_studio/src/auth_bloc/auth_bloc.dart';
 import 'package:ai_studio/src/auth_bloc/auth_screen.dart';
 import 'package:ai_studio/src/chat_bloc/chat_bloc.dart';
 import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
+import 'package:ai_studio/src/chat_bloc/get_prompt_by_id_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_screen.dart';
 import 'package:ai_studio/src/setting_bloc/delete_all_chat_bloc.dart';
@@ -50,6 +51,9 @@ class MyApp extends StatelessWidget {
         ),
         BlocProvider<DeleteAllChatBloc>(
           create: (_) => DeleteAllChatBloc(),
+        ),
+        BlocProvider<GetPromptByIdBloc>(
+          create: (_) => GetPromptByIdBloc(),
         ),
       ],
       child: ChangeNotifierProvider(

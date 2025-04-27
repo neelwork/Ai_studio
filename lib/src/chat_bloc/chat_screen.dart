@@ -1,13 +1,14 @@
 import 'dart:developer';
-import 'package:ai_studio/model/get_profile_model.dart';
 import 'package:ai_studio/services/shared_preference/shared_preference.dart';
 import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
+import 'package:ai_studio/src/chat_bloc/get_prompt_by_id_bloc.dart';
 import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
 import 'package:ai_studio/utils/colors.dart';
 import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/utils/text_styles.dart';
 import 'package:ai_studio/widget/app_button.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,8 +20,9 @@ import 'chat_event.dart';
 import 'chat_state.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  const ChatScreen({super.key, this.isHistory = false});
 
+  final bool isHistory;
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
@@ -125,115 +127,390 @@ class _ChatScreenState extends State<ChatScreen> {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
-    return BlocProvider(
-      create: (context) => ChatBloc(),
-      child: Builder(
-        builder: (context) {
-          return BlocBuilder<ChatBloc, ChatState>(
-            builder: (context, state) {
-              return SafeArea(
-                child: Scaffold(
-                  backgroundColor: theme.scaffoldBackgroundColor,
-                  // Add drawer for mobile view
-                  drawer: responsive.isMobile
-                      ? Drawer(child: _buildSidebar(context, responsive, state))
-                      : null,
-                  body: SafeArea(
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return Stack(
-                          children: [
-                            Row(
+    return BlocConsumer<GetPromptByIdBloc, GetPromptByIdState>(
+      listener: (context, state) {
+        if (state is GetPromptByIdSuccess) {
+          state.response.messages!.map(
+            (e) {
+              setState(() {
+                milanMessage.add(
+                  ChatMessage(
+                    text: e.userMessage.toString(),
+                    isUser: true,
+                    timestamp: e.createdAt!,
+                  ),
+                );
+                milanMessage.add(
+                  ChatMessage(
+                    text: e.aiResponse.toString(),
+                    isUser: false,
+                    timestamp: e.responseTime!,
+                  ),
+                );
+
+                isFirstMessageSent = true;
+              });
+            },
+          ).toList();
+
+          scrollToBottom();
+        }
+      },
+      builder: (context, state) {
+        if (state is GetPromptByIdSuccess) {
+          return BlocProvider(
+            create: (context) => ChatBloc(),
+            child: Builder(
+              builder: (context) {
+                return BlocBuilder<ChatBloc, ChatState>(
+                  builder: (context, state) {
+                    return SafeArea(
+                      child: Scaffold(
+                        backgroundColor: theme.scaffoldBackgroundColor,
+                        // Add drawer for mobile view
+                        drawer: responsive.isMobile
+                            ? Drawer(
+                                child:
+                                    _buildSidebar(context, responsive, state))
+                            : null,
+                        body: SafeArea(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Stack(
+                                children: [
+                                  Row(
+                                    children: [
+                                      // Sidebar for tablet and desktop
+                                      if (!responsive.isMobile)
+                                        AnimatedContainer(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          width: (isSidebarVisible ||
+                                                  isFirstMessageSent)
+                                              ? responsive.responsiveWidth(
+                                                  mobile: 0,
+                                                  tablet: 250,
+                                                  desktop: 300,
+                                                )
+                                              : 0,
+                                          child: (isSidebarVisible ||
+                                                  isFirstMessageSent)
+                                              ? _buildSidebar(
+                                                  context, responsive, state)
+                                              : null,
+                                        ),
+
+                                      // Main Chat Area
+                                      Expanded(
+                                        child: Container(
+                                          color: !isDarkMode
+                                              ? AppColors.lightTheme
+                                              : AppColors.darkTheme,
+                                          child: Column(
+                                            children: [
+                                              // Chat header
+                                              _buildChatHeader(
+                                                  context, responsive, state),
+
+                                              // Chat messages area - uses Expanded to take available space
+                                              Expanded(
+                                                child:
+                                                    milanMessage.length <= 1 &&
+                                                            !isFirstMessageSent
+                                                        ? _buildWelcomeMessage()
+                                                        : _buildChatMessages(
+                                                            context,
+                                                            milanMessage,
+                                                            responsive),
+                                              ),
+
+                                              // Quick action buttons
+                                              if (milanMessage.isEmpty &&
+                                                  !isFirstMessageSent)
+                                                _buildQuickActionButtons(
+                                                    context, responsive),
+
+                                              // Message input - always at bottom
+                                              _buildMessageInput(
+                                                  context, responsive),
+                                              const SizedBox(
+                                                height: 12,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (_isFileOptionsVisible)
+                                    !responsive.isMobile
+                                        ? Positioned(
+                                            bottom: 80,
+                                            // Adjust based on your message input height
+                                            left: 0,
+                                            right: 0,
+                                            child: Center(
+                                              child: _buildFileOptionsOverlay(
+                                                  responsive),
+                                            ),
+                                          )
+                                        : Positioned(
+                                            bottom: 80,
+                                            // Adjust based on your message input height
+                                            left: 0,
+                                            right: 0,
+                                            child: Center(
+                                              child:
+                                                  _buildFileMobileOptionsRow(),
+                                            ),
+                                          ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        } else {
+          return BlocProvider(
+            create: (context) => ChatBloc(),
+            child: Builder(
+              builder: (context) {
+                return BlocBuilder<ChatBloc, ChatState>(
+                  builder: (context, state) {
+                    return SafeArea(
+                      child: Scaffold(
+                        backgroundColor: theme.scaffoldBackgroundColor,
+                        // Add drawer for mobile view
+                        drawer: responsive.isMobile
+                            ? Drawer(
+                                child:
+                                    _buildSidebar(context, responsive, state))
+                            : null,
+                        body: SafeArea(
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              return Stack(
+                                children: [
+                                  Row(
+                                    children: [
+                                      // Sidebar for tablet and desktop
+                                      if (!responsive.isMobile)
+                                        AnimatedContainer(
+                                          duration:
+                                              const Duration(milliseconds: 300),
+                                          width: (isSidebarVisible ||
+                                                  isFirstMessageSent)
+                                              ? responsive.responsiveWidth(
+                                                  mobile: 0,
+                                                  tablet: 250,
+                                                  desktop: 300,
+                                                )
+                                              : 0,
+                                          child: (isSidebarVisible ||
+                                                  isFirstMessageSent)
+                                              ? _buildSidebar(
+                                                  context, responsive, state)
+                                              : null,
+                                        ),
+
+                                      // Main Chat Area
+                                      Expanded(
+                                        child: Container(
+                                          color: !isDarkMode
+                                              ? AppColors.lightTheme
+                                              : AppColors.darkTheme,
+                                          child: Column(
+                                            children: [
+                                              // Chat header
+                                              _buildChatHeader(
+                                                  context, responsive, state),
+
+                                              // Chat messages area - uses Expanded to take available space
+                                              Expanded(
+                                                child:
+                                                    milanMessage.length <= 1 &&
+                                                            !isFirstMessageSent
+                                                        ? _buildWelcomeMessage()
+                                                        : _buildChatMessages(
+                                                            context,
+                                                            milanMessage,
+                                                            responsive),
+                                              ),
+
+                                              // Quick action buttons
+                                              if (milanMessage.isEmpty &&
+                                                  !isFirstMessageSent)
+                                                _buildQuickActionButtons(
+                                                    context, responsive),
+
+                                              // Message input - always at bottom
+                                              _buildMessageInput(
+                                                  context, responsive),
+                                              const SizedBox(
+                                                height: 12,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (_isFileOptionsVisible)
+                                    !responsive.isMobile
+                                        ? Positioned(
+                                            bottom: 80,
+                                            // Adjust based on your message input height
+                                            left: 0,
+                                            right: 0,
+                                            child: Center(
+                                              child: _buildFileOptionsOverlay(
+                                                  responsive),
+                                            ),
+                                          )
+                                        : Positioned(
+                                            bottom: 80,
+                                            // Adjust based on your message input height
+                                            left: 0,
+                                            right: 0,
+                                            child: Center(
+                                              child:
+                                                  _buildFileMobileOptionsRow(),
+                                            ),
+                                          ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          );
+        }
+
+        return BlocProvider(
+          create: (context) => ChatBloc(),
+          child: Builder(
+            builder: (context) {
+              return BlocBuilder<ChatBloc, ChatState>(
+                builder: (context, state) {
+                  return SafeArea(
+                    child: Scaffold(
+                      backgroundColor: theme.scaffoldBackgroundColor,
+                      // Add drawer for mobile view
+                      drawer: responsive.isMobile
+                          ? Drawer(
+                              child: _buildSidebar(context, responsive, state))
+                          : null,
+                      body: SafeArea(
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Stack(
                               children: [
-                                // Sidebar for tablet and desktop
-                                if (!responsive.isMobile)
-                                  AnimatedContainer(
-                                    duration: const Duration(milliseconds: 300),
-                                    width:
-                                        (isSidebarVisible || isFirstMessageSent)
+                                Row(
+                                  children: [
+                                    // Sidebar for tablet and desktop
+                                    if (!responsive.isMobile)
+                                      AnimatedContainer(
+                                        duration:
+                                            const Duration(milliseconds: 300),
+                                        width: (isSidebarVisible ||
+                                                isFirstMessageSent)
                                             ? responsive.responsiveWidth(
                                                 mobile: 0,
                                                 tablet: 250,
                                                 desktop: 300,
                                               )
                                             : 0,
-                                    child:
-                                        (isSidebarVisible || isFirstMessageSent)
+                                        child: (isSidebarVisible ||
+                                                isFirstMessageSent)
                                             ? _buildSidebar(
                                                 context, responsive, state)
                                             : null,
-                                  ),
+                                      ),
 
-                                // Main Chat Area
-                                Expanded(
-                                  child: Container(
-                                    color: !isDarkMode
-                                        ? AppColors.lightTheme
-                                        : AppColors.darkTheme,
-                                    child: Column(
-                                      children: [
-                                        // Chat header
-                                        _buildChatHeader(
-                                            context, responsive, state),
+                                    // Main Chat Area
+                                    Expanded(
+                                      child: Container(
+                                        color: !isDarkMode
+                                            ? AppColors.lightTheme
+                                            : AppColors.darkTheme,
+                                        child: Column(
+                                          children: [
+                                            // Chat header
+                                            _buildChatHeader(
+                                                context, responsive, state),
 
-                                        // Chat messages area - uses Expanded to take available space
-                                        Expanded(
-                                          child: milanMessage.length <= 1 &&
-                                                  !isFirstMessageSent
-                                              ? _buildWelcomeMessage()
-                                              : _buildChatMessages(context,
-                                                  milanMessage, responsive),
+                                            // Chat messages area - uses Expanded to take available space
+                                            Expanded(
+                                              child: milanMessage.length <= 1 &&
+                                                      !isFirstMessageSent
+                                                  ? _buildWelcomeMessage()
+                                                  : _buildChatMessages(context,
+                                                      milanMessage, responsive),
+                                            ),
+
+                                            // Quick action buttons
+                                            if (milanMessage.isEmpty &&
+                                                !isFirstMessageSent)
+                                              _buildQuickActionButtons(
+                                                  context, responsive),
+
+                                            // Message input - always at bottom
+                                            _buildMessageInput(
+                                                context, responsive),
+                                            const SizedBox(
+                                              height: 12,
+                                            )
+                                          ],
                                         ),
-
-                                        // Quick action buttons
-                                        if (milanMessage.isEmpty &&
-                                            !isFirstMessageSent)
-                                          _buildQuickActionButtons(
-                                              context, responsive),
-
-                                        // Message input - always at bottom
-                                        _buildMessageInput(context, responsive),
-                                        const SizedBox(
-                                          height: 12,
-                                        )
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
+                                if (_isFileOptionsVisible)
+                                  !responsive.isMobile
+                                      ? Positioned(
+                                          bottom: 80,
+                                          // Adjust based on your message input height
+                                          left: 0,
+                                          right: 0,
+                                          child: Center(
+                                            child: _buildFileOptionsOverlay(
+                                                responsive),
+                                          ),
+                                        )
+                                      : Positioned(
+                                          bottom: 80,
+                                          // Adjust based on your message input height
+                                          left: 0,
+                                          right: 0,
+                                          child: Center(
+                                            child: _buildFileMobileOptionsRow(),
+                                          ),
+                                        ),
                               ],
-                            ),
-                            if (_isFileOptionsVisible)
-                              !responsive.isMobile
-                                  ? Positioned(
-                                      bottom: 80,
-                                      // Adjust based on your message input height
-                                      left: 0,
-                                      right: 0,
-                                      child: Center(
-                                        child: _buildFileOptionsOverlay(
-                                            responsive),
-                                      ),
-                                    )
-                                  : Positioned(
-                                      bottom: 80,
-                                      // Adjust based on your message input height
-                                      left: 0,
-                                      right: 0,
-                                      child: Center(
-                                        child: _buildFileMobileOptionsRow(),
-                                      ),
-                                    ),
-                          ],
-                        );
-                      },
+                            );
+                          },
+                        ),
+                      ),
                     ),
-                  ),
-                ),
+                  );
+                },
               );
             },
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 
@@ -266,8 +543,20 @@ class _ChatScreenState extends State<ChatScreen> {
           _buildFileMobileOptionItem(
             icon: Icons.image_outlined,
             label: "Images",
-            onTap: () {
-              // Implement image selection logic
+            onTap: () async {
+              final ImagePicker picker = ImagePicker();
+
+              final XFile? image = await picker.pickImage(
+                source: ImageSource.gallery,
+                imageQuality: 50,
+              );
+
+              if (image != null) {
+                print('Selected image path: ${image.path}');
+              } else {
+                print('No image selected.');
+              }
+
               setState(() {
                 _isFileOptionsVisible = false;
               });
@@ -599,6 +888,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed: responsive.isMobile
                         ? () {
                             context.read<ChatBloc>().add(ResetChatEvent());
+
                             Navigator.pop(context);
                           }
                         : () {
@@ -680,8 +970,21 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
 
                           ...state.response.data!.today!.prompts!.map((e) {
-                            return _buildChatHistoryItem(
-                                e.title.toString(), responsive);
+                            return GestureDetector(
+                              onTap: () {
+                                context.read<GetPromptByIdBloc>().add(
+                                      GetPromptByIdRequested(
+                                        promptId: e.promptId.toString(),
+                                        limit: 10000,
+                                        offset: 1,
+                                      ),
+                                    );
+                                nextReplacePage(context, '/chat',
+                                    isHistory: true);
+                              },
+                              child: _buildChatHistoryItem(
+                                  e.title.toString(), responsive),
+                            );
                           }),
 
                           // Yesterday section
@@ -711,8 +1014,21 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
 
                           ...state.response.data!.yesterday!.prompts!.map((e) {
-                            return _buildChatHistoryItem(
-                                e.title.toString(), responsive);
+                            return GestureDetector(
+                              onTap: () {
+                                context.read<GetPromptByIdBloc>().add(
+                                      GetPromptByIdRequested(
+                                        promptId: e.promptId.toString(),
+                                        limit: 10000,
+                                        offset: 1,
+                                      ),
+                                    );
+                                nextReplacePage(context, '/chat',
+                                    isHistory: true);
+                              },
+                              child: _buildChatHistoryItem(
+                                  e.title.toString(), responsive),
+                            );
                           }),
 
                           // last 7 days
@@ -742,8 +1058,21 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
 
                           ...state.response.data!.last7Days!.prompts!.map((e) {
-                            return _buildChatHistoryItem(
-                                e.title.toString(), responsive);
+                            return GestureDetector(
+                              onTap: () {
+                                context.read<GetPromptByIdBloc>().add(
+                                      GetPromptByIdRequested(
+                                        promptId: e.promptId.toString(),
+                                        limit: 10000,
+                                        offset: 1,
+                                      ),
+                                    );
+                                nextReplacePage(context, '/chat',
+                                    isHistory: true);
+                              },
+                              child: _buildChatHistoryItem(
+                                  e.title.toString(), responsive),
+                            );
                           }),
 
                           // last 30 days
@@ -774,8 +1103,21 @@ class _ChatScreenState extends State<ChatScreen> {
                           ),
 
                           ...state.response.data!.last30Days!.prompts!.map((e) {
-                            return _buildChatHistoryItem(
-                                e.title.toString(), responsive);
+                            return GestureDetector(
+                              onTap: () {
+                                context.read<GetPromptByIdBloc>().add(
+                                      GetPromptByIdRequested(
+                                        promptId: e.promptId.toString(),
+                                        limit: 10000,
+                                        offset: 1,
+                                      ),
+                                    );
+                                nextReplacePage(context, '/chat',
+                                    isHistory: true);
+                              },
+                              child: _buildChatHistoryItem(
+                                  e.title.toString(), responsive),
+                            );
                           }),
                         ],
                       ),
@@ -959,20 +1301,6 @@ class _ChatScreenState extends State<ChatScreen> {
                       context.read<ChatBloc>().add(ToggleSidebarEvent(true));
                     }
                   },
-                  // onExit: (_) {
-                  //   setState(() {
-                  //     _isHoveringLogo = false;
-                  //   });
-                  //
-                  //   // Don't close immediately, add a small delay
-                  //   if (!state.isFirstMessageSent && !_keepSidebarOpen) {
-                  //     Future.delayed(Duration(milliseconds: 300), () {
-                  //       if (!_isHoveringLogo && !_keepSidebarOpen) {
-                  //         context.read<ChatBloc>().add(ToggleSidebarEvent(false));
-                  //       }
-                  //     });
-                  //   }
-                  // },
                   child: Text(
                     'New Chat',
                     style: responsive.getResponsiveValue(
@@ -1018,7 +1346,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 desktop: 45.0,
               ),
             ),
-            onPressed: () {},
+            onPressed: () {
+              nextReplacePage(context, '/chat');
+            },
             iconSize: responsive.getResponsiveValue(
               mobile: 12.0,
               tablet: 13.0,

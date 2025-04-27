@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ai_studio/src/auth_bloc/auth_screen.dart';
 import 'package:ai_studio/src/chat_bloc/chat_screen.dart';
 import 'package:ai_studio/src/login_bloc/login_screen.dart';
@@ -7,12 +9,12 @@ import 'package:ai_studio/src/splash_screen/splash_screen.dart';
 import 'package:flutter/material.dart';
 
 Future<T?> nextPage<T>(BuildContext context, String routeName,
-    {Object? arguments}) {
+    {bool isHistory = false, Object? arguments}) {
   return Navigator.of(context).push<T>(
     PageRouteBuilder(
       settings: RouteSettings(name: routeName, arguments: arguments),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return _buildRouteFromName(context, routeName);
+        return _buildRouteFromName(context, routeName, isHistory);
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var fadeAnimation = Tween<double>(begin: 0.0, end: 1.0)
@@ -29,12 +31,14 @@ Future<T?> nextPage<T>(BuildContext context, String routeName,
 }
 
 Future<T?> nextReplacePage<T>(BuildContext context, String routeName,
-    {Object? arguments}) {
+    {bool isHistory = false, Object? arguments}) {
+  log("isHistory: $isHistory");
+
   return Navigator.of(context).pushReplacement<T, void>(
     PageRouteBuilder(
       settings: RouteSettings(name: routeName, arguments: arguments),
       pageBuilder: (context, animation, secondaryAnimation) {
-        return _buildRouteFromName(context, routeName);
+        return _buildRouteFromName(context, routeName, isHistory);
       },
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var fadeAnimation = Tween<double>(begin: 0.0, end: 1.0)
@@ -75,7 +79,8 @@ Future<T?> slideFadeTransition<T>(BuildContext context, Widget page) {
   );
 }
 
-Widget _buildRouteFromName(BuildContext context, String routeName) {
+Widget _buildRouteFromName(
+    BuildContext context, String routeName, bool isHistory) {
   switch (routeName) {
     case '/':
       return const SplashScreen();
@@ -88,7 +93,9 @@ Widget _buildRouteFromName(BuildContext context, String routeName) {
     // case '/signupStep2':
     //   return const SignupScreenDetails();
     case '/chat':
-      return const ChatScreen();
+      return ChatScreen(
+        isHistory: isHistory,
+      );
 
     case '/settings':
       return const SettingsScreen();
