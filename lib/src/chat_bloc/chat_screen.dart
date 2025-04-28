@@ -65,6 +65,8 @@ class _ChatScreenState extends State<ChatScreen> {
     socket.onConnect((_) => print('Connected'));
 
     socket.on('send_message', (data) {
+      log("send message function is called");
+
       print('Bot says: $data');
       setState(() {
         isBotTyping = false;
