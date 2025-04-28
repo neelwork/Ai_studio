@@ -45,168 +45,170 @@ class _LoginCard extends StatelessWidget {
       desktop: responsive.wp(35),
     );
 
-    return SizedBox(
-      width: cardWidth,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'AI NAME',
-            style: AppTextStyles.bold16.copyWith(
-              letterSpacing: 1.2,
-              color: theme.textTheme.bodyLarge?.color, // Use theme text color
-            ),
-          ),
-          const SizedBox(height: 16),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                // Use appropriate border color based on theme
-                color: isDarkMode ? AppColors.white : AppColors.black,
+    return SingleChildScrollView(
+      child: SizedBox(
+        width: cardWidth,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'AI NAME',
+              style: AppTextStyles.bold16.copyWith(
+                letterSpacing: 1.2,
+                color: theme.textTheme.bodyLarge?.color, // Use theme text color
               ),
-              borderRadius: BorderRadius.circular(20),
             ),
-            child: Padding(
-              padding: responsive.getResponsiveValue(
-                mobile: const EdgeInsets.all(16.0),
-                tablet: const EdgeInsets.all(24.0),
-                desktop: const EdgeInsets.all(24.0),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                border: Border.all(
+                  // Use appropriate border color based on theme
+                  color: isDarkMode ? AppColors.white : AppColors.black,
+                ),
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: Column(
-                children: [
-                  SizedBox(
-                    height: responsive.getResponsiveValue(
-                      mobile: 24.0,
-                      desktop: 32.0,
+              child: Padding(
+                padding: responsive.getResponsiveValue(
+                  mobile: const EdgeInsets.all(16.0),
+                  tablet: const EdgeInsets.all(24.0),
+                  desktop: const EdgeInsets.all(24.0),
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: responsive.getResponsiveValue(
+                        mobile: 24.0,
+                        desktop: 32.0,
+                      ),
                     ),
-                  ),
-                  SvgPicture.asset(
-                    "assets/icons/ai_icon.svg",
-                    height: responsive.getResponsiveValue(
-                      mobile: 60.0,
-                      tablet: 70.0,
-                      desktop: 80.0,
+                    SvgPicture.asset(
+                      "assets/icons/ai_icon.svg",
+                      height: responsive.getResponsiveValue(
+                        mobile: 60.0,
+                        tablet: 70.0,
+                        desktop: 80.0,
+                      ),
+                      // Apply color filter based on theme
+                      colorFilter: ColorFilter.mode(
+                        isDarkMode ? AppColors.white : AppColors.black,
+                        BlendMode.srcIn,
+                      ),
                     ),
-                    // Apply color filter based on theme
-                    colorFilter: ColorFilter.mode(
-                      isDarkMode ? AppColors.white : AppColors.black,
-                      BlendMode.srcIn,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Where Innovation Meets\nSimplicity.',
-                    textAlign: TextAlign.center,
-                    style: responsive
-                        .getResponsiveValue(
-                          mobile: AppTextStyles.medium20,
-                          desktop: AppTextStyles.medium24,
-                        )
-                        .copyWith(
-                          color: theme.textTheme.bodyLarge
-                              ?.color, // Use theme text color
-                        ),
-                  ),
-                  SizedBox(
-                    height: responsive.getResponsiveValue(
-                      mobile: 24.0,
-                      desktop: 32.0,
-                    ),
-                  ),
-                  CustomTextField(
-                    controller: emailController,
-                    label: 'Email',
-                    borderColor: isDarkMode ? AppColors.white : AppColors.black,
-                    hintColor: isDarkMode
-                        ? AppColors.white.withOpacity(.6)
-                        : AppColors.black.withOpacity(.6),
-                    textColor: isDarkMode ? AppColors.white : AppColors.black,
-                    labelColor: isDarkMode ? AppColors.white : AppColors.black,
-                    hintText: 'motionizestudio@gmail.com',
-                    // You may need to update CustomTextField to accept theme colors
-                  ),
-                  const SizedBox(height: 16),
-                  CustomTextField(
-                    label: 'Password',
-                    controller: passwordController,
-                    borderColor: isDarkMode ? AppColors.white : AppColors.black,
-                    hintColor: isDarkMode
-                        ? AppColors.white.withOpacity(.6)
-                        : AppColors.black.withOpacity(.6),
-                    textColor: isDarkMode ? AppColors.white : AppColors.black,
-                    labelColor: isDarkMode ? AppColors.white : AppColors.black,
-                    hintText: '⚫⚫⚫⚫⚫⚫⚫',
-                    obscureText: true,
-                  ),
-                  SizedBox(
-                    height: responsive.getResponsiveValue(
-                      mobile: 24.0,
-                      desktop: 32.0,
-                    ),
-                  ),
-                  BlocConsumer<LoginBloc, LoginState>(
-                    listener: (context, state) {
-                      if (state is LoginSuccess) {
-                        if (state.response.status == 'false') {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(state.response.message.toString()),
-                            ),
-                          );
-                        } else if (state.response.status == 'true') {
-                          nextReplacePage(context, '/chat');
-                        }
-                      }
-                      if (state is LoginFailure) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(state.error),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Where Innovation Meets\nSimplicity.',
+                      textAlign: TextAlign.center,
+                      style: responsive
+                          .getResponsiveValue(
+                            mobile: AppTextStyles.medium20,
+                            desktop: AppTextStyles.medium24,
+                          )
+                          .copyWith(
+                            color: theme.textTheme.bodyLarge
+                                ?.color, // Use theme text color
                           ),
-                        );
-                      }
-                    },
-                    builder: (context, state) {
-                      return AppButton.filled(
-                        text: state is LoginLoading ? 'Loading...' : 'Login',
-                        width: double.infinity,
-                        height: responsive.getResponsiveValue(
-                          mobile: 45.0,
-                          desktop: 50.0,
-                        ),
-                        borderRadius: 24,
-                        onPressed: () {
-                          if (emailController.text.isEmpty ||
-                              passwordController.text.isEmpty) {
-                            // Show error message
+                    ),
+                    SizedBox(
+                      height: responsive.getResponsiveValue(
+                        mobile: 24.0,
+                        desktop: 32.0,
+                      ),
+                    ),
+                    CustomTextField(
+                      controller: emailController,
+                      label: 'Email',
+                      borderColor: isDarkMode ? AppColors.white : AppColors.black,
+                      hintColor: isDarkMode
+                          ? AppColors.white.withOpacity(.6)
+                          : AppColors.black.withOpacity(.6),
+                      textColor: isDarkMode ? AppColors.white : AppColors.black,
+                      labelColor: isDarkMode ? AppColors.white : AppColors.black,
+                      hintText: 'motionizestudio@gmail.com',
+                      // You may need to update CustomTextField to accept theme colors
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      label: 'Password',
+                      controller: passwordController,
+                      borderColor: isDarkMode ? AppColors.white : AppColors.black,
+                      hintColor: isDarkMode
+                          ? AppColors.white.withOpacity(.6)
+                          : AppColors.black.withOpacity(.6),
+                      textColor: isDarkMode ? AppColors.white : AppColors.black,
+                      labelColor: isDarkMode ? AppColors.white : AppColors.black,
+                      hintText: '⚫⚫⚫⚫⚫⚫⚫',
+                      obscureText: true,
+                    ),
+                    SizedBox(
+                      height: responsive.getResponsiveValue(
+                        mobile: 24.0,
+                        desktop: 32.0,
+                      ),
+                    ),
+                    BlocConsumer<LoginBloc, LoginState>(
+                      listener: (context, state) {
+                        if (state is LoginSuccess) {
+                          if (state.response.status == 'false') {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Please fill in all fields.'),
+                              SnackBar(
+                                content: Text(state.response.message.toString()),
                               ),
                             );
-                          } else {
-                            context.read<LoginBloc>().add(
-                                  LoginRequested(
-                                    phone: emailController.text,
-                                    password: passwordController.text,
-                                  ),
-                                );
+                          } else if (state.response.status == 'true') {
+                            nextReplacePage(context, '/chat');
                           }
-                        },
-                        // Use theme colors for the button
-                        backgroundColor: isDarkMode
-                            ? AppColors.white.withOpacity(0.83)
-                            : AppColors.black.withOpacity(.83),
-                        textColor:
-                            isDarkMode ? AppColors.black : AppColors.white,
-                        textStyle: AppTextStyles.medium14,
-                      );
-                    },
-                  ),
-                ],
+                        }
+                        if (state is LoginFailure) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(state.error),
+                            ),
+                          );
+                        }
+                      },
+                      builder: (context, state) {
+                        return AppButton.filled(
+                          text: state is LoginLoading ? 'Loading...' : 'Login',
+                          width: double.infinity,
+                          height: responsive.getResponsiveValue(
+                            mobile: 45.0,
+                            desktop: 50.0,
+                          ),
+                          borderRadius: 24,
+                          onPressed: () {
+                            if (emailController.text.isEmpty ||
+                                passwordController.text.isEmpty) {
+                              // Show error message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please fill in all fields.'),
+                                ),
+                              );
+                            } else {
+                              context.read<LoginBloc>().add(
+                                    LoginRequested(
+                                      phone: emailController.text,
+                                      password: passwordController.text,
+                                    ),
+                                  );
+                            }
+                          },
+                          // Use theme colors for the button
+                          backgroundColor: isDarkMode
+                              ? AppColors.white.withOpacity(0.83)
+                              : AppColors.black.withOpacity(.83),
+                          textColor:
+                              isDarkMode ? AppColors.black : AppColors.white,
+                          textStyle: AppTextStyles.medium14,
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

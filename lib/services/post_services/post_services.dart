@@ -27,7 +27,13 @@ class PostServices {
           'Content-Type': 'application/json',
         },
       );
-
+      log("Status Code: ${response.statusCode}");
+      log("Request URL: $url");
+      log("Request Body: ${jsonEncode({'email': email, 'password': password})}");
+      log("Response Body: ${response.body}");
+      log("Response Headers: ${response.headers}");
+      log("Response Request: ${response.request}");
+      log("Response Reason: ${response.reasonPhrase}");
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
