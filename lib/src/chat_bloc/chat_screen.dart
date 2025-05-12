@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 import 'package:ai_studio/services/shared_preference/shared_preference.dart';
@@ -10,6 +11,7 @@ import 'package:ai_studio/utils/text_styles.dart';
 import 'package:ai_studio/widget/app_button.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/services.dart';
@@ -87,29 +89,88 @@ class _ChatScreenState extends State<ChatScreen> {
     socket.onConnectError((err) => print('Connection Error: $err'));
     socket.onError((err) => print('Socket Error: $err'));
   }
+  //
+  // void imageSendMessage() {
+  //   final text = _messageController.text.trim();
+  //   if (text.isNotEmpty && _selectedImage != null) {
+  //     setState(() {
+  //       milanMessage.add(
+  //         ChatMessage(
+  //           text: text,
+  //           imageUrl: _selectedImage!.path,
+  //           isUser: true,
+  //           timestamp: DateTime.now(),
+  //         ),
+  //       );
+  //
+  //       isBotTyping = true;
+  //       _messageController.clear();
+  //     });
+  //
+  //     socket
+  //         .emit('send_message', {"message": text, "image_url": _selectedImage});
+  //     scrollToBottom();
+  //   }
+  // }
+  //
+  //
+
 
   void imageSendMessage() {
     final text = _messageController.text.trim();
-    if (text.isNotEmpty && _selectedImage != null) {
+
+    if (text.isEmpty) return; // Guard clause
+
+    // If user selected an image
+    if (_selectedImage != null) {
+      // (1) Extract file name
+      String fileName = _selectedImage!.path.split('/').last;
+
+      // (2) Create server path
+      String serverImagePath = 'uploads/$fileName';
+
+      // (3) Prepare payload with image_url
+      socket.emit('send_message', {
+        "message": text,
+        "image_url": serverImagePath,
+      });
+
       setState(() {
         milanMessage.add(
           ChatMessage(
             text: text,
-            imageUrl: _selectedImage!.path,
+            imageUrl: serverImagePath,
             isUser: true,
             timestamp: DateTime.now(),
           ),
         );
+        isBotTyping = true;
+        _messageController.clear();
+        _selectedImage = null;
+      });
 
+    } else {
+      // If only text (no image)
+      socket.emit('send_message', {
+        "message": text,
+      });
+
+      setState(() {
+        milanMessage.add(
+          ChatMessage(
+            text: text,
+            isUser: true,
+            timestamp: DateTime.now(),
+          ),
+        );
         isBotTyping = true;
         _messageController.clear();
       });
-
-      socket
-          .emit('send_message', {"message": text, "image_url": _selectedImage});
-      scrollToBottom();
     }
+
+    scrollToBottom();
   }
+
 
   void sendMessage() {
     final text = _messageController.text.trim();
