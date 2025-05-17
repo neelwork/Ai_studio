@@ -234,8 +234,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   ChatMessage(
                     text: e.userMessage.toString(),
                     isUser: true,
-                    showImage: true,
-                    imageUrl: 'https://api.mithrex.in/${e.imageUrl}',
+                    showImage: e.imageUrl!= null ?   true : false,
+                    imageUrl: e.imageUrl != null ?  'https://api.mithrex.in/${e.imageUrl}': e.imageUrl,
                     timestamp: e.createdAt!,
                   ),
                 );
@@ -878,48 +878,51 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
 
                 // New chat button
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 18.0, vertical: 8.0),
-                  child: AppButton.outlined(
-                    onPressed: responsive.isMobile
-                        ? () {
-                      context.read<ChatBloc>().add(ResetChatEvent());
+                // Padding(
+                //   padding: const EdgeInsets.symmetric(
+                //       horizontal: 18.0, vertical: 8.0),
+                //   child: AppButton.outlined(
+                //     onPressed: responsive.isMobile
+                //         ? () {
+                //       nextPage(context, '/chat');
+                //       context.read<ChatBloc>().add(ResetChatEvent());
+                //
+                //       Navigator.pop(context);
+                //     }
+                //         : () {
+                //       context.read<ChatBloc>().add(ResetChatEvent());
+                //     },
+                //     borderColor:
+                //     !isDarkMode ? AppColors.black : AppColors.white,
+                //     textColor: !isDarkMode ? AppColors.black : AppColors.white,
+                //     prefixIcon: SvgPicture.asset(
+                //       "assets/icons/create_chat_icon.svg",
+                //       colorFilter: ColorFilter.mode(
+                //           !isDarkMode ? AppColors.black : AppColors.white,
+                //           BlendMode.srcIn),
+                //     ),
+                //     height: responsive.getResponsiveValue(
+                //       mobile: 40.0,
+                //       tablet: 45.0,
+                //       desktop: 50.0,
+                //     ),
+                //     width: responsive.getResponsiveValue(
+                //       mobile: double.infinity,
+                //       tablet: 300.0,
+                //       desktop: 377.0,
+                //     ),
+                //     padding:
+                //     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                //     text: 'Start New Chat',
+                //     textStyle: responsive.getResponsiveValue(
+                //       mobile: AppTextStyles.medium14,
+                //       tablet: AppTextStyles.regular16,
+                //       desktop: AppTextStyles.regular18,
+                //     ),
+                //   ),
+                // ),
+                //
 
-                      Navigator.pop(context);
-                    }
-                        : () {
-                      context.read<ChatBloc>().add(ResetChatEvent());
-                    },
-                    borderColor:
-                    !isDarkMode ? AppColors.black : AppColors.white,
-                    textColor: !isDarkMode ? AppColors.black : AppColors.white,
-                    prefixIcon: SvgPicture.asset(
-                      "assets/icons/create_chat_icon.svg",
-                      colorFilter: ColorFilter.mode(
-                          !isDarkMode ? AppColors.black : AppColors.white,
-                          BlendMode.srcIn),
-                    ),
-                    height: responsive.getResponsiveValue(
-                      mobile: 40.0,
-                      tablet: 45.0,
-                      desktop: 50.0,
-                    ),
-                    width: responsive.getResponsiveValue(
-                      mobile: double.infinity,
-                      tablet: 300.0,
-                      desktop: 377.0,
-                    ),
-                    padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    text: 'Start New Chat',
-                    textStyle: responsive.getResponsiveValue(
-                      mobile: AppTextStyles.medium14,
-                      tablet: AppTextStyles.regular16,
-                      desktop: AppTextStyles.regular18,
-                    ),
-                  ),
-                ),
               ],
             ),
 
@@ -1496,7 +1499,7 @@ class _ChatScreenState extends State<ChatScreen> {
       desktop: 18.0,
     );
 
-    return message.imageUrl != null ? Container(
+    return message.imageUrl != null  ? Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
       child: Align(
         alignment: message.isUser ? Alignment.centerRight : Alignment

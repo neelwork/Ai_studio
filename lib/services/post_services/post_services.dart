@@ -61,8 +61,7 @@ class PostServices {
         },
       );
 
-      log("get profile status code: ${response.statusCode}");
-      print("get profile response body: ${response.body}");
+
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -204,11 +203,12 @@ class PostServices {
 
   Future<GetPromptByIdModel?> getMessagesByPrompt({
     required String promptId,
-    int limit = 10,
+    int limit = 10000,
     int offset = 0,
   }) async {
     final url = Uri.parse(
-      'https://api.mithrex.in/api/message/getMessagesByPrompt?prompt_id=$promptId&limit=$limit&offset=$offset',
+
+      'https://api.mithrex.in/api/message/getMessagesByPrompt?prompt_id=$promptId&limit=1000&offset=0',
     );
 
     final token = await StorageService.read(StorageService.authToken);
@@ -221,8 +221,8 @@ class PostServices {
       },
     );
 
-    log('Response status: ${response.statusCode}');
-    print("Response body: ${response.body}");
+    log('get by id Response status: ${response.statusCode}');
+    print("get by id Response body: ${response.body}");
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);

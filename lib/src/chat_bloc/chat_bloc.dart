@@ -6,16 +6,16 @@ import 'chat_state.dart';
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc()
       : super(ChatState(
-          messages: [
-            // ChatMessage(
-            //   text: "Hi Jay!\nHow can I help you?",
-            //   isUser: false,
-            //   timestamp: DateTime.now(),
-            // ),
-          ],
-          isSidebarVisible: false,
-          isFirstMessageSent: false,
-        )) {
+    messages: [
+      // ChatMessage(
+      //   text: "Hi Jay!\nHow can I help you?",
+      //   isUser: false,
+      //   timestamp: DateTime.now(),
+      // ),
+    ],
+    isSidebarVisible: false,
+    isFirstMessageSent: false,
+  )) {
     on<SendMessageEvent>(_onSendMessage);
     on<ToggleSidebarEvent>(_onToggleSidebar);
     on<ResetChatEvent>(_onResetChat);

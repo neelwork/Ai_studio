@@ -1,4 +1,5 @@
 import 'package:ai_studio/services/google_signin_services.dart';
+import 'package:ai_studio/src/signup_bloc/signup_bloc.dart';
 import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -94,13 +95,13 @@ class _AuthCard extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: responsive
                         .getResponsiveValue(
-                          mobile: AppTextStyles.medium20,
-                          desktop: AppTextStyles.medium24,
-                        )
+                      mobile: AppTextStyles.medium20,
+                      desktop: AppTextStyles.medium24,
+                    )
                         .copyWith(
-                          color: theme.textTheme.bodyLarge
-                              ?.color, // Use theme text color
-                        ),
+                      color: theme.textTheme.bodyLarge
+                          ?.color, // Use theme text color
+                    ),
                   ),
                   SizedBox(
                     height: responsive.getResponsiveValue(
@@ -156,9 +157,16 @@ class _AuthCard extends StatelessWidget {
                       final userCredential = await AuthService().signInWithGoogle();
                       if (userCredential != null) {
                         print("User signed in: ${userCredential.user!.displayName}");
+
+                        context.read<SignUpBloc>().add(
+                          SignUpRequested(
+                            email: userCredential.user!.email.toString(),
+                            password: '12345',
+                            userName: userCredential.user!.displayName.toString(),
+                          ),
+                        );
                       }
 
-                      // nextPage(context, '/chat');
                     },
 
                     backgroundColor: isDarkMode
