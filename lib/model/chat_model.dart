@@ -6,6 +6,7 @@ class ChatMessage {
   final DateTime timestamp;
   final String? imageUrl;
   final List<Widget>? attachments;
+  final bool showImage;
 
   ChatMessage({
     required this.text,
@@ -13,5 +14,6 @@ class ChatMessage {
     required this.timestamp,
     this.imageUrl,
     this.attachments,
+    required this.showImage,
   });
 }

@@ -12,12 +12,14 @@ import 'package:ai_studio/src/setting_bloc/update_user_bloc.dart';
 import 'package:ai_studio/src/signup_bloc/signup_bloc.dart';
 import 'package:ai_studio/src/signup_bloc/signup_screen.dart';
 import 'package:ai_studio/src/splash_screen/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(const MyApp());
 }
 

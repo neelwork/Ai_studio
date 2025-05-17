@@ -1,3 +1,4 @@
+import 'package:ai_studio/services/google_signin_services.dart';
 import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -141,6 +142,8 @@ class _AuthCard extends StatelessWidget {
                     textStyle: AppTextStyles.medium14,
                   ),
                   const SizedBox(height: 16),
+
+
                   AppButton.filled(
                     text: 'Continue with Google',
                     width: double.infinity,
@@ -148,17 +151,24 @@ class _AuthCard extends StatelessWidget {
                       mobile: 45.0,
                       desktop: 50.0,
                     ),
-                    onPressed: () {
-                      nextPage(context, '/chat');
+                    onPressed: () async{
+
+                      final userCredential = await AuthService().signInWithGoogle();
+                      if (userCredential != null) {
+                        print("User signed in: ${userCredential.user!.displayName}");
+                      }
+
+                      // nextPage(context, '/chat');
                     },
-                    // onPressed: () =>
-                    //     context.read<AuthBloc>().add(AuthGoogleLoginEvent()),
+
                     backgroundColor: isDarkMode
                         ? Colors.white.withOpacity(0.83)
                         : AppColors.black.withOpacity(.83),
                     textColor: isDarkMode ? AppColors.black : AppColors.white,
                     textStyle: AppTextStyles.medium14,
                   ),
+
+
                 ],
               ),
             ),

@@ -27,6 +27,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         ChatMessage(
           text: "Hi Jay!\nHow can I help you?",
           isUser: false,
+          showImage: false,
           timestamp: DateTime.now(),
         ),
       ],
@@ -37,6 +38,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   void _onSendMessage(SendMessageEvent event, Emitter<ChatState> emit) async {
     final userMessage = ChatMessage(
+      showImage: false,
       text: event.message,
       isUser: true,
       timestamp: DateTime.now(),
@@ -52,6 +54,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     event.socket.on('send_message', (data) {
       final aiResponse = ChatMessage(
+        showImage: false,
         text: data['message'],
         isUser: false,
         timestamp: DateTime.now(),

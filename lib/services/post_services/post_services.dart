@@ -27,13 +27,8 @@ class PostServices {
           'Content-Type': 'application/json',
         },
       );
-      log("Status Code: ${response.statusCode}");
-      log("Request URL: $url");
-      log("Request Body: ${jsonEncode({'email': email, 'password': password})}");
-      log("Response Body: ${response.body}");
-      log("Response Headers: ${response.headers}");
-      log("Response Request: ${response.request}");
-      log("Response Reason: ${response.reasonPhrase}");
+
+
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
@@ -65,6 +60,9 @@ class PostServices {
           'UserToken': token!,
         },
       );
+
+      log("get profile status code: ${response.statusCode}");
+      print("get profile response body: ${response.body}");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -158,7 +156,7 @@ class PostServices {
     try {
       final response = await http.get(
         Uri.parse(
-          'http://15.206.136.228/api/prompt/getUserPrompts?page=1&pageSize=1000',
+          'https://api.mithrex.in/api/prompt/getUserPrompts?page=1&pageSize=1000',
         ),
         headers: {
           'accept': 'application/json',
@@ -180,7 +178,7 @@ class PostServices {
   }
 
   Future<DeleteAllChatModel?> deleteAllChats() async {
-    final url = Uri.parse('http://15.206.136.228/api/prompt/delete-all-chat');
+    final url = Uri.parse('https://api.mithrex.in/api/prompt/delete-all-chat');
 
     final token = await StorageService.read(StorageService.authToken);
 
@@ -210,7 +208,7 @@ class PostServices {
     int offset = 0,
   }) async {
     final url = Uri.parse(
-      'http://15.206.136.228/api/message/getMessagesByPrompt?prompt_id=$promptId&limit=$limit&offset=$offset',
+      'https://api.mithrex.in/api/message/getMessagesByPrompt?prompt_id=$promptId&limit=$limit&offset=$offset',
     );
 
     final token = await StorageService.read(StorageService.authToken);

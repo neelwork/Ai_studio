@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1005197027466",
+    "project_id": "aistudio-ae528",
+    "storage_bucket": "aistudio-ae528.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1005197027466:android:682ac2a8e2398a368b6573",
+        "android_client_info": {
+          "package_name": "com.example.ai_studio"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1005197027466-5ahs560b1elohbbaosrhfc6lkds2gpk6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ai_studio",
+            "certificate_hash": "16eff8b2f3d1a29ec3ec78b83337393575ec4cce"
+          }
+        },
+        {
+          "client_id": "1005197027466-5527ftrhk0s4uooqulase8dm958gvogm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDf4sXdHroqqb8xvsRye63JSOV0-afXw7k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1005197027466-5527ftrhk0s4uooqulase8dm958gvogm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
