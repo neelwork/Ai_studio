@@ -234,8 +234,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   ChatMessage(
                     text: e.userMessage.toString(),
                     isUser: true,
-                    showImage: e.imageUrl!= null ?   true : false,
-                    imageUrl: e.imageUrl != null ?  'https://api.mithrex.in/${e.imageUrl}': e.imageUrl,
+                    showImage: e.imageUrl != null ? true : false,
+                    imageUrl: e.imageUrl != null ? 'https://api.mithrex.in/${e
+                        .imageUrl}' : e.imageUrl,
                     timestamp: e.createdAt!,
                   ),
                 );
@@ -684,11 +685,32 @@ class _ChatScreenState extends State<ChatScreen> {
               const SizedBox(
                 width: 12,
               ),
-              Text("Hi Jay!",
-                  style: AppTextStyles.regular24.copyWith(
-                    fontWeight: FontWeight.w100,
-                    color: !isDarkMode ? AppColors.black : AppColors.white,
-                  )),
+              BlocBuilder<ProfileBloc, ProfileState>(
+                builder: (context, state) {
+
+                  if(state is ProfileSuccess){
+
+                    return Text(    state.response.user!.userName.toString()  ,
+                      style: AppTextStyles.regular24.copyWith(
+                        fontWeight: FontWeight.w100,
+                        color: !isDarkMode ? AppColors.black : AppColors.white,
+                      ),);
+
+                  }else{
+
+                    return Text(    "Hi User!"  ,
+                      style: AppTextStyles.regular24.copyWith(
+                        fontWeight: FontWeight.w100,
+                        color: !isDarkMode ? AppColors.black : AppColors.white,
+                      ),);
+
+                  }
+
+
+
+
+                },
+              ),
               const SizedBox(
                 width: 24,
               ),
@@ -1161,10 +1183,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       children: [
                         BlocBuilder<ProfileBloc, ProfileState>(
                           builder: (context, state) {
-
-                            if(state is ProfileSuccess){
-
-                              final name=  getFirstChar(state.response.user!.email.toString());
+                            if (state is ProfileSuccess) {
+                              final name = getFirstChar(
+                                  state.response.user!.email.toString());
 
                               return CircleAvatar(
                                 backgroundColor:
@@ -1181,14 +1202,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                         : AppColors.black,
                                   ),),
                               );
-
-
-                            }else{
+                            } else {
                               return Center();
                             }
-
-
-
                           },
                         ),
                         const SizedBox(width: 8),
@@ -1499,7 +1515,7 @@ class _ChatScreenState extends State<ChatScreen> {
       desktop: 18.0,
     );
 
-    return message.imageUrl != null  ? Container(
+    return message.imageUrl != null ? Container(
       margin: const EdgeInsets.symmetric(vertical: 12),
       child: Align(
         alignment: message.isUser ? Alignment.centerRight : Alignment
