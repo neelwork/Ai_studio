@@ -16,25 +16,25 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
 
-  await Firebase.initializeApp();
-
-
-    // if(Firebase.apps.isEmpty){
-    //   await Firebase.initializeApp(
-    //     options: const FirebaseOptions(
-    //       apiKey: "AIzaSyC7uh_X4Q9ekVJA34XjdHfqKlqbv_XVAw4",
-    //       authDomain: "aistudio-ae528.firebaseapp.com",
-    //       projectId: "aistudio-ae528",
-    //       storageBucket: "aistudio-ae528.appspot.com",
-    //       messagingSenderId: "1005197027466",
-    //       appId: "1:1005197027466:web:7e65588d42a5458c8b6573",
-    //     ),
-    //   );
-    // }
+  if (kIsWeb) {
+    await Firebase.initializeApp(
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyC7uh_X4Q9ekVJA34XjdHfqKlqbv_XVAw4",
+        authDomain: "aistudio-ae528.firebaseapp.com",
+        projectId: "aistudio-ae528",
+        storageBucket: "aistudio-ae528.appspot.com",
+        messagingSenderId: "1005197027466",
+        appId: "1:1005197027466:web:7e65588d42a5458c8b6573",
+      ),
+    );
+  } else {
+    await Firebase.initializeApp();
+  }
 
   runApp(const MyApp());
 }
