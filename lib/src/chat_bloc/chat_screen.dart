@@ -10,6 +10,7 @@ import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/utils/text_styles.dart';
 import 'package:ai_studio/widget/app_button.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -56,16 +57,11 @@ class _ChatScreenState extends State<ChatScreen> {
   void initSocket() async {
     final token = await StorageService.read(StorageService.authToken);
 
-    socket = IO.io(
-      'wss://api.mithrex.in',
-      <String, dynamic>{
-        'transports': ['websocket'],
-        'autoConnect': false,
-        'extraHeaders': {
-          'token': '$token',
-        }
-      },
-    );
+    final socket =  IO.io('https://api.mithrex.in', <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+      'query': {'token':token}
+    });
 
     socket.connect();
 
@@ -185,6 +181,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ChatMessage(
             text: text,
             showImage: false,
+
             isUser: true,
             timestamp: DateTime.now(),
           ),
@@ -1203,7 +1200,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   ),),
                               );
                             } else {
-                              return Center();
+                              return const Center();
                             }
                           },
                         ),
@@ -1515,141 +1512,276 @@ class _ChatScreenState extends State<ChatScreen> {
       desktop: 18.0,
     );
 
-    return message.imageUrl != null ? Container(
-      margin: const EdgeInsets.symmetric(vertical: 12),
-      child: Align(
-        alignment: message.isUser ? Alignment.centerRight : Alignment
+    // return message.imageUrl != null ? Container(
+    //   margin: const EdgeInsets.symmetric(vertical: 12),
+    //   child: Align(
+    //     alignment: message.isUser ? Alignment.centerRight : Alignment
+    //         .centerLeft,
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.end,
+    //       children: [
+    //         message.showImage ? ClipRRect(
+    //           borderRadius: BorderRadius.circular(10),
+    //           child: Image.network(
+    //             message.imageUrl!,
+    //             fit: BoxFit.cover,
+    //             width: 250,
+    //             height: 140,
+    //           ),
+    //         ) : ClipRRect(
+    //           borderRadius: BorderRadius.circular(10),
+    //           child: Image.file(
+    //             File(message.imageUrl!),
+    //             fit: BoxFit.cover,
+    //             width: 250,
+    //             height: 140,
+    //           ),
+    //         ),
+    //         const SizedBox(height: 5,),
+    //         Column(
+    //           crossAxisAlignment: message.isUser
+    //               ? CrossAxisAlignment.end
+    //               : CrossAxisAlignment.start,
+    //           children: [
+    //             const SizedBox(height: 4),
+    //             Container(
+    //               padding: const EdgeInsets.all(13),
+    //               decoration: BoxDecoration(
+    //                 color:
+    //                 !isDarkMode ? AppColors.white : AppColors.darkTheme,
+    //                 border: Border.all(
+    //                   color: !isDarkMode ? AppColors.white : AppColors.white,
+    //                 ),
+    //                 borderRadius: BorderRadius.circular(24),
+    //               ),
+    //               child: Text(
+    //                 message.text,
+    //                 style: AppTextStyles.regular18.copyWith(
+    //                   fontSize: messageFontSize,
+    //                   color: !isDarkMode ? AppColors.black : AppColors.white,
+    //                 ),
+    //               ),
+    //             ),
+    //             if (message.attachments != null) ...message.attachments!,
+    //           ],
+    //         ),
+    //
+    //
+    //       ],
+    //     ),
+    //   ),
+    // )
+    //     : Container(
+    //   margin: const EdgeInsets.symmetric(vertical: 8),
+    //   child: Row(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     mainAxisAlignment:
+    //     message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+    //     children: [
+    //       if (!message.isUser)
+    //         CircleAvatar(
+    //           backgroundColor: Colors.grey[300],
+    //           radius: avatarRadius,
+    //           child:
+    //           Icon(Icons.assistant, size: avatarRadius, color: Colors.grey),
+    //         ),
+    //       SizedBox(
+    //           width: !message.isUser
+    //               ? responsive.getResponsiveValue(
+    //             mobile: 8.0,
+    //             tablet: 10.0,
+    //             desktop: 12.0,
+    //           )
+    //               : 0),
+    //       Expanded(
+    //         child:
+    //         Padding(
+    //           padding: EdgeInsets.only(
+    //             left: responsive.isMobile
+    //                 ? message.isUser
+    //                 ? 40.0
+    //                 : 0
+    //                 : message.isUser
+    //                 ? 300.0
+    //                 : 0,
+    //             right: responsive.isMobile
+    //                 ? message.isUser
+    //                 ? 0.0
+    //                 : 40
+    //                 : message.isUser
+    //                 ? 0.0
+    //                 : 300,
+    //           ),
+    //           child: Column(
+    //             crossAxisAlignment: message.isUser
+    //                 ? CrossAxisAlignment.end
+    //                 : CrossAxisAlignment.start,
+    //             children: [
+    //               const SizedBox(height: 4),
+    //               Container(
+    //                 padding: const EdgeInsets.all(13),
+    //                 decoration: BoxDecoration(
+    //                   color:
+    //                   !isDarkMode ? AppColors.white : AppColors.darkTheme,
+    //                   border: Border.all(
+    //                     color: !isDarkMode ? AppColors.white : AppColors.white,
+    //                   ),
+    //                   borderRadius: BorderRadius.circular(24),
+    //                 ),
+    //                 child: Text(
+    //                   message.text,
+    //                   style: AppTextStyles.regular18.copyWith(
+    //                     fontSize: messageFontSize,
+    //                     color: !isDarkMode ? AppColors.black : AppColors.white,
+    //                   ),
+    //                 ),
+    //               ),
+    //               if (message.attachments != null) ...message.attachments!,
+    //             ],
+    //           ),
+    //         ),
+    //
+    //
+    //       ),
+    //     ],
+    //   ),
+    // );
+    //
+
+
+
+    // new code
+
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      alignment:   message.isUser ? Alignment.centerRight : Alignment
             .centerLeft,
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.75,
+        ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment:
+          message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            message.showImage ? ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.network(
-                message.imageUrl!,
-                fit: BoxFit.cover,
-                width: 250,
-                height: 140,
-              ),
-            ) : ClipRRect(
-              borderRadius: BorderRadius.circular(10),
-              child: Image.file(
-                File(message.imageUrl!),
-                fit: BoxFit.cover,
-                width: 250,
-                height: 140,
-              ),
-            ),
-            const SizedBox(height: 5,),
-            Column(
-              crossAxisAlignment: message.isUser
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Container(
-                  padding: const EdgeInsets.all(13),
-                  decoration: BoxDecoration(
-                    color:
-                    !isDarkMode ? AppColors.white : AppColors.darkTheme,
-                    border: Border.all(
-                      color: !isDarkMode ? AppColors.white : AppColors.white,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: Text(
-                    message.text,
-                    style: AppTextStyles.regular18.copyWith(
-                      fontSize: messageFontSize,
-                      color: !isDarkMode ? AppColors.black : AppColors.white,
-                    ),
-                  ),
+            if (message.imageUrl != null)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: message.showImage
+                      ? Image.network(message.imageUrl!, width: 220, height: 120, fit: BoxFit.cover)
+                      : Image.file(File(message.imageUrl!), width: 220, height: 120, fit: BoxFit.cover),
                 ),
-                if (message.attachments != null) ...message.attachments!,
-              ],
+              ),
+
+            /// 🔁 Switch between new and old message view
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+              decoration: BoxDecoration(
+               color:
+                isDarkMode ?  AppColors.darkTheme : AppColors.white,
+
+              border: Border.all(color: !isDarkMode ?  AppColors.white : AppColors.white ),
+                borderRadius: BorderRadius.circular(24) ,
+              ),
+              child: message.text.contains('```')
+                  ? _buildFormattedMessageText(message.text, isDarkMode ?   Colors.white :  Colors.black)
+                  : SelectableText(
+                message.text,
+                style:  TextStyle(fontSize: 15,  height: 1.5, color: isDarkMode ?   Colors.white :  Colors.black),
+              ),
             ),
-
-
           ],
         ),
       ),
-    )
-        : Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment:
-        message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        children: [
-          if (!message.isUser)
-            CircleAvatar(
-              backgroundColor: Colors.grey[300],
-              radius: avatarRadius,
-              child:
-              Icon(Icons.assistant, size: avatarRadius, color: Colors.grey),
-            ),
-          SizedBox(
-              width: !message.isUser
-                  ? responsive.getResponsiveValue(
-                mobile: 8.0,
-                tablet: 10.0,
-                desktop: 12.0,
-              )
-                  : 0),
-          Expanded(
-            child:
-            Padding(
-              padding: EdgeInsets.only(
-                left: responsive.isMobile
-                    ? message.isUser
-                    ? 40.0
-                    : 0
-                    : message.isUser
-                    ? 300.0
-                    : 0,
-                right: responsive.isMobile
-                    ? message.isUser
-                    ? 0.0
-                    : 40
-                    : message.isUser
-                    ? 0.0
-                    : 300,
+    );
+
+
+
+  }
+
+
+
+  Widget _buildFormattedMessageText(String text, Color textColor) {
+
+
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
+    final parts = text.split('```');
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(parts.length, (index) {
+        final content = parts[index].trim();
+        final isCode = index % 2 == 1;
+
+        if (isCode) {
+          return Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                margin: const EdgeInsets.only(top: 12, bottom: 6),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: isDarkMode ?  Colors.white  :  Colors.grey.shade900,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: SelectableText(
+                  content,
+                  style:  TextStyle(
+                    fontFamily: 'monospace',
+                    fontSize: 14,
+                    color: isDarkMode ?  Colors.black  :  Colors.white,
+                  ),
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: message.isUser
-                    ? CrossAxisAlignment.end
-                    : CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.all(13),
-                    decoration: BoxDecoration(
-                      color:
-                      !isDarkMode ? AppColors.white : AppColors.darkTheme,
-                      border: Border.all(
-                        color: !isDarkMode ? AppColors.white : AppColors.white,
-                      ),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: Text(
-                      message.text,
-                      style: AppTextStyles.regular18.copyWith(
-                        fontSize: messageFontSize,
-                        color: !isDarkMode ? AppColors.black : AppColors.white,
-                      ),
+              Positioned(
+                top: 4,
+                right: 8,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    minimumSize: const Size(50, 30),
+                    backgroundColor: isDarkMode ?  AppColors.darkTheme  :   Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(6),
+                      side: isDarkMode ? const BorderSide(color: Colors.white30)  :  const BorderSide(color: Colors.black12),
                     ),
                   ),
-                  if (message.attachments != null) ...message.attachments!,
-                ],
+
+                  onPressed: () {
+                    Clipboard.setData(ClipboardData(text: content));
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Copied to clipboard")),
+                    );
+                  },
+                  child:  Text(
+                    "Copy",
+                    style: TextStyle(fontSize: 12, color: isDarkMode ?  Colors.white:  Colors.black),
+                  ),
+                ),
               ),
+            ],
+          );
+        } else {
+          return Padding(
+            padding: const EdgeInsets.only(top: 6),
+            child: SelectableText(
+              content,
+              style: TextStyle(fontSize: 15, color: textColor, height: 1.5),
             ),
-
-
-          ),
-        ],
-      ),
+          );
+        }
+      }),
     );
   }
+
+
+
+
 
   Widget _buildQuickActionButtons(BuildContext context, Responsive responsive) {
     Theme.of(context);

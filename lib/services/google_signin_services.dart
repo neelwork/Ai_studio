@@ -22,11 +22,6 @@ class AuthService {
         idToken: googleAuth.idToken,
       );
 
-
-
-
-
-
       // Sign in to Firebase
       return await _auth.signInWithCredential(credential);
     } catch (e) {
