@@ -1350,37 +1350,23 @@ class _ChatScreenState extends State<ChatScreen> {
                 });
                 context.read<ChatBloc>().add(ToggleSidebarEvent(isSidebarVisible));
               },
-              child: Row(
-                children: [
-                  SvgPicture.asset(
-                    "assets/icons/ai_icon.svg",
-                    height: 32,
-                    width: 32,
-                    colorFilter: ColorFilter.mode(
-                      !isDarkMode ? AppColors.black : AppColors.white,
-                      BlendMode.srcIn,
-                    ),
+              child: Text(
+                'New Chat',
+                style: responsive.getResponsiveValue(
+                  mobile: AppTextStyles.medium20.copyWith(
+                    color: !isDarkMode ? AppColors.black : AppColors.white,
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'New Chat',
-                    style: responsive.getResponsiveValue(
-                      mobile: AppTextStyles.medium20.copyWith(
-                        color: !isDarkMode ? AppColors.black : AppColors.white,
-                      ),
-                      tablet: AppTextStyles.regular24.copyWith(
-                        color: !isDarkMode ? AppColors.black : AppColors.white,
-                      ),
-                      desktop: AppTextStyles.regular28.copyWith(
-                        color: !isDarkMode ? AppColors.black : AppColors.white,
-                      ),
-                    ),
+                  tablet: AppTextStyles.regular24.copyWith(
+                    color: !isDarkMode ? AppColors.black : AppColors.white,
                   ),
-                ],
+                  desktop: AppTextStyles.regular28.copyWith(
+                    color: !isDarkMode ? AppColors.black : AppColors.white,
+                  ),
+                ),
               ),
             ),
           ],
-
+          const Spacer(),
           // Just the title for mobile
           if (responsive.isMobile)
             Center(
