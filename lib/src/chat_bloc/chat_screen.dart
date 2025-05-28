@@ -51,16 +51,26 @@ class _ChatScreenState extends State<ChatScreen> {
     initSocket();
     context.read<GetAllChatHistoryBloc>().add(GetAllChatHistoryRequested());
     context.read<ProfileBloc>().add(ProfileRequested());
+    if (kIsWeb) {
+      checkAndRestoreSession();
+    }
     super.initState();
+  }
+
+  Future<void> checkAndRestoreSession() async {
+    final token = await StorageService.read(StorageService.authToken);
+    if (token == null || token.isEmpty) {
+      nextPage(context, '/auth');
+    }
   }
 
   void initSocket() async {
     final token = await StorageService.read(StorageService.authToken);
 
-    final socket =  IO.io('https://api.mithrex.in', <String, dynamic>{
+    socket = IO.io('https://api.mithrex.in', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': false,
-      'query': {'token':token}
+      'query': {'token': token}
     });
 
     socket.connect();
@@ -124,6 +134,10 @@ class _ChatScreenState extends State<ChatScreen> {
             isBotTyping = true;
             _messageController.clear();
             _selectedImage = null;
+            if (!isFirstMessageSent) {
+              isFirstMessageSent = true;
+              isSidebarVisible = true;
+            }
           });
 
           scrollToBottom();
@@ -189,6 +203,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
         isBotTyping = true;
         _messageController.clear();
+        if (!isFirstMessageSent) {
+          isFirstMessageSent = true;
+          isSidebarVisible = true;
+        }
       });
 
       socket.emit('send_message', {"message": text});
@@ -864,25 +882,10 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       IconButton(
                         onPressed: () {
-                          log("Closing Sidebar...");
                           setState(() {
-                            _isHoveringLogo = false;
-                            isSidebarVisible = true;
+                            isSidebarVisible = false;
                           });
-
-                          // Don't close immediately, add a small delay
-                          if (!isFirstMessageSent && !_keepSidebarOpen) {
-                            log("isSideBar Open");
-                            Future.delayed(const Duration(milliseconds: 100),
-                                    () {
-                                  if (!_isHoveringLogo && !_keepSidebarOpen) {
-                                    log("isHovering");
-                                    context
-                                        .read<ChatBloc>()
-                                        .add(ToggleSidebarEvent(false));
-                                  }
-                                });
-                          }
+                          context.read<ChatBloc>().add(ToggleSidebarEvent(false));
                         },
                         icon: SvgPicture.asset(
                           "assets/icons/expand_icon.svg",
@@ -1322,26 +1325,44 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
-          const SizedBox(
-            width: 4,
-          ),
+          const SizedBox(width: 4),
 
-          // Back arrow for larger screens
+          // Logo, Menu Icon and New Chat for larger screens
           if (!responsive.isMobile) ...[
-            const Spacer(),
-            Center(
-              child: SizedBox(
-                width: 200,
-                child: MouseRegion(
-                  onEnter: (_) {
-                    setState(() {
-                      _isHoveringLogo = true;
-                    });
-                    if (!isFirstMessageSent) {
-                      context.read<ChatBloc>().add(ToggleSidebarEvent(true));
-                    }
-                  },
-                  child: Text(
+            IconButton(
+              icon: Icon(Icons.menu,
+                  size: 24,
+                  color: !isDarkMode ? AppColors.black : AppColors.white),
+              onPressed: () {
+                setState(() {
+                  isSidebarVisible = !isSidebarVisible;
+                });
+                context.read<ChatBloc>().add(ToggleSidebarEvent(isSidebarVisible));
+              },
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  isSidebarVisible = !isSidebarVisible;
+                });
+                context.read<ChatBloc>().add(ToggleSidebarEvent(isSidebarVisible));
+              },
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    "assets/icons/ai_icon.svg",
+                    height: 32,
+                    width: 32,
+                    colorFilter: ColorFilter.mode(
+                      !isDarkMode ? AppColors.black : AppColors.white,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
                     'New Chat',
                     style: responsive.getResponsiveValue(
                       mobile: AppTextStyles.medium20.copyWith(
@@ -1355,7 +1376,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ),
                   ),
-                ),
+                ],
               ),
             ),
           ],
@@ -1387,6 +1408,11 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
             onPressed: () {
+              setState(() {
+                isFirstMessageSent = false;
+                isSidebarVisible = false;
+                milanMessage.clear();
+              });
               nextReplacePage(context, '/chat');
             },
             iconSize: responsive.getResponsiveValue(
@@ -2052,6 +2078,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+
   // Widget _buildMessageInput(BuildContext context, Responsive responsive) {
   //   final theme = Theme.of(context);
   //   final isDarkMode = theme.brightness == Brightness.dark;
@@ -2178,6 +2205,7 @@ class _ChatScreenState extends State<ChatScreen> {
   //     ),
   //   );
   // }
+
 
   @override
   void dispose() {
