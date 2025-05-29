@@ -117,7 +117,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
         final imageUrl = cleanImagePath(result!);
 
-
         print("image url return: $imageUrl");
 
         if (imageUrl != null) {
@@ -157,7 +156,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-
   Future<String?> uploadImageToMithrex(File imageFile) async {
     try {
       var request = http.MultipartRequest(
@@ -173,7 +171,6 @@ class _ChatScreenState extends State<ChatScreen> {
       var response = await request.send();
 
       log("image upload status code: ${response.statusCode}");
-
 
       if (response.statusCode == 200) {
         var responseBody = await response.stream.bytesToString();
@@ -195,7 +192,6 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-
   void sendMessage() {
     final text = _messageController.text.trim();
     if (text.isNotEmpty) {
@@ -204,7 +200,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ChatMessage(
             text: text,
             showImage: false,
-
             isUser: true,
             timestamp: DateTime.now(),
           ),
@@ -280,15 +275,16 @@ class _ChatScreenState extends State<ChatScreen> {
       listener: (context, state) {
         if (state is GetPromptByIdSuccess) {
           state.response.messages!.map(
-                (e) {
+            (e) {
               setState(() {
                 milanMessage.add(
                   ChatMessage(
                     text: e.userMessage.toString(),
                     isUser: true,
                     showImage: e.imageUrl != null ? true : false,
-                    imageUrl: e.imageUrl != null ? 'https://api.mithrex.in/${e
-                        .imageUrl}' : e.imageUrl,
+                    imageUrl: e.imageUrl != null
+                        ? 'https://api.mithrex.in/${e.imageUrl}'
+                        : e.imageUrl,
                     timestamp: e.createdAt!,
                   ),
                 );
@@ -323,8 +319,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         // Add drawer for mobile view
                         drawer: responsive.isMobile
                             ? Drawer(
-                            child:
-                            _buildSidebar(context, responsive, state))
+                                child:
+                                    _buildSidebar(context, responsive, state))
                             : null,
                         body: SafeArea(
                           child: LayoutBuilder(
@@ -337,19 +333,19 @@ class _ChatScreenState extends State<ChatScreen> {
                                       if (!responsive.isMobile)
                                         AnimatedContainer(
                                           duration:
-                                          const Duration(milliseconds: 300),
+                                              const Duration(milliseconds: 300),
                                           width: (isSidebarVisible ||
-                                              isFirstMessageSent)
+                                                  isFirstMessageSent)
                                               ? responsive.responsiveWidth(
-                                            mobile: 0,
-                                            tablet: 220,
-                                            desktop: 260,
-                                          )
+                                                  mobile: 0,
+                                                  tablet: 220,
+                                                  desktop: 260,
+                                                )
                                               : 0,
                                           child: (isSidebarVisible ||
-                                              isFirstMessageSent)
+                                                  isFirstMessageSent)
                                               ? _buildSidebar(
-                                              context, responsive, state)
+                                                  context, responsive, state)
                                               : null,
                                         ),
 
@@ -368,13 +364,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                               // Chat messages area - uses Expanded to take available space
                                               Expanded(
                                                 child:
-                                                milanMessage.length <= 1 &&
-                                                    !isFirstMessageSent
-                                                    ? _buildWelcomeMessage()
-                                                    : _buildChatMessages(
-                                                    context,
-                                                    milanMessage,
-                                                    responsive),
+                                                    milanMessage.length <= 1 &&
+                                                            !isFirstMessageSent
+                                                        ? _buildWelcomeMessage()
+                                                        : _buildChatMessages(
+                                                            context,
+                                                            milanMessage,
+                                                            responsive),
                                               ),
 
                                               // Quick action buttons
@@ -398,25 +394,25 @@ class _ChatScreenState extends State<ChatScreen> {
                                   if (_isFileOptionsVisible)
                                     !responsive.isMobile
                                         ? Positioned(
-                                      bottom: 80,
-                                      // Adjust based on your message input height
-                                      left: 0,
-                                      right: 0,
-                                      child: Center(
-                                        child: _buildFileOptionsOverlay(
-                                            responsive),
-                                      ),
-                                    )
+                                            bottom: 80,
+                                            // Adjust based on your message input height
+                                            left: 0,
+                                            right: 0,
+                                            child: Center(
+                                              child: _buildFileOptionsOverlay(
+                                                  responsive),
+                                            ),
+                                          )
                                         : Positioned(
-                                      bottom: 80,
-                                      // Adjust based on your message input height
-                                      left: 0,
-                                      right: 0,
-                                      child: Center(
-                                        child:
-                                        _buildFileMobileOptionsRow(),
-                                      ),
-                                    ),
+                                            bottom: 80,
+                                            // Adjust based on your message input height
+                                            left: 0,
+                                            right: 0,
+                                            child: Center(
+                                              child:
+                                                  _buildFileMobileOptionsRow(),
+                                            ),
+                                          ),
                                 ],
                               );
                             },
@@ -442,8 +438,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         // Add drawer for mobile view
                         drawer: responsive.isMobile
                             ? Drawer(
-                            child:
-                            _buildSidebar(context, responsive, state))
+                                child:
+                                    _buildSidebar(context, responsive, state))
                             : null,
                         body: SafeArea(
                           child: LayoutBuilder(
@@ -456,19 +452,19 @@ class _ChatScreenState extends State<ChatScreen> {
                                       if (!responsive.isMobile)
                                         AnimatedContainer(
                                           duration:
-                                          const Duration(milliseconds: 300),
+                                              const Duration(milliseconds: 300),
                                           width: (isSidebarVisible ||
-                                              isFirstMessageSent)
+                                                  isFirstMessageSent)
                                               ? responsive.responsiveWidth(
-                                            mobile: 0,
-                                            tablet: 220,
-                                            desktop: 260,
-                                          )
+                                                  mobile: 0,
+                                                  tablet: 220,
+                                                  desktop: 260,
+                                                )
                                               : 0,
                                           child: (isSidebarVisible ||
-                                              isFirstMessageSent)
+                                                  isFirstMessageSent)
                                               ? _buildSidebar(
-                                              context, responsive, state)
+                                                  context, responsive, state)
                                               : null,
                                         ),
 
@@ -487,13 +483,13 @@ class _ChatScreenState extends State<ChatScreen> {
                                               // Chat messages area - uses Expanded to take available space
                                               Expanded(
                                                 child:
-                                                milanMessage.length <= 1 &&
-                                                    !isFirstMessageSent
-                                                    ? _buildWelcomeMessage()
-                                                    : _buildChatMessages(
-                                                    context,
-                                                    milanMessage,
-                                                    responsive),
+                                                    milanMessage.length <= 1 &&
+                                                            !isFirstMessageSent
+                                                        ? _buildWelcomeMessage()
+                                                        : _buildChatMessages(
+                                                            context,
+                                                            milanMessage,
+                                                            responsive),
                                               ),
 
                                               // Quick action buttons
@@ -517,26 +513,28 @@ class _ChatScreenState extends State<ChatScreen> {
                                   if (_isFileOptionsVisible)
                                     !responsive.isMobile
                                         ? Positioned(
-                                      bottom: MediaQuery.of(context).size.height * 0.15
-                                      ,
-                                      // Adjust based on your message input height
-                                      left: 0,
-                                      right: 0,
-                                      child: Center(
-                                        child: _buildFileOptionsOverlay(
-                                            responsive),
-                                      ),
-                                    )
+                                            bottom: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.15,
+                                            // Adjust based on your message input height
+                                            left: 0,
+                                            right: 0,
+                                            child: Center(
+                                              child: _buildFileOptionsOverlay(
+                                                  responsive),
+                                            ),
+                                          )
                                         : Positioned(
-                                      bottom: 80,
-                                      // Adjust based on your message input height
-                                      left: 0,
-                                      right: 0,
-                                      child: Center(
-                                        child:
-                                        _buildFileMobileOptionsRow(),
-                                      ),
-                                    ),
+                                            bottom: 80,
+                                            // Adjust based on your message input height
+                                            left: 0,
+                                            right: 0,
+                                            child: Center(
+                                              child:
+                                                  _buildFileMobileOptionsRow(),
+                                            ),
+                                          ),
                                 ],
                               );
                             },
@@ -565,7 +563,7 @@ class _ChatScreenState extends State<ChatScreen> {
             label: "Camera",
             onTap: () async {
               final pickedFile =
-              await ImagePicker().pickImage(source: ImageSource.camera);
+                  await ImagePicker().pickImage(source: ImageSource.camera);
               if (pickedFile != null) {
                 setState(() {
                   _selectedImage = File(pickedFile.path);
@@ -601,7 +599,7 @@ class _ChatScreenState extends State<ChatScreen> {
             label: "Images",
             onTap: () async {
               final pickedFile =
-              await ImagePicker().pickImage(source: ImageSource.gallery);
+                  await ImagePicker().pickImage(source: ImageSource.gallery);
               if (pickedFile != null) {
                 setState(() {
                   _selectedImage = File(pickedFile.path);
@@ -618,9 +616,10 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildFileMobileOptionItem({required IconData icon,
-    required String label,
-    required VoidCallback onTap}) {
+  Widget _buildFileMobileOptionItem(
+      {required IconData icon,
+      required String label,
+      required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -645,75 +644,84 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildFileOptionsOverlay(Responsive responsive) {
     return Positioned(
       bottom: 100, // Position above the input field
-      left: 0,
+      left: 110,
       right: 0,
       child: Center(
-        child: Container(
-          width: responsive.isMobile
-              ? MediaQuery.of(context).size.width * 0.9
-              : MediaQuery.of(context).size.width * 0.5, // Match input field width (50% for web)
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildFileOptionItem(
-                icon: "assets/images/chat_files_option.png",
-                onTap: () async {
-                  FilePickerResult? result = await FilePicker.platform.pickFiles(
-                    type: FileType.image,
-                  );
-                  if (result != null && result.files.single.path != null) {
+        child: Padding(
+          padding:  EdgeInsets.only(left:isSidebarVisible ? 250.0 : 0),
+          child: Container(
+            width: responsive.isMobile
+                ? MediaQuery.of(context).size.width * 0.9
+                : MediaQuery.of(context).size.width *
+                    0.5, // Match input field width (50% for web)
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _buildFileOptionItem(
+                  icon: "assets/images/chat_files_option.png",
+                  onTap: () async {
+                    FilePickerResult? result =
+                        await FilePicker.platform.pickFiles(
+                      type: FileType.image,
+                    );
+                    if (result != null && result.files.single.path != null) {
+                      setState(() {
+                        _selectedImage = File(result.files.single.path!);
+                        _isFileOptionsVisible = false;
+                      });
+                    }
+                  },
+                ),
+                _buildFileOptionItem(
+                  icon: "assets/images/images_option.png",
+                  onTap: () async {
+                    final pickedFile = await ImagePicker()
+                        .pickImage(source: ImageSource.gallery);
+                    if (pickedFile != null) {
+                      setState(() {
+                        _selectedImage = File(pickedFile.path);
+                        _isFileOptionsVisible = false;
+                      });
+                    }
+                  },
+                ),
+                _buildFileOptionItem(
+                  icon: "assets/images/camera_option.png",
+                  onTap: () async {
+                    final pickedFile =
+                        await ImagePicker().pickImage(source: ImageSource.camera);
+                    if (pickedFile != null) {
+                      setState(() {
+                        _selectedImage = File(pickedFile.path);
+                        _isFileOptionsVisible = false;
+                      });
+                    }
+                  },
+                ),
+                _buildFileOptionItem(
+                  icon: "assets/images/voice_option.png",
+                  onTap: () {
                     setState(() {
-                      _selectedImage = File(result.files.single.path!);
                       _isFileOptionsVisible = false;
                     });
-                  }
-                },
-              ),
-              _buildFileOptionItem(
-                icon: "assets/images/images_option.png",
-                onTap: () async {
-                  final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-                  if (pickedFile != null) {
-                    setState(() {
-                      _selectedImage = File(pickedFile.path);
-                      _isFileOptionsVisible = false;
-                    });
-                  }
-                },
-              ),
-              _buildFileOptionItem(
-                icon: "assets/images/camera_option.png",
-                onTap: () async {
-                  final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
-                  if (pickedFile != null) {
-                    setState(() {
-                      _selectedImage = File(pickedFile.path);
-                      _isFileOptionsVisible = false;
-                    });
-                  }
-                },
-              ),
-              _buildFileOptionItem(
-                icon: "assets/images/voice_option.png",
-                onTap: () {
-                  setState(() {
-                    _isFileOptionsVisible = false;
-                  });
-                },
-              ),
-            ],
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -762,28 +770,23 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               BlocBuilder<ProfileBloc, ProfileState>(
                 builder: (context, state) {
-
-                  if(state is ProfileSuccess){
-
-                    return Text(    state.response.user!.userName.toString()  ,
+                  if (state is ProfileSuccess) {
+                    return Text(
+                      state.response.user!.userName.toString(),
                       style: AppTextStyles.regular24.copyWith(
                         fontWeight: FontWeight.w100,
                         color: !isDarkMode ? AppColors.black : AppColors.white,
-                      ),);
-
-                  }else{
-
-                    return Text(    "Hi User!"  ,
+                      ),
+                    );
+                  } else {
+                    return Text(
+                      "Hi User!",
                       style: AppTextStyles.regular24.copyWith(
                         fontWeight: FontWeight.w100,
                         color: !isDarkMode ? AppColors.black : AppColors.white,
-                      ),);
-
+                      ),
+                    );
                   }
-
-
-
-
                 },
               ),
               const SizedBox(
@@ -828,47 +831,47 @@ class _ChatScreenState extends State<ChatScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 8),
       child: _isDropdownOpen
           ? Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _buildDropdownItem(
-            "Download App",
-                () {},
-          ),
-          Divider(
-              height: 1,
-              color: !isDarkMode
-                  ? AppColors.black.withOpacity(.31)
-                  : AppColors.white.withOpacity(.31)),
-          GestureDetector(
-              child: _buildDropdownItem(
-                "Settings",
-                    () {
-                  log("Button tapped");
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildDropdownItem(
+                  "Download App",
+                  () {},
+                ),
+                Divider(
+                    height: 1,
+                    color: !isDarkMode
+                        ? AppColors.black.withOpacity(.31)
+                        : AppColors.white.withOpacity(.31)),
+                GestureDetector(
+                    child: _buildDropdownItem(
+                  "Settings",
+                  () {
+                    log("Button tapped");
 
-                  try {
-                    nextPage(context, '/settings');
-                  } catch (e) {
-                    log('Navigation error: $e');
-                    // Optionally show a snackbar or dialog
-                  }
-                },
-              )),
-          Divider(
-              height: 1,
-              color: !isDarkMode
-                  ? AppColors.black.withOpacity(.31)
-                  : AppColors.white.withOpacity(.31)),
-          _buildDropdownItem(
-            "Log Out",
-                () async {
-              await StorageService.remove(StorageService.authToken);
+                    try {
+                      nextPage(context, '/settings');
+                    } catch (e) {
+                      log('Navigation error: $e');
+                      // Optionally show a snackbar or dialog
+                    }
+                  },
+                )),
+                Divider(
+                    height: 1,
+                    color: !isDarkMode
+                        ? AppColors.black.withOpacity(.31)
+                        : AppColors.white.withOpacity(.31)),
+                _buildDropdownItem(
+                  "Log Out",
+                  () async {
+                    await StorageService.remove(StorageService.authToken);
 
-              nextPage(context, '/auth');
-            },
-          ),
-        ],
-      )
+                    nextPage(context, '/auth');
+                  },
+                ),
+              ],
+            )
           : null,
     );
   }
@@ -898,8 +901,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildSidebar(BuildContext context, Responsive responsive,
-      ChatState state) {
+  Widget _buildSidebar(
+      BuildContext context, Responsive responsive, ChatState state) {
     context.read<GetAllChatHistoryBloc>().add(GetAllChatHistoryRequested());
 
     final sidebarPadding = responsive.getResponsiveValue(
@@ -930,22 +933,24 @@ class _ChatScreenState extends State<ChatScreen> {
                         'AI NAME',
                         style: responsive
                             .getResponsiveValue(
-                          mobile: AppTextStyles.medium18,
-                          tablet: AppTextStyles.medium20,
-                          desktop: AppTextStyles.regular24,
-                        )
+                              mobile: AppTextStyles.medium18,
+                              tablet: AppTextStyles.medium20,
+                              desktop: AppTextStyles.regular24,
+                            )
                             .copyWith(
-                          color: !isDarkMode
-                              ? AppColors.black
-                              : AppColors.white,
-                        ),
+                              color: !isDarkMode
+                                  ? AppColors.black
+                                  : AppColors.white,
+                            ),
                       ),
                       IconButton(
                         onPressed: () {
                           setState(() {
                             isSidebarVisible = false;
                           });
-                          context.read<ChatBloc>().add(ToggleSidebarEvent(false));
+                          context
+                              .read<ChatBloc>()
+                              .add(ToggleSidebarEvent(false));
                         },
                         icon: SvgPicture.asset(
                           "assets/icons/expand_icon.svg",
@@ -1004,14 +1009,13 @@ class _ChatScreenState extends State<ChatScreen> {
                 //   ),
                 // ),
                 //
-
               ],
             ),
 
             // Scrollable chat history
             Expanded(
               child:
-              BlocConsumer<GetAllChatHistoryBloc, GetAllChatHistoryState>(
+                  BlocConsumer<GetAllChatHistoryBloc, GetAllChatHistoryState>(
                 listener: (context, state) {},
                 builder: (context, state) {
                   if (state is GetAllChatHistoryLoading) {
@@ -1028,7 +1032,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           // Today section
                           Visibility(
                             visible:
-                            state.response.data!.today!.prompts!.isNotEmpty,
+                                state.response.data!.today!.prompts!.isNotEmpty,
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
                               child: Align(
@@ -1037,15 +1041,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                   'Today',
                                   style: responsive
                                       .getResponsiveValue(
-                                    mobile: AppTextStyles.medium16,
-                                    tablet: AppTextStyles.medium18,
-                                    desktop: AppTextStyles.regular20,
-                                  )
+                                        mobile: AppTextStyles.medium16,
+                                        tablet: AppTextStyles.medium18,
+                                        desktop: AppTextStyles.regular20,
+                                      )
                                       .copyWith(
-                                    color: !isDarkMode
-                                        ? AppColors.black
-                                        : AppColors.white,
-                                  ),
+                                        color: !isDarkMode
+                                            ? AppColors.black
+                                            : AppColors.white,
+                                      ),
                                 ),
                               ),
                             ),
@@ -1055,12 +1059,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             return GestureDetector(
                               onTap: () {
                                 context.read<GetPromptByIdBloc>().add(
-                                  GetPromptByIdRequested(
-                                    promptId: e.promptId.toString(),
-                                    limit: 10000,
-                                    offset: 1,
-                                  ),
-                                );
+                                      GetPromptByIdRequested(
+                                        promptId: e.promptId.toString(),
+                                        limit: 10000,
+                                        offset: 1,
+                                      ),
+                                    );
                                 nextReplacePage(context, '/chat',
                                     isHistory: true);
                               },
@@ -1081,15 +1085,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                   'Yesterday',
                                   style: responsive
                                       .getResponsiveValue(
-                                    mobile: AppTextStyles.medium16,
-                                    tablet: AppTextStyles.medium18,
-                                    desktop: AppTextStyles.regular20,
-                                  )
+                                        mobile: AppTextStyles.medium16,
+                                        tablet: AppTextStyles.medium18,
+                                        desktop: AppTextStyles.regular20,
+                                      )
                                       .copyWith(
-                                    color: !isDarkMode
-                                        ? AppColors.black
-                                        : AppColors.white,
-                                  ),
+                                        color: !isDarkMode
+                                            ? AppColors.black
+                                            : AppColors.white,
+                                      ),
                                 ),
                               ),
                             ),
@@ -1099,12 +1103,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             return GestureDetector(
                               onTap: () {
                                 context.read<GetPromptByIdBloc>().add(
-                                  GetPromptByIdRequested(
-                                    promptId: e.promptId.toString(),
-                                    limit: 10000,
-                                    offset: 1,
-                                  ),
-                                );
+                                      GetPromptByIdRequested(
+                                        promptId: e.promptId.toString(),
+                                        limit: 10000,
+                                        offset: 1,
+                                      ),
+                                    );
                                 nextReplacePage(context, '/chat',
                                     isHistory: true);
                               },
@@ -1125,15 +1129,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                   'Last 7 Days',
                                   style: responsive
                                       .getResponsiveValue(
-                                    mobile: AppTextStyles.medium16,
-                                    tablet: AppTextStyles.medium18,
-                                    desktop: AppTextStyles.regular20,
-                                  )
+                                        mobile: AppTextStyles.medium16,
+                                        tablet: AppTextStyles.medium18,
+                                        desktop: AppTextStyles.regular20,
+                                      )
                                       .copyWith(
-                                    color: !isDarkMode
-                                        ? AppColors.black
-                                        : AppColors.white,
-                                  ),
+                                        color: !isDarkMode
+                                            ? AppColors.black
+                                            : AppColors.white,
+                                      ),
                                 ),
                               ),
                             ),
@@ -1143,12 +1147,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             return GestureDetector(
                               onTap: () {
                                 context.read<GetPromptByIdBloc>().add(
-                                  GetPromptByIdRequested(
-                                    promptId: e.promptId.toString(),
-                                    limit: 10000,
-                                    offset: 1,
-                                  ),
-                                );
+                                      GetPromptByIdRequested(
+                                        promptId: e.promptId.toString(),
+                                        limit: 10000,
+                                        offset: 1,
+                                      ),
+                                    );
                                 nextReplacePage(context, '/chat',
                                     isHistory: true);
                               },
@@ -1170,15 +1174,15 @@ class _ChatScreenState extends State<ChatScreen> {
                                   'Last 30 Days',
                                   style: responsive
                                       .getResponsiveValue(
-                                    mobile: AppTextStyles.medium16,
-                                    tablet: AppTextStyles.medium18,
-                                    desktop: AppTextStyles.regular20,
-                                  )
+                                        mobile: AppTextStyles.medium16,
+                                        tablet: AppTextStyles.medium18,
+                                        desktop: AppTextStyles.regular20,
+                                      )
                                       .copyWith(
-                                    color: !isDarkMode
-                                        ? AppColors.black
-                                        : AppColors.white,
-                                  ),
+                                        color: !isDarkMode
+                                            ? AppColors.black
+                                            : AppColors.white,
+                                      ),
                                 ),
                               ),
                             ),
@@ -1188,12 +1192,12 @@ class _ChatScreenState extends State<ChatScreen> {
                             return GestureDetector(
                               onTap: () {
                                 context.read<GetPromptByIdBloc>().add(
-                                  GetPromptByIdRequested(
-                                    promptId: e.promptId.toString(),
-                                    limit: 10000,
-                                    offset: 1,
-                                  ),
-                                );
+                                      GetPromptByIdRequested(
+                                        promptId: e.promptId.toString(),
+                                        limit: 10000,
+                                        offset: 1,
+                                      ),
+                                    );
                                 nextReplacePage(context, '/chat',
                                     isHistory: true);
                               },
@@ -1210,7 +1214,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         "No Chat History",
                         style: AppTextStyles.regular16.copyWith(
                           color:
-                          !isDarkMode ? AppColors.black : AppColors.white,
+                              !isDarkMode ? AppColors.black : AppColors.white,
                         ),
                       ),
                     );
@@ -1248,19 +1252,22 @@ class _ChatScreenState extends State<ChatScreen> {
                                   state.response.user!.email.toString());
 
                               return CircleAvatar(
-                                backgroundColor:
-                                !isDarkMode ? AppColors.black : AppColors.white,
+                                backgroundColor: !isDarkMode
+                                    ? AppColors.black
+                                    : AppColors.white,
                                 radius: responsive.getResponsiveValue(
                                   mobile: 12.0,
                                   tablet: 13.0,
                                   desktop: 14.0,
                                 ),
-                                child: Text(name,
+                                child: Text(
+                                  name,
                                   style: TextStyle(
                                     color: !isDarkMode
                                         ? AppColors.white
                                         : AppColors.black,
-                                  ),),
+                                  ),
+                                ),
                               );
                             } else {
                               return const Center();
@@ -1274,18 +1281,17 @@ class _ChatScreenState extends State<ChatScreen> {
                               if (state is ProfileSuccess) {
                                 return Text(
                                   state.response.user!.email.toString(),
-
                                   style: responsive
                                       .getResponsiveValue(
-                                    mobile: AppTextStyles.medium14,
-                                    tablet: AppTextStyles.medium16,
-                                    desktop: AppTextStyles.regular18,
-                                  )
+                                        mobile: AppTextStyles.medium14,
+                                        tablet: AppTextStyles.medium16,
+                                        desktop: AppTextStyles.regular18,
+                                      )
                                       .copyWith(
-                                    color: isDarkMode
-                                        ? AppColors.white
-                                        : AppColors.black,
-                                  ),
+                                        color: isDarkMode
+                                            ? AppColors.white
+                                            : AppColors.black,
+                                      ),
                                   overflow: TextOverflow.ellipsis,
                                 );
                               } else {
@@ -1319,7 +1325,6 @@ class _ChatScreenState extends State<ChatScreen> {
       return '';
     }
   }
-
 
   Widget _buildChatHistoryItem(String title, Responsive responsive) {
     final theme = Theme.of(context);
@@ -1357,8 +1362,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildChatHeader(BuildContext context, Responsive responsive,
-      ChatState state) {
+  Widget _buildChatHeader(
+      BuildContext context, Responsive responsive, ChatState state) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
     print("_isHoveringLogo :: $_isHoveringLogo");
@@ -1397,19 +1402,19 @@ class _ChatScreenState extends State<ChatScreen> {
                 setState(() {
                   isSidebarVisible = !isSidebarVisible;
                 });
-                context.read<ChatBloc>().add(ToggleSidebarEvent(isSidebarVisible));
+                context
+                    .read<ChatBloc>()
+                    .add(ToggleSidebarEvent(isSidebarVisible));
               },
               padding: EdgeInsets.zero,
               constraints: const BoxConstraints(),
             ),
             const SizedBox(width: 12),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  isSidebarVisible = !isSidebarVisible;
-                });
-                context.read<ChatBloc>().add(ToggleSidebarEvent(isSidebarVisible));
-              },
+          ],
+
+          // Center the New Chat text
+          Expanded(
+            child: Center(
               child: Text(
                 'New Chat',
                 style: responsive.getResponsiveValue(
@@ -1425,20 +1430,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
             ),
-          ],
-          const Spacer(),
-          // Just the title for mobile
-          if (responsive.isMobile)
-            Center(
-              child: Text(
-                'New Chat',
-                style: AppTextStyles.medium20.copyWith(
-                  color: !isDarkMode ? AppColors.black : AppColors.white,
-                ),
-              ),
-            ),
+          ),
 
-          const Spacer(),
           IconButton(
             icon: SvgPicture.asset(
               "assets/icons/create_new_chat_icon.svg",
@@ -1472,8 +1465,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildChatMessages(BuildContext context, List<ChatMessage> messages,
-      Responsive responsive) {
+  Widget _buildChatMessages(
+      BuildContext context, List<ChatMessage> messages, Responsive responsive) {
     final messagePadding = responsive.getResponsiveValue(
       mobile: const EdgeInsets.all(12),
       tablet: const EdgeInsets.all(14),
@@ -1514,7 +1507,7 @@ class _ChatScreenState extends State<ChatScreen> {
             backgroundColor: Colors.grey[300],
             radius: avatarRadius,
             child:
-            Icon(Icons.assistant, size: avatarRadius, color: Colors.grey),
+                Icon(Icons.assistant, size: avatarRadius, color: Colors.grey),
           ),
           SizedBox(
             width: responsive.getResponsiveValue(
@@ -1538,7 +1531,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.all(13),
                     decoration: BoxDecoration(
                       color:
-                      !isDarkMode ? AppColors.white : AppColors.darkTheme,
+                          !isDarkMode ? AppColors.white : AppColors.darkTheme,
                       border: Border.all(
                         color: !isDarkMode ? AppColors.white : AppColors.white,
                       ),
@@ -1546,9 +1539,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                     child: Image.asset(
                       'assets/images/chat_animation.gif',
-                      color: Theme
-                          .of(context)
-                          .brightness == Brightness.light
+                      color: Theme.of(context).brightness == Brightness.light
                           ? AppColors.darkTheme
                           : AppColors.lightTheme,
                       height: 20,
@@ -1586,7 +1577,9 @@ class _ChatScreenState extends State<ChatScreen> {
           maxWidth: MediaQuery.of(context).size.width * 0.5,
         ),
         child: Column(
-          crossAxisAlignment: message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: message.isUser
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
           children: [
             if (message.imageUrl != null)
               Padding(
@@ -1594,22 +1587,29 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
                   child: message.showImage
-                      ? Image.network(message.imageUrl!, width: 220, height: 120, fit: BoxFit.cover)
-                      : Image.file(File(message.imageUrl!), width: 220, height: 120, fit: BoxFit.cover),
+                      ? Image.network(message.imageUrl!,
+                          width: 220, height: 120, fit: BoxFit.cover)
+                      : Image.file(File(message.imageUrl!),
+                          width: 220, height: 120, fit: BoxFit.cover),
                 ),
               ),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
               decoration: BoxDecoration(
                 color: isDarkMode ? AppColors.darkTheme : AppColors.white,
-                border: Border.all(color: !isDarkMode ? AppColors.white : AppColors.white),
+                border: Border.all(
+                    color: !isDarkMode ? AppColors.white : AppColors.white),
                 borderRadius: BorderRadius.circular(24),
               ),
               child: message.text.contains('```')
-                  ? _buildFormattedMessageText(message.text, isDarkMode ? Colors.white : Colors.black)
+                  ? _buildFormattedMessageText(
+                      message.text, isDarkMode ? Colors.white : Colors.black)
                   : SelectableText(
                       message.text,
-                      style: TextStyle(fontSize: 15, height: 1.5, color: isDarkMode ? Colors.white : Colors.black),
+                      style: TextStyle(
+                          fontSize: 15,
+                          height: 1.5,
+                          color: isDarkMode ? Colors.white : Colors.black),
                     ),
             ),
           ],
@@ -1656,12 +1656,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: TextButton(
                   style: TextButton.styleFrom(
                     minimumSize: const Size(50, 30),
-                    backgroundColor: isDarkMode ? AppColors.darkTheme : Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    backgroundColor:
+                        isDarkMode ? AppColors.darkTheme : Colors.white,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
-                      side: isDarkMode 
-                          ? const BorderSide(color: Colors.white30) 
+                      side: isDarkMode
+                          ? const BorderSide(color: Colors.white30)
                           : const BorderSide(color: Colors.black12),
                     ),
                   ),
@@ -1708,24 +1710,40 @@ class _ChatScreenState extends State<ChatScreen> {
       desktop: const EdgeInsets.symmetric(vertical: 16),
     );
 
-    return Container(
-      padding: buttonPadding,
-      child: Wrap(
-        alignment: WrapAlignment.center,
-        spacing: buttonSpacing,
-        runSpacing: buttonSpacing,
-        children: [
-          _buildActionButton(context, 'Get Advice', responsive),
-          _buildActionButton(context, 'Make a Plan', responsive),
-          _buildActionButton(context, 'Help me write', responsive),
-          _buildActionButton(context, 'Summarize text', responsive),
-        ],
+    // Calculate the available width based on sidebar visibility
+    final availableWidth = MediaQuery.of(context).size.width -
+        (isSidebarVisible
+            ? responsive.responsiveWidth(
+                mobile: 0,
+                tablet: 220,
+                desktop: 260,
+              )
+            : 0);
+
+    return Center(
+      child: Container(
+        padding: buttonPadding,
+        constraints: BoxConstraints(
+          maxWidth:
+              responsive.isDesktop ? availableWidth * 0.8 : double.infinity,
+        ),
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          spacing: buttonSpacing,
+          runSpacing: buttonSpacing,
+          children: [
+            _buildActionButton(context, 'Get Advice', responsive),
+            _buildActionButton(context, 'Make a Plan', responsive),
+            _buildActionButton(context, 'Help me write', responsive),
+            _buildActionButton(context, 'Summarize text', responsive),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildActionButton(BuildContext context, String label,
-      Responsive responsive) {
+  Widget _buildActionButton(
+      BuildContext context, String label, Responsive responsive) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
@@ -1801,8 +1819,8 @@ class _ChatScreenState extends State<ChatScreen> {
         padding: inputPadding,
         child: Container(
           padding: innerInputPadding,
-          width: responsive.isMobile 
-              ? MediaQuery.of(context).size.width 
+          width: responsive.isMobile
+              ? MediaQuery.of(context).size.width
               : MediaQuery.of(context).size.width * 0.5,
           decoration: BoxDecoration(
             color: AppColors.sendMessageColor,
@@ -1815,7 +1833,8 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               if (_selectedImage != null)
                 Padding(
-                  padding: const EdgeInsets.only(bottom: 7, left: 5, top: 5, right: 5),
+                  padding: const EdgeInsets.only(
+                      bottom: 7, left: 5, top: 5, right: 5),
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Stack(
@@ -1832,7 +1851,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         Positioned(
                           top: 0,
                           right: 0,
-
                           child: GestureDetector(
                             onTap: () {
                               setState(() {
@@ -1842,7 +1860,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             child: const CircleAvatar(
                               radius: 12,
                               backgroundColor: Colors.black54,
-                              child: Icon(Icons.close, size: 16, color: Colors.white),
+                              child: Icon(Icons.close,
+                                  size: 16, color: Colors.white),
                             ),
                           ),
                         ),
@@ -1853,7 +1872,8 @@ class _ChatScreenState extends State<ChatScreen> {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: !isDarkMode ? AppColors.white : AppColors.darkTheme,
+                    backgroundColor:
+                        !isDarkMode ? AppColors.white : AppColors.darkTheme,
                     child: IconButton(
                       icon: Icon(
                         Icons.add,
@@ -1878,7 +1898,8 @@ class _ChatScreenState extends State<ChatScreen> {
                             if (event.isShiftPressed) {
                               _messageController.text += '\n';
                             } else {
-                              if (_messageController.text.isNotEmpty || _selectedImage != null) {
+                              if (_messageController.text.isNotEmpty ||
+                                  _selectedImage != null) {
                                 if (_selectedImage != null) {
                                   imageSendMessage();
                                   _messageController.clear();
@@ -1895,10 +1916,12 @@ class _ChatScreenState extends State<ChatScreen> {
                       },
                       child: TextField(
                         controller: _messageController,
-                        style: AppTextStyles.regular16.copyWith(color: AppColors.sendTextColor),
+                        style: AppTextStyles.regular16
+                            .copyWith(color: AppColors.sendTextColor),
                         decoration: InputDecoration(
                           hintText: 'Ask anything...',
-                          hintStyle: AppTextStyles.regular16.copyWith(color: AppColors.sendTextColor),
+                          hintStyle: AppTextStyles.regular16
+                              .copyWith(color: AppColors.sendTextColor),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(24),
                             borderSide: BorderSide.none,
@@ -1914,7 +1937,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   SizedBox(width: responsive.isMobile ? 8 : 12),
                   CircleAvatar(
-                    backgroundColor: !isDarkMode ? AppColors.white : AppColors.darkTheme,
+                    backgroundColor:
+                        !isDarkMode ? AppColors.white : AppColors.darkTheme,
                     child: IconButton(
                       iconSize: 28,
                       icon: SvgPicture.asset(
@@ -1927,7 +1951,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         ),
                       ),
                       onPressed: () {
-                        if (_messageController.text.isNotEmpty || _selectedImage != null) {
+                        if (_messageController.text.isNotEmpty ||
+                            _selectedImage != null) {
                           if (_selectedImage != null) {
                             imageSendMessage();
                             scrollToBottom();
@@ -1973,7 +1998,9 @@ class _ChatScreenState extends State<ChatScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(
-              color: isDarkMode ? Colors.white.withOpacity(0.2) : Colors.black.withOpacity(0.1),
+              color: isDarkMode
+                  ? Colors.white.withOpacity(0.2)
+                  : Colors.black.withOpacity(0.1),
             ),
           ),
           content: Row(

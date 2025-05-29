@@ -1,6 +1,7 @@
 import 'package:ai_studio/src/auth_bloc/auth_bloc.dart';
 import 'package:ai_studio/src/auth_bloc/auth_screen.dart';
 import 'package:ai_studio/src/chat_bloc/chat_bloc.dart';
+import 'package:ai_studio/src/chat_bloc/chat_screen.dart';
 import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
 import 'package:ai_studio/src/chat_bloc/get_prompt_by_id_bloc.dart';
 import 'package:ai_studio/src/login_bloc/login_bloc.dart';
@@ -89,6 +90,7 @@ class MyApp extends StatelessWidget {
                 '/auth': (context) => const AuthScreen(),
                 '/login': (context) => const LoginScreen(),
                 '/signup': (context) => const SignupScreen(),
+                '/chat': (context) => const ChatScreen(),
               },
               onGenerateRoute: (settings) {
                 switch (settings.name) {
@@ -96,6 +98,8 @@ class MyApp extends StatelessWidget {
                     return _createRoute(const LoginScreen());
                   case '/signup':
                     return _createRoute(const SignupScreen());
+                  case '/chat':
+                    return _createRoute(const ChatScreen());
                   default:
                     return _createRoute(const AuthScreen());
                 }

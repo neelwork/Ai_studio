@@ -1,9 +1,11 @@
 import 'package:ai_studio/services/shared_preference/shared_preference.dart';
+import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
 import 'package:ai_studio/utils/colors.dart';
 import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/utils/responsive.dart';
 import 'package:ai_studio/utils/text_styles.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -14,32 +16,38 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  bool _hasNavigated = false;
+
   @override
   void initState() {
-    checkStatus();
     super.initState();
+    _initializeApp();
   }
 
-  void checkStatus() async {
+  Future<void> _initializeApp() async {
     final token = await StorageService.read(StorageService.authToken);
 
+    if (!mounted) return;
+
     if (token != null && token.isNotEmpty) {
-      Future.delayed(
-          const Duration(
-            seconds: 4,
-          ), () {
-        nextReplacePage(
-          context,
-          '/chat',
-        );
-      });
+      // Trigger profile API call
+      context.read<ProfileBloc>().add(ProfileRequested());
     } else {
-      Future.delayed(
-          const Duration(
-            seconds: 4,
-          ), () {
-        nextReplacePage(context, '/auth');
-      });
+      _navigateToAuth();
+    }
+  }
+
+  void _navigateToAuth() {
+    if (!_hasNavigated) {
+      _hasNavigated = true;
+      nextReplacePage(context, '/auth');
+    }
+  }
+
+  void _navigateToChat() {
+    if (!_hasNavigated) {
+      _hasNavigated = true;
+      nextReplacePage(context, '/chat');
     }
   }
 
@@ -50,39 +58,48 @@ class _SplashScreenState extends State<SplashScreen> {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              "assets/icons/ai_icon.svg",
-              height: responsive.getResponsiveValue(
-                mobile: 60.0,
-                tablet: 70.0,
-                desktop: 80.0,
+    return BlocListener<ProfileBloc, ProfileState>(
+      listener: (context, state) {
+        if (state is ProfileSuccess) {
+          _navigateToChat();
+        } else if (state is ProfileFailure) {
+          _navigateToAuth();
+        }
+      },
+      child: Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SvgPicture.asset(
+                "assets/icons/ai_icon.svg",
+                height: responsive.getResponsiveValue(
+                  mobile: 60.0,
+                  tablet: 70.0,
+                  desktop: 80.0,
+                ),
+                // Apply color filter based on theme
+                colorFilter: ColorFilter.mode(
+                  isDarkMode ? AppColors.white : AppColors.black,
+                  BlendMode.srcIn,
+                ),
               ),
-              // Apply color filter based on theme
-              colorFilter: ColorFilter.mode(
-                isDarkMode ? AppColors.white : AppColors.black,
-                BlendMode.srcIn,
+              const SizedBox(height: 16),
+              Text(
+                'Where Innovation Meets\nSimplicity.',
+                textAlign: TextAlign.center,
+                style: responsive
+                    .getResponsiveValue(
+                      mobile: AppTextStyles.medium20,
+                      desktop: AppTextStyles.medium24,
+                    )
+                    .copyWith(
+                      color: theme.textTheme.bodyLarge?.color,
+                    ),
               ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Where Innovation Meets\nSimplicity.',
-              textAlign: TextAlign.center,
-              style: responsive
-                  .getResponsiveValue(
-                    mobile: AppTextStyles.medium20,
-                    desktop: AppTextStyles.medium24,
-                  )
-                  .copyWith(
-                    color: theme.textTheme.bodyLarge?.color,
-                  ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

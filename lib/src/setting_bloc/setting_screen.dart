@@ -761,10 +761,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                     BlocConsumer<
                                                         DeleteAllChatBloc,
                                                         DeleteAllChatState>(
-                                                      listener: (context, state) {
+                                                      listener:
+                                                          (context, state) {
                                                         if (state
                                                             is DeleteAllChatSuccess) {
-                                                          Navigator.pop(context);
+                                                          Navigator.pop(
+                                                              context);
                                                           ScaffoldMessenger.of(
                                                                   context)
                                                               .showSnackBar(
@@ -775,7 +777,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                             ),
                                                           );
                                                         } else {
-                                                          Navigator.pop(context);
+                                                          Navigator.pop(
+                                                              context);
                                                           ScaffoldMessenger.of(
                                                                   context)
                                                               .showSnackBar(
@@ -787,7 +790,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                           );
                                                         }
                                                       },
-                                                      builder: (context, state) {
+                                                      builder:
+                                                          (context, state) {
                                                         return TextButton(
                                                           onPressed: () {
                                                             context
@@ -800,8 +804,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                           child: const Text(
                                                               'Delete',
                                                               style: TextStyle(
-                                                                  color:
-                                                                      Colors.red)),
+                                                                  color: Colors
+                                                                      .red)),
                                                         );
                                                       },
                                                     ),
