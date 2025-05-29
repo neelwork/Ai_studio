@@ -45,6 +45,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   List<ChatMessage> milanMessage = [];
   File? _selectedImage;
+  bool _isLoadingSession = true;
 
   @override
   void initState() {
@@ -53,6 +54,8 @@ class _ChatScreenState extends State<ChatScreen> {
     context.read<ProfileBloc>().add(ProfileRequested());
     if (kIsWeb) {
       checkAndRestoreSession();
+    } else {
+      _isLoadingSession = false;
     }
     super.initState();
   }
@@ -61,6 +64,10 @@ class _ChatScreenState extends State<ChatScreen> {
     final token = await StorageService.read(StorageService.authToken);
     if (token == null || token.isEmpty) {
       nextPage(context, '/auth');
+    } else {
+      setState(() {
+        _isLoadingSession = false;
+      });
     }
   }
 
@@ -174,14 +181,16 @@ class _ChatScreenState extends State<ChatScreen> {
         print("image upload response body: $responseBody");
 
         var jsonResponse = jsonDecode(responseBody);
-
+        _showCustomSnackBar("Image uploaded successfully");
         return jsonResponse["image_urls"]?[0]?["url"];
       } else {
         print("Upload failed: ${response.statusCode}");
+        _showCustomSnackBar("Failed to upload image");
         return null;
       }
     } catch (e) {
       print("Upload exception: $e");
+      _showCustomSnackBar("Error uploading image");
       return null;
     }
   }
@@ -238,6 +247,34 @@ class _ChatScreenState extends State<ChatScreen> {
     final responsive = Responsive.of(context);
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
+
+    if (_isLoadingSession) {
+      return Scaffold(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 80,
+                height: 80,
+                child: CircularProgressIndicator(
+                  color: isDarkMode ? AppColors.white : AppColors.black,
+                  strokeWidth: 5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                "Loading...",
+                style: AppTextStyles.regular18.copyWith(
+                  color: isDarkMode ? AppColors.white : AppColors.black,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return BlocConsumer<GetPromptByIdBloc, GetPromptByIdState>(
       listener: (context, state) {
@@ -305,8 +342,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                               isFirstMessageSent)
                                               ? responsive.responsiveWidth(
                                             mobile: 0,
-                                            tablet: 250,
-                                            desktop: 300,
+                                            tablet: 220,
+                                            desktop: 260,
                                           )
                                               : 0,
                                           child: (isSidebarVisible ||
@@ -424,8 +461,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                               isFirstMessageSent)
                                               ? responsive.responsiveWidth(
                                             mobile: 0,
-                                            tablet: 250,
-                                            desktop: 300,
+                                            tablet: 220,
+                                            desktop: 260,
                                           )
                                               : 0,
                                           child: (isSidebarVisible ||
@@ -480,7 +517,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                   if (_isFileOptionsVisible)
                                     !responsive.isMobile
                                         ? Positioned(
-                                      bottom: 80,
+                                      bottom: MediaQuery.of(context).size.height * 0.15
+                                      ,
                                       // Adjust based on your message input height
                                       left: 0,
                                       right: 0,
@@ -605,58 +643,79 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildFileOptionsOverlay(Responsive responsive) {
-    return Container(
-      width: 813,
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          _buildFileOptionItem(
-            icon: "assets/images/chat_files_option.png",
-            // You'll need to add this icon
-
-            onTap: () {
-              // Implement file selection logic
-              setState(() {
-                _isFileOptionsVisible = false;
-              });
-            },
+    return Positioned(
+      bottom: 100, // Position above the input field
+      left: 0,
+      right: 0,
+      child: Center(
+        child: Container(
+          width: responsive.isMobile
+              ? MediaQuery.of(context).size.width * 0.9
+              : MediaQuery.of(context).size.width * 0.5, // Match input field width (50% for web)
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          _buildFileOptionItem(
-            icon: "assets/images/images_option.png",
-            // You'll need to add this icon
-
-            onTap: () {
-              // Implement image selection logic
-              setState(() {
-                _isFileOptionsVisible = false;
-              });
-            },
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildFileOptionItem(
+                icon: "assets/images/chat_files_option.png",
+                onTap: () async {
+                  FilePickerResult? result = await FilePicker.platform.pickFiles(
+                    type: FileType.image,
+                  );
+                  if (result != null && result.files.single.path != null) {
+                    setState(() {
+                      _selectedImage = File(result.files.single.path!);
+                      _isFileOptionsVisible = false;
+                    });
+                  }
+                },
+              ),
+              _buildFileOptionItem(
+                icon: "assets/images/images_option.png",
+                onTap: () async {
+                  final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+                  if (pickedFile != null) {
+                    setState(() {
+                      _selectedImage = File(pickedFile.path);
+                      _isFileOptionsVisible = false;
+                    });
+                  }
+                },
+              ),
+              _buildFileOptionItem(
+                icon: "assets/images/camera_option.png",
+                onTap: () async {
+                  final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+                  if (pickedFile != null) {
+                    setState(() {
+                      _selectedImage = File(pickedFile.path);
+                      _isFileOptionsVisible = false;
+                    });
+                  }
+                },
+              ),
+              _buildFileOptionItem(
+                icon: "assets/images/voice_option.png",
+                onTap: () {
+                  setState(() {
+                    _isFileOptionsVisible = false;
+                  });
+                },
+              ),
+            ],
           ),
-          _buildFileOptionItem(
-            icon: "assets/images/camera_option.png",
-            // You'll need to add this icon
-
-            onTap: () {
-              // Implement camera logic
-              setState(() {
-                _isFileOptionsVisible = false;
-              });
-            },
-          ),
-          _buildFileOptionItem(
-            icon: "assets/images/voice_option.png",
-            // You'll need to add this icon
-
-            onTap: () {
-              // Implement voice recording logic
-              setState(() {
-                _isFileOptionsVisible = false;
-              });
-            },
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -666,6 +725,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return GestureDetector(
       onTap: onTap,
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
             icon,
@@ -1417,20 +1477,17 @@ class _ChatScreenState extends State<ChatScreen> {
     final messagePadding = responsive.getResponsiveValue(
       mobile: const EdgeInsets.all(12),
       tablet: const EdgeInsets.all(14),
-      desktop: const EdgeInsets.all(16),
+      desktop: const EdgeInsets.symmetric(horizontal: 200, vertical: 16),
     );
 
     return ListView.builder(
       controller: _scrollController,
       padding: messagePadding,
-      itemCount:
-      messages.length + (isBotTyping ? 1 : 0), // Add 1 for typing indicator
+      itemCount: messages.length + (isBotTyping ? 1 : 0),
       itemBuilder: (context, index) {
-        // If we're at the last item and the bot is typing, show the typing animation
         if (index == messages.length && isBotTyping) {
           return _buildTypingAnimation(responsive);
         }
-        // Otherwise show the regular message
         final message = messages[index];
         return _buildMessageItem(message, responsive);
       },
@@ -1511,171 +1568,25 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageItem(ChatMessage message, Responsive responsive) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
-
     final avatarRadius = responsive.getResponsiveValue(
       mobile: 14.0,
       tablet: 15.0,
       desktop: 16.0,
     );
-
     final messageFontSize = responsive.getResponsiveValue(
       mobile: 13.0,
       tablet: 13.5,
       desktop: 18.0,
     );
-
-    // return message.imageUrl != null ? Container(
-    //   margin: const EdgeInsets.symmetric(vertical: 12),
-    //   child: Align(
-    //     alignment: message.isUser ? Alignment.centerRight : Alignment
-    //         .centerLeft,
-    //     child: Column(
-    //       crossAxisAlignment: CrossAxisAlignment.end,
-    //       children: [
-    //         message.showImage ? ClipRRect(
-    //           borderRadius: BorderRadius.circular(10),
-    //           child: Image.network(
-    //             message.imageUrl!,
-    //             fit: BoxFit.cover,
-    //             width: 250,
-    //             height: 140,
-    //           ),
-    //         ) : ClipRRect(
-    //           borderRadius: BorderRadius.circular(10),
-    //           child: Image.file(
-    //             File(message.imageUrl!),
-    //             fit: BoxFit.cover,
-    //             width: 250,
-    //             height: 140,
-    //           ),
-    //         ),
-    //         const SizedBox(height: 5,),
-    //         Column(
-    //           crossAxisAlignment: message.isUser
-    //               ? CrossAxisAlignment.end
-    //               : CrossAxisAlignment.start,
-    //           children: [
-    //             const SizedBox(height: 4),
-    //             Container(
-    //               padding: const EdgeInsets.all(13),
-    //               decoration: BoxDecoration(
-    //                 color:
-    //                 !isDarkMode ? AppColors.white : AppColors.darkTheme,
-    //                 border: Border.all(
-    //                   color: !isDarkMode ? AppColors.white : AppColors.white,
-    //                 ),
-    //                 borderRadius: BorderRadius.circular(24),
-    //               ),
-    //               child: Text(
-    //                 message.text,
-    //                 style: AppTextStyles.regular18.copyWith(
-    //                   fontSize: messageFontSize,
-    //                   color: !isDarkMode ? AppColors.black : AppColors.white,
-    //                 ),
-    //               ),
-    //             ),
-    //             if (message.attachments != null) ...message.attachments!,
-    //           ],
-    //         ),
-    //
-    //
-    //       ],
-    //     ),
-    //   ),
-    // )
-    //     : Container(
-    //   margin: const EdgeInsets.symmetric(vertical: 8),
-    //   child: Row(
-    //     crossAxisAlignment: CrossAxisAlignment.start,
-    //     mainAxisAlignment:
-    //     message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-    //     children: [
-    //       if (!message.isUser)
-    //         CircleAvatar(
-    //           backgroundColor: Colors.grey[300],
-    //           radius: avatarRadius,
-    //           child:
-    //           Icon(Icons.assistant, size: avatarRadius, color: Colors.grey),
-    //         ),
-    //       SizedBox(
-    //           width: !message.isUser
-    //               ? responsive.getResponsiveValue(
-    //             mobile: 8.0,
-    //             tablet: 10.0,
-    //             desktop: 12.0,
-    //           )
-    //               : 0),
-    //       Expanded(
-    //         child:
-    //         Padding(
-    //           padding: EdgeInsets.only(
-    //             left: responsive.isMobile
-    //                 ? message.isUser
-    //                 ? 40.0
-    //                 : 0
-    //                 : message.isUser
-    //                 ? 300.0
-    //                 : 0,
-    //             right: responsive.isMobile
-    //                 ? message.isUser
-    //                 ? 0.0
-    //                 : 40
-    //                 : message.isUser
-    //                 ? 0.0
-    //                 : 300,
-    //           ),
-    //           child: Column(
-    //             crossAxisAlignment: message.isUser
-    //                 ? CrossAxisAlignment.end
-    //                 : CrossAxisAlignment.start,
-    //             children: [
-    //               const SizedBox(height: 4),
-    //               Container(
-    //                 padding: const EdgeInsets.all(13),
-    //                 decoration: BoxDecoration(
-    //                   color:
-    //                   !isDarkMode ? AppColors.white : AppColors.darkTheme,
-    //                   border: Border.all(
-    //                     color: !isDarkMode ? AppColors.white : AppColors.white,
-    //                   ),
-    //                   borderRadius: BorderRadius.circular(24),
-    //                 ),
-    //                 child: Text(
-    //                   message.text,
-    //                   style: AppTextStyles.regular18.copyWith(
-    //                     fontSize: messageFontSize,
-    //                     color: !isDarkMode ? AppColors.black : AppColors.white,
-    //                   ),
-    //                 ),
-    //               ),
-    //               if (message.attachments != null) ...message.attachments!,
-    //             ],
-    //           ),
-    //         ),
-    //
-    //
-    //       ),
-    //     ],
-    //   ),
-    // );
-    //
-
-
-
-    // new code
-
-
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
-      alignment:   message.isUser ? Alignment.centerRight : Alignment
-            .centerLeft,
+      alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.75,
+          maxWidth: MediaQuery.of(context).size.width * 0.5,
         ),
         child: Column(
-          crossAxisAlignment:
-          message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          crossAxisAlignment: message.isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             if (message.imageUrl != null)
               Padding(
@@ -1687,38 +1598,27 @@ class _ChatScreenState extends State<ChatScreen> {
                       : Image.file(File(message.imageUrl!), width: 220, height: 120, fit: BoxFit.cover),
                 ),
               ),
-
-            /// 🔁 Switch between new and old message view
             Container(
               padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
               decoration: BoxDecoration(
-               color:
-                isDarkMode ?  AppColors.darkTheme : AppColors.white,
-
-              border: Border.all(color: !isDarkMode ?  AppColors.white : AppColors.white ),
-                borderRadius: BorderRadius.circular(24) ,
+                color: isDarkMode ? AppColors.darkTheme : AppColors.white,
+                border: Border.all(color: !isDarkMode ? AppColors.white : AppColors.white),
+                borderRadius: BorderRadius.circular(24),
               ),
               child: message.text.contains('```')
-                  ? _buildFormattedMessageText(message.text, isDarkMode ?   Colors.white :  Colors.black)
+                  ? _buildFormattedMessageText(message.text, isDarkMode ? Colors.white : Colors.black)
                   : SelectableText(
-                message.text,
-                style:  TextStyle(fontSize: 15,  height: 1.5, color: isDarkMode ?   Colors.white :  Colors.black),
-              ),
+                      message.text,
+                      style: TextStyle(fontSize: 15, height: 1.5, color: isDarkMode ? Colors.white : Colors.black),
+                    ),
             ),
           ],
         ),
       ),
     );
-
-
-
   }
 
-
-
   Widget _buildFormattedMessageText(String text, Color textColor) {
-
-
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
@@ -1738,15 +1638,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 margin: const EdgeInsets.only(top: 12, bottom: 6),
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: isDarkMode ?  Colors.white  :  Colors.grey.shade900,
+                  color: isDarkMode ? Colors.white : Colors.grey.shade900,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: SelectableText(
                   content,
-                  style:  TextStyle(
+                  style: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 14,
-                    color: isDarkMode ?  Colors.black  :  Colors.white,
+                    color: isDarkMode ? Colors.black : Colors.white,
                   ),
                 ),
               ),
@@ -1756,23 +1656,25 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: TextButton(
                   style: TextButton.styleFrom(
                     minimumSize: const Size(50, 30),
-                    backgroundColor: isDarkMode ?  AppColors.darkTheme  :   Colors.white,
+                    backgroundColor: isDarkMode ? AppColors.darkTheme : Colors.white,
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(6),
-                      side: isDarkMode ? const BorderSide(color: Colors.white30)  :  const BorderSide(color: Colors.black12),
+                      side: isDarkMode 
+                          ? const BorderSide(color: Colors.white30) 
+                          : const BorderSide(color: Colors.black12),
                     ),
                   ),
-
                   onPressed: () {
                     Clipboard.setData(ClipboardData(text: content));
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Copied to clipboard")),
-                    );
+                    _showCustomSnackBar("Code copied to clipboard");
                   },
-                  child:  Text(
+                  child: Text(
                     "Copy",
-                    style: TextStyle(fontSize: 12, color: isDarkMode ?  Colors.white:  Colors.black),
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isDarkMode ? Colors.white : Colors.black,
+                    ),
                   ),
                 ),
               ),
@@ -1790,10 +1692,6 @@ class _ChatScreenState extends State<ChatScreen> {
       }),
     );
   }
-
-
-
-
 
   Widget _buildQuickActionButtons(BuildContext context, Responsive responsive) {
     Theme.of(context);
@@ -1871,8 +1769,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // new
-
   Widget _buildMessageInput(BuildContext context, Responsive responsive) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
@@ -1880,7 +1776,12 @@ class _ChatScreenState extends State<ChatScreen> {
     final inputPadding = responsive.getResponsiveValue(
       mobile: const EdgeInsets.all(8),
       tablet: const EdgeInsets.all(10),
-      desktop: const EdgeInsets.all(12),
+      desktop: const EdgeInsets.symmetric(horizontal: 200, vertical: 12),
+    );
+    final innerInputPadding = responsive.getResponsiveValue(
+      mobile: const EdgeInsets.all(8),
+      tablet: const EdgeInsets.all(10),
+      desktop: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
     );
 
     final textFieldPadding = responsive.getResponsiveValue(
@@ -1895,303 +1796,209 @@ class _ChatScreenState extends State<ChatScreen> {
       desktop: 20.0,
     );
 
-    return Padding(
-      padding: inputPadding,
-      child: Container(
+    return Center(
+      child: Padding(
         padding: inputPadding,
-        width: 813,
-        decoration: BoxDecoration(
-          color: AppColors.sendMessageColor,
-          borderRadius: _selectedImage != null
-              ? BorderRadiusDirectional.circular(14)
-              : BorderRadiusDirectional.circular(51),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (_selectedImage != null)
-              Padding(
-                padding:
-                const EdgeInsets.only(bottom: 7, left: 5, top: 5, right: 5),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Stack(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          _selectedImage!,
-                          height: 65,
-                          width: 65,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                      Positioned(
-                        top: 0,
-                        right: 0,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _selectedImage = null;
-                            });
-                          },
-                          child: const CircleAvatar(
-                            radius: 12,
-                            backgroundColor: Colors.black54,
-                            child: Icon(Icons.close,
-                                size: 16, color: Colors.white),
+        child: Container(
+          padding: innerInputPadding,
+          width: responsive.isMobile 
+              ? MediaQuery.of(context).size.width 
+              : MediaQuery.of(context).size.width * 0.5,
+          decoration: BoxDecoration(
+            color: AppColors.sendMessageColor,
+            borderRadius: _selectedImage != null
+                ? BorderRadiusDirectional.circular(14)
+                : BorderRadiusDirectional.circular(51),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (_selectedImage != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 7, left: 5, top: 5, right: 5),
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Stack(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(12),
+                          child: Image.file(
+                            _selectedImage!,
+                            height: 65,
+                            width: 65,
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundColor:
-                  !isDarkMode ? AppColors.white : AppColors.darkTheme,
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.add,
-                      size: iconSize,
-                      color: !isDarkMode ? AppColors.black : AppColors.white,
+                        Positioned(
+                          top: 0,
+                          right: 0,
+
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _selectedImage = null;
+                              });
+                            },
+                            child: const CircleAvatar(
+                              radius: 12,
+                              backgroundColor: Colors.black54,
+                              child: Icon(Icons.close, size: 16, color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    onPressed: () async {
-                      setState(() {
-                        _isFileOptionsVisible = !_isFileOptionsVisible;
-                      });
-                    },
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
                   ),
                 ),
-                Expanded(
-                  child: RawKeyboardListener(
-                    focusNode: FocusNode(),
-                    onKey: (RawKeyEvent event) {
-                      if (event is RawKeyDownEvent) {
-                        if (event.logicalKey == LogicalKeyboardKey.enter) {
-                          if (event.isShiftPressed) {
-                            _messageController.text += '\n';
-                          } else {
-                            if (_messageController.text.isNotEmpty ||
-                                _selectedImage != null) {
-                              if (_selectedImage != null) {
-                                imageSendMessage();
-
-                                _messageController.clear();
-                                scrollToBottom();
-                              } else {
-                                sendMessage();
-
-                                _messageController.clear();
-                                scrollToBottom();
+              Row(
+                children: [
+                  CircleAvatar(
+                    backgroundColor: !isDarkMode ? AppColors.white : AppColors.darkTheme,
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.add,
+                        size: iconSize,
+                        color: !isDarkMode ? AppColors.black : AppColors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isFileOptionsVisible = !_isFileOptionsVisible;
+                        });
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
+                  ),
+                  Expanded(
+                    child: RawKeyboardListener(
+                      focusNode: FocusNode(),
+                      onKey: (RawKeyEvent event) {
+                        if (event is RawKeyDownEvent) {
+                          if (event.logicalKey == LogicalKeyboardKey.enter) {
+                            if (event.isShiftPressed) {
+                              _messageController.text += '\n';
+                            } else {
+                              if (_messageController.text.isNotEmpty || _selectedImage != null) {
+                                if (_selectedImage != null) {
+                                  imageSendMessage();
+                                  _messageController.clear();
+                                  scrollToBottom();
+                                } else {
+                                  sendMessage();
+                                  _messageController.clear();
+                                  scrollToBottom();
+                                }
                               }
                             }
                           }
                         }
-                      }
-                    },
-                    child: TextField(
-                      controller: _messageController,
-                      style: AppTextStyles.regular16
-                          .copyWith(color: AppColors.sendTextColor),
-                      decoration: InputDecoration(
-                        hintText: 'Ask anything...',
-                        hintStyle: AppTextStyles.regular16
-                            .copyWith(color: AppColors.sendTextColor),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(24),
-                          borderSide: BorderSide.none,
+                      },
+                      child: TextField(
+                        controller: _messageController,
+                        style: AppTextStyles.regular16.copyWith(color: AppColors.sendTextColor),
+                        decoration: InputDecoration(
+                          hintText: 'Ask anything...',
+                          hintStyle: AppTextStyles.regular16.copyWith(color: AppColors.sendTextColor),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(24),
+                            borderSide: BorderSide.none,
+                          ),
+                          filled: true,
+                          fillColor: AppColors.sendMessageColor,
+                          contentPadding: textFieldPadding,
                         ),
-                        filled: true,
-                        fillColor: AppColors.sendMessageColor,
-                        contentPadding: textFieldPadding,
+                        minLines: 1,
+                        maxLines: 1,
                       ),
-                      minLines: 1,
-                      maxLines: 1,
                     ),
                   ),
-                ),
-                SizedBox(width: responsive.isMobile ? 8 : 12),
-                CircleAvatar(
-                  backgroundColor:
-                  !isDarkMode ? AppColors.white : AppColors.darkTheme,
-                  child: IconButton(
-                    iconSize: 28,
-                    icon: SvgPicture.asset(
-                      "assets/icons/send_message_icon.svg",
-                      height: 20,
-                      width: 20,
-                      colorFilter: ColorFilter.mode(
-                        !isDarkMode ? AppColors.black : AppColors.white,
-                        BlendMode.srcIn,
+                  SizedBox(width: responsive.isMobile ? 8 : 12),
+                  CircleAvatar(
+                    backgroundColor: !isDarkMode ? AppColors.white : AppColors.darkTheme,
+                    child: IconButton(
+                      iconSize: 28,
+                      icon: SvgPicture.asset(
+                        "assets/icons/send_message_icon.svg",
+                        height: 20,
+                        width: 20,
+                        colorFilter: ColorFilter.mode(
+                          !isDarkMode ? AppColors.black : AppColors.white,
+                          BlendMode.srcIn,
+                        ),
                       ),
-                    ),
-                    onPressed: () {
-                      if (_messageController.text.isNotEmpty ||
-                          _selectedImage != null) {
-                        if (_selectedImage != null) {
-                          imageSendMessage();
-                          scrollToBottom();
-                          _messageController.clear();
-                          setState(() {
-                            isFirstMessageSent = true;
-                            isSidebarVisible = true;
-                          });
-                        } else {
-                          sendMessage();
-                          scrollToBottom();
-                          _messageController.clear();
-                          setState(() {
-                            isFirstMessageSent = true;
-                            isSidebarVisible = true;
-                          });
+                      onPressed: () {
+                        if (_messageController.text.isNotEmpty || _selectedImage != null) {
+                          if (_selectedImage != null) {
+                            imageSendMessage();
+                            scrollToBottom();
+                            _messageController.clear();
+                            setState(() {
+                              isFirstMessageSent = true;
+                              isSidebarVisible = true;
+                            });
+                          } else {
+                            sendMessage();
+                            scrollToBottom();
+                            _messageController.clear();
+                            setState(() {
+                              isFirstMessageSent = true;
+                              isSidebarVisible = true;
+                            });
+                          }
                         }
-                      }
-                    },
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
+                      },
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-
-  // Widget _buildMessageInput(BuildContext context, Responsive responsive) {
-  //   final theme = Theme.of(context);
-  //   final isDarkMode = theme.brightness == Brightness.dark;
-  //
-  //   final inputPadding = responsive.getResponsiveValue(
-  //     mobile: const EdgeInsets.all(8),
-  //     tablet: const EdgeInsets.all(10),
-  //     desktop: const EdgeInsets.all(12),
-  //   );
-  //
-  //   final textFieldPadding = responsive.getResponsiveValue(
-  //     mobile: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-  //     tablet: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-  //     desktop: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-  //   );
-  //
-  //   final iconSize = responsive.getResponsiveValue(
-  //     mobile: 18.0,
-  //     tablet: 19.0,
-  //     desktop: 20.0,
-  //   );
-  //
-  //   return Padding(
-  //     padding: inputPadding,
-  //     child: Container(
-  //       padding: inputPadding,
-  //       width: 813,
-  //       decoration: BoxDecoration(
-  //           color: AppColors.sendMessageColor,
-  //           borderRadius: BorderRadiusDirectional.circular(51)),
-  //       child: Row(
-  //         children: [
-  //           CircleAvatar(
-  //             backgroundColor:
-  //                 !isDarkMode ? AppColors.white : AppColors.darkTheme,
-  //             child: IconButton(
-  //               icon: Icon(
-  //                 Icons.add,
-  //                 size: iconSize,
-  //                 color: !isDarkMode ? AppColors.black : AppColors.white,
-  //               ),
-  //               onPressed: () {
-  //                 setState(() {
-  //                   _isFileOptionsVisible = !_isFileOptionsVisible;
-  //                 });
-  //               },
-  //               padding: EdgeInsets.zero,
-  //               constraints: const BoxConstraints(),
-  //             ),
-  //           ),
-  //           // SizedBox(width: responsive.isMobile ? 8 : 12),
-  //           Expanded(
-  //             child: RawKeyboardListener(
-  //               focusNode: FocusNode(),
-  //               onKey: (RawKeyEvent event) {
-  //                 if (event is RawKeyDownEvent) {
-  //                   if (event.logicalKey == LogicalKeyboardKey.enter) {
-  //                     if (event.isShiftPressed) {
-  //                       // Shift + Enter: Add a new line
-  //                       _messageController.text += '\n';
-  //                     } else {
-  //                       if (_messageController.text.isNotEmpty) {
-  //                         sendMessage();
-  //
-  //                         _messageController.clear();
-  //                         scrollToBottom();
-  //                       }
-  //                     }
-  //                   }
-  //                 }
-  //               },
-  //               child: TextField(
-  //                 controller: _messageController,
-  //                 style: AppTextStyles.regular16
-  //                     .copyWith(color: AppColors.sendTextColor),
-  //                 decoration: InputDecoration(
-  //                   hintText: 'Ask anything...',
-  //                   hintStyle: AppTextStyles.regular16
-  //                       .copyWith(color: AppColors.sendTextColor),
-  //                   border: OutlineInputBorder(
-  //                     borderRadius: BorderRadius.circular(24),
-  //                     borderSide: BorderSide.none,
-  //                   ),
-  //                   filled: true,
-  //                   fillColor: AppColors.sendMessageColor,
-  //                   contentPadding: textFieldPadding,
-  //                 ),
-  //                 minLines: 1,
-  //                 maxLines: 1,
-  //               ),
-  //             ),
-  //           ),
-  //           SizedBox(width: responsive.isMobile ? 8 : 12),
-  //           CircleAvatar(
-  //             backgroundColor:
-  //                 !isDarkMode ? AppColors.white : AppColors.darkTheme,
-  //             child: IconButton(
-  //               iconSize: 28,
-  //               icon: SvgPicture.asset(
-  //                 "assets/icons/send_message_icon.svg",
-  //                 height: 20,
-  //                 width: 20,
-  //                 colorFilter: ColorFilter.mode(
-  //                     !isDarkMode ? AppColors.black : AppColors.white,
-  //                     BlendMode.srcIn),
-  //               ),
-  //               onPressed: () {
-  //                 if (_messageController.text.isNotEmpty) {
-  //                   sendMessage();
-  //                   scrollToBottom();
-  //                   _messageController.clear();
-  //                   setState(() {
-  //                     isFirstMessageSent = true;
-  //                     isSidebarVisible = true;
-  //                   });
-  //                 }
-  //               },
-  //               padding: EdgeInsets.zero,
-  //               constraints: const BoxConstraints(),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
+  void _showCustomSnackBar(String message) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          backgroundColor: isDarkMode ? AppColors.darkTheme : AppColors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: isDarkMode ? Colors.white.withOpacity(0.2) : Colors.black.withOpacity(0.1),
+            ),
+          ),
+          content: Row(
+            children: [
+              Icon(
+                Icons.check_circle_outline,
+                color: isDarkMode ? Colors.white : AppColors.black,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  message,
+                  style: AppTextStyles.regular14.copyWith(
+                    color: isDarkMode ? Colors.white : AppColors.black,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    });
+  }
 
   @override
   void dispose() {

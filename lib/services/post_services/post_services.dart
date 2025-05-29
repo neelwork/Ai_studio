@@ -189,6 +189,8 @@ class PostServices {
       },
     );
 
+    print('deleteAllChats Status Code :: ${response.statusCode}');
+    print('deleteAllChats Body :: ${response.body}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final result = DeleteAllChatModel.fromJson(data);

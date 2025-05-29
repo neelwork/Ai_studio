@@ -11,6 +11,7 @@ class DeleteAllChatBloc extends Bloc<DeleteAllChatEvent, DeleteAllChatState> {
 
   Future<void> _onDeleteAllChatRequested(
       DeleteAllChatRequested event, Emitter<DeleteAllChatState> emit) async {
+    print('Calling this... ');
     emit(DeleteAllChatLoading());
     final response = await PostServices().deleteAllChats();
     if (response != null) {

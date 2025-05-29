@@ -758,23 +758,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                                       child:
                                                           const Text('Cancel'),
                                                     ),
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        // Delete chats logic
-                                                        Navigator.pop(context);
-                                                        ScaffoldMessenger.of(
-                                                                context)
-                                                            .showSnackBar(
-                                                          const SnackBar(
+                                                    BlocConsumer<
+                                                        DeleteAllChatBloc,
+                                                        DeleteAllChatState>(
+                                                      listener: (context, state) {
+                                                        if (state
+                                                            is DeleteAllChatSuccess) {
+                                                          Navigator.pop(context);
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
                                                               content: Text(
-                                                                  'All chats have been deleted')),
+                                                                'All chats have been deleted',
+                                                              ),
+                                                            ),
+                                                          );
+                                                        } else {
+                                                          Navigator.pop(context);
+                                                          ScaffoldMessenger.of(
+                                                                  context)
+                                                              .showSnackBar(
+                                                            const SnackBar(
+                                                              content: Text(
+                                                                'No prompts found for this user',
+                                                              ),
+                                                            ),
+                                                          );
+                                                        }
+                                                      },
+                                                      builder: (context, state) {
+                                                        return TextButton(
+                                                          onPressed: () {
+                                                            context
+                                                                .read<
+                                                                    DeleteAllChatBloc>()
+                                                                .add(
+                                                                  DeleteAllChatRequested(),
+                                                                );
+                                                          },
+                                                          child: const Text(
+                                                              'Delete',
+                                                              style: TextStyle(
+                                                                  color:
+                                                                      Colors.red)),
                                                         );
                                                       },
-                                                      child: const Text(
-                                                          'Delete',
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.red)),
                                                     ),
                                                   ],
                                                 ),
