@@ -10,8 +10,10 @@ import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:ai_studio/utils/text_styles.dart';
 import 'package:ai_studio/widget/app_button.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
@@ -866,7 +868,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   "Log Out",
                   () async {
                     await StorageService.remove(StorageService.authToken);
-
+                    // await GoogleSignIn().signOut();
                     nextPage(context, '/auth');
                   },
                 ),
@@ -929,19 +931,21 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'AI NAME',
-                        style: responsive
-                            .getResponsiveValue(
-                              mobile: AppTextStyles.medium18,
-                              tablet: AppTextStyles.medium20,
-                              desktop: AppTextStyles.regular24,
-                            )
-                            .copyWith(
-                              color: !isDarkMode
-                                  ? AppColors.black
-                                  : AppColors.white,
-                            ),
+                      Expanded(
+                        child: Text(
+                          'AI NAME',
+                          style: responsive
+                              .getResponsiveValue(
+                                mobile: AppTextStyles.medium18,
+                                tablet: AppTextStyles.medium20,
+                                desktop: AppTextStyles.regular24,
+                              )
+                              .copyWith(
+                                color: !isDarkMode
+                                    ? AppColors.black
+                                    : AppColors.white,
+                              ),
+                        ),
                       ),
                       IconButton(
                         onPressed: () {

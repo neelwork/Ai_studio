@@ -18,7 +18,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     } else {
       emit(
         ProfileFailure(
-          response!.message.toString(),
+          'Failed to get profile information',
         ),
       );
     }

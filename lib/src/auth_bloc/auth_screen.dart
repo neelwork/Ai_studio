@@ -1,5 +1,6 @@
 import 'package:ai_studio/services/google_signin_services.dart';
 import 'package:ai_studio/src/signup_bloc/signup_bloc.dart';
+import 'package:ai_studio/src/login_bloc/login_bloc.dart';
 import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,8 +17,12 @@ class AuthScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => AuthBloc(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => AuthBloc()),
+        BlocProvider(create: (context) => LoginBloc()),
+        BlocProvider(create: (context) => SignUpBloc()),
+      ],
       child: Scaffold(
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         body: SafeArea(
@@ -153,27 +158,80 @@ class _AuthCard extends StatelessWidget {
                       desktop: 50.0,
                     ),
                     onPressed: () async{
-
+                      debugPrint('User Clicked...');
                       final userCredential = await AuthService().signInWithGoogle();
                       if (userCredential != null) {
-                        print("User signed in: ${userCredential.user!.displayName}");
+                        debugPrint("User signed in: ${userCredential.user!.displayName}");
 
-                        context.read<SignUpBloc>().add(
-                          SignUpRequested(
-                            email: userCredential.user!.email.toString(),
-                            password: '12345',
-                            userName: userCredential.user!.displayName.toString(),
+                        // First try to login
+                        context.read<LoginBloc>().add(
+                          LoginRequested(
+                            phone: userCredential.user!.email.toString(),
+                            password: '123456',
                           ),
                         );
                       }
-
                     },
-
                     backgroundColor: isDarkMode
                         ? Colors.white.withOpacity(0.83)
                         : AppColors.black.withOpacity(.83),
                     textColor: isDarkMode ? AppColors.black : AppColors.white,
                     textStyle: AppTextStyles.medium14,
+                  ),
+                  BlocListener<LoginBloc, LoginState>(
+                    listener: (context, state) {
+                      if (state is LoginSuccess) {
+                        if (state.response.status == 'true') {
+                          nextReplacePage(context, '/chat');
+                        } else if (state.response.message?.contains('not found') == true) {
+                          // If user not found, try to sign up
+                          context.read<SignUpBloc>().add(
+                            SignUpRequested(
+                              email: state.response.message?.split(' ')[0] ?? '',
+                              password: '123456',
+                              userName: state.response.message?.split(' ')[0] ?? '',
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(state.response.message.toString()),
+                            ),
+                          );
+                        }
+                      }
+                      if (state is LoginFailure) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.error),
+                          ),
+                        );
+                      }
+                    },
+                    child: const SizedBox.shrink(),
+                  ),
+                  BlocListener<SignUpBloc, SignUpState>(
+                    listener: (context, state) {
+                      if (state is SignUpSuccess) {
+                        if (state.response.status == 'true') {
+                          nextReplacePage(context, '/chat');
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(state.response.message.toString()),
+                            ),
+                          );
+                        }
+                      }
+                      if (state is SignUpFailure) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(state.error),
+                          ),
+                        );
+                      }
+                    },
+                    child: const SizedBox.shrink(),
                   ),
 
 

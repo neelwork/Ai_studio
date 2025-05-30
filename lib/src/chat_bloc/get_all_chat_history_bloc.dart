@@ -19,7 +19,7 @@ class GetAllChatHistoryBloc
     } else {
       emit(
         GetAllChatHistoryFailure(
-          response!.message.toString(),
+          'Failed to get chat history',
         ),
       );
     }
