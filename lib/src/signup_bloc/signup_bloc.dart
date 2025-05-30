@@ -19,16 +19,17 @@ class SignUpBloc extends Bloc<SignUpEvent, SignUpState> {
       event.userName,
     );
     if (response != null) {
-      await StorageService.write(
-        StorageService.authToken,
-        response.token.toString(),
-      );
-
+      if (response.status == 'true') {
+        await StorageService.write(
+          StorageService.authToken,
+          response.token.toString(),
+        );
+      }
       emit(SignUpSuccess(response));
     } else {
       emit(
         SignUpFailure(
-          response!.message.toString(),
+          'Failed to create account. Please try again.',
         ),
       );
     }

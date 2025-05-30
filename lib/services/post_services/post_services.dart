@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:flutter/foundation.dart';
 import 'package:ai_studio/model/delete_all_chat_model.dart';
 import 'package:ai_studio/model/get_chat_history_model.dart';
 import 'package:ai_studio/model/get_profile_model.dart';
@@ -28,23 +29,18 @@ class PostServices {
         },
       );
 
+      debugPrint('Login Response Status: ${response.statusCode}');
+      debugPrint('Login Response Body: ${response.body}');
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        final result = LoginModel.fromJson(data);
-
-        return result;
-      } else {
-        final data = json.decode(response.body);
-
-        final result = LoginModel.fromJson(data);
-
-        return result;
-      }
+      final data = json.decode(response.body);
+      final result = LoginModel.fromJson(data);
+      return result;
     } catch (e) {
-      log("Exception: $e");
-      return null;
+      debugPrint("Login Exception: $e");
+      return LoginModel(
+        status: 'false',
+        message: 'An error occurred during login',
+      );
     }
   }
 
@@ -127,25 +123,18 @@ class PostServices {
         },
       );
 
-      log("Status Code: ${response.statusCode}");
-      print("Response Body: ${response.body}");
+      debugPrint("Create User Status Code: ${response.statusCode}");
+      debugPrint("Create User Response Body: ${response.body}");
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        final result = SignupModel.fromJson(data);
-
-        return result;
-      } else {
-        final data = json.decode(response.body);
-
-        final result = SignupModel.fromJson(data);
-
-        return result;
-      }
+      final data = json.decode(response.body);
+      final result = SignupModel.fromJson(data);
+      return result;
     } catch (e) {
-      log("Exception: $e");
-      return null;
+      debugPrint("Create User Exception: $e");
+      return SignupModel(
+        status: 'false',
+        message: 'An error occurred during signup',
+      );
     }
   }
 

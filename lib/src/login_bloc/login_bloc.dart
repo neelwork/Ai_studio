@@ -15,16 +15,17 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     emit(LoginLoading());
     final response = await PostServices().login(event.phone, event.password);
     if (response != null) {
-      await StorageService.write(
-        StorageService.authToken,
-        response.token.toString(),
-      );
-
+      if (response.status == 'true') {
+        await StorageService.write(
+          StorageService.authToken,
+          response.token.toString(),
+        );
+      }
       emit(LoginSuccess(response));
     } else {
       emit(
         LoginFailure(
-          response!.message.toString(),
+          'Failed to login. Please try again.',
         ),
       );
     }

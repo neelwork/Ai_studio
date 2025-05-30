@@ -5,6 +5,7 @@ import 'package:ai_studio/utils/global_functions_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../utils/colors.dart';
 import '../../utils/text_styles.dart';
 import '../../utils/responsive.dart';
@@ -35,7 +36,14 @@ class AuthScreen extends StatelessWidget {
   }
 }
 
-class _AuthCard extends StatelessWidget {
+class _AuthCard extends StatefulWidget {
+  @override
+  State<_AuthCard> createState() => _AuthCardState();
+}
+
+class _AuthCardState extends State<_AuthCard> {
+  UserCredential? googleUserCredential;
+
   @override
   Widget build(BuildContext context) {
     final responsive = Responsive.of(context);
@@ -148,8 +156,6 @@ class _AuthCard extends StatelessWidget {
                     textStyle: AppTextStyles.medium14,
                   ),
                   const SizedBox(height: 16),
-
-
                   AppButton.filled(
                     text: 'Continue with Google',
                     width: double.infinity,
@@ -157,17 +163,20 @@ class _AuthCard extends StatelessWidget {
                       mobile: 45.0,
                       desktop: 50.0,
                     ),
-                    onPressed: () async{
+                    onPressed: () async {
                       debugPrint('User Clicked...');
                       final userCredential = await AuthService().signInWithGoogle();
                       if (userCredential != null) {
                         debugPrint("User signed in: ${userCredential.user!.displayName}");
-
-                        // First try to login
+                        setState(() {
+                          googleUserCredential = userCredential;
+                        });
+                        
+                        // First try to login with the Google email
                         context.read<LoginBloc>().add(
                           LoginRequested(
                             phone: userCredential.user!.email.toString(),
-                            password: '123456',
+                            password: '123456', // Default password for Google users
                           ),
                         );
                       }
@@ -182,14 +191,28 @@ class _AuthCard extends StatelessWidget {
                     listener: (context, state) {
                       if (state is LoginSuccess) {
                         if (state.response.status == 'true') {
+                          // User exists, navigate to chat
                           nextReplacePage(context, '/chat');
-                        } else if (state.response.message?.contains('not found') == true) {
-                          // If user not found, try to sign up
+                        } else if (state.response.message?.contains('Account does not exist') == true) {
+                          // User doesn't exist, create new account
+                          final email = googleUserCredential?.user?.email ?? '';
+                          final displayName = googleUserCredential?.user?.displayName ?? email.split('@')[0];
+                          
+                          // Show loading message
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Creating new account...'),
+                              duration: Duration(seconds: 1),
+                            ),
+                          );
+
+
+                          
                           context.read<SignUpBloc>().add(
                             SignUpRequested(
-                              email: state.response.message?.split(' ')[0] ?? '',
+                              email: email,
                               password: '123456',
-                              userName: state.response.message?.split(' ')[0] ?? '',
+                              userName: displayName,
                             ),
                           );
                         } else {
@@ -214,6 +237,7 @@ class _AuthCard extends StatelessWidget {
                     listener: (context, state) {
                       if (state is SignUpSuccess) {
                         if (state.response.status == 'true') {
+                          // Sign up successful, navigate to chat
                           nextReplacePage(context, '/chat');
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -233,8 +257,6 @@ class _AuthCard extends StatelessWidget {
                     },
                     child: const SizedBox.shrink(),
                   ),
-
-
                 ],
               ),
             ),

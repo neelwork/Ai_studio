@@ -8,6 +8,10 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     clientId: kIsWeb ? '1005197027466-5527ftrhk0s4uooqulase8dm958gvogm.apps.googleusercontent.com' : null,
+    scopes: [
+      'email',
+      'profile',
+    ],
   );
 
   Future<UserCredential?> signInWithGoogle() async {
@@ -22,19 +26,41 @@ class AuthService {
         
         // Force showing the account picker
         googleProvider.setCustomParameters({
-          'prompt': 'select_account'
+          'prompt': 'select_account',
+          'access_type': 'offline',
         });
         
-        final userCredential = await _auth.signInWithPopup(googleProvider);
-        log('Firebase sign in successful. User: ${userCredential.user?.email}');
-        return userCredential;
+        try {
+          debugPrint('Attempting popup sign in...');
+          final userCredential = await _auth.signInWithPopup(googleProvider);
+          debugPrint('Sign in successful with popup. User: ${userCredential.user?.email}');
+          return userCredential;
+        } catch (popupError) {
+          debugPrint('Popup error details: $popupError');
+          
+          // Check if it's an unauthorized domain error
+          if (popupError.toString().contains('unauthorized-domain')) {
+            debugPrint('Domain not authorized. Please add your domain to Firebase Console.');
+            debugPrint('Current hostname: ${Uri.base.host}');
+            debugPrint('Current port: ${Uri.base.port}');
+            debugPrint('Full origin: ${Uri.base.origin}');
+          }
+          
+          // Try redirect as fallback
+          debugPrint('Attempting redirect sign in...');
+          await _auth.signInWithRedirect(googleProvider);
+          return null;
+        }
       } else {
         // For mobile platforms
+        // First sign out to force showing the account picker
+        await _googleSignIn.signOut();
+        
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
-        log('Google Sign In attempt completed. User: ${googleUser?.email ?? 'null'}');
+        debugPrint('Google Sign In attempt completed. User: ${googleUser?.email ?? 'null'}');
 
         if (googleUser == null) {
-          log('Google Sign In was cancelled or failed');
+          debugPrint('Google Sign In was cancelled or failed');
           return null;
         }
 
@@ -45,27 +71,26 @@ class AuthService {
         );
         
         final userCredential = await _auth.signInWithCredential(credential);
-        log('Firebase sign in successful. User: ${userCredential.user?.email}');
+        debugPrint('Firebase sign in successful. User: ${userCredential.user?.email}');
         return userCredential;
       }
     } catch (e) {
-      log("Google sign-in error: $e");
-      return null;
+      debugPrint("Google sign-in error: $e");
+      rethrow;
     }
   }
 
   Future<void> signOut() async {
     try {
       if (kIsWeb) {
-        // For web, just sign out from Firebase
         await _auth.signOut();
       } else {
-        // For mobile, sign out from both
         await _googleSignIn.signOut();
         await _auth.signOut();
       }
     } catch (e) {
-      log("Sign out error: $e");
+      debugPrint("Sign out error: $e");
+      rethrow;
     }
   }
 }
