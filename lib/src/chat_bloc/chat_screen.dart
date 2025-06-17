@@ -17,6 +17,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
+import 'package:lottie/lottie.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +37,7 @@ class ChatScreen extends StatefulWidget {
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   final TextEditingController _messageController = TextEditingController();
   bool _isHoveringLogo = false;
   final bool _keepSidebarOpen = false;
@@ -48,17 +49,60 @@ class _ChatScreenState extends State<ChatScreen> {
   List<ChatMessage> milanMessage = [];
   File? _selectedImage;
   bool _isLoadingSession = true;
+  late AnimationController _animationController;
+  int _currentTypingState = 0; // 0: Thinking, 1: Processing, 2: Generating
 
   @override
   void initState() {
     initSocket();
-    context.read<GetAllChatHistoryBloc>().add(GetAllChatHistoryRequested());
+    _refreshChatHistory(); // Initial load of chat history
     context.read<ProfileBloc>().add(ProfileRequested());
     if (kIsWeb) {
       checkAndRestoreSession();
     } else {
       _isLoadingSession = false;
     }
+
+    // Initialize animation controller with longer duration for each state
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 20), // Total duration for all states
+    )..addListener(() {
+        if (_animationController.value < 0.15) {
+          setState(() {
+            _currentTypingState = 0; // Thinking
+          });
+        } else if (_animationController.value < 0.30) {
+          setState(() {
+            _currentTypingState = 1; // Processing
+          });
+        } else if (_animationController.value < 0.45) {
+          setState(() {
+            _currentTypingState = 2; // Generating
+          });
+        } else if (_animationController.value < 0.60) {
+          setState(() {
+            _currentTypingState = 3; // Loading
+          });
+        } else if (_animationController.value < 0.75) {
+          setState(() {
+            _currentTypingState = 4; // Analyzing
+          });
+        } else if (_animationController.value < 0.90) {
+          setState(() {
+            _currentTypingState = 5; // Summarizing
+          });
+        } else {
+          setState(() {
+            _currentTypingState = 6; // Almost there
+          });
+          // Stop the animation when it reaches "Almost there"
+          if (_animationController.isAnimating) {
+            _animationController.stop();
+          }
+        }
+      });
+
     super.initState();
   }
 
@@ -88,25 +132,63 @@ class _ChatScreenState extends State<ChatScreen> {
 
     socket.on('send_message', (data) {
       print('Bot says: $data');
-      setState(() {
-        isBotTyping = false;
-
-        milanMessage.add(
-          ChatMessage(
-            text: data['message'],
-            isUser: false,
-            showImage: false,
-            imageUrl: data['image_url'],
-            timestamp: DateTime.now(),
-          ),
-        );
-      });
-      scrollToBottom();
+      if (mounted) {  // Check if widget is still mounted
+        setState(() {
+          isBotTyping = false;
+          milanMessage.add(
+            ChatMessage(
+              text: data['message'],
+              isUser: false,
+              showImage: false,
+              imageUrl: data['image_url'],
+              timestamp: DateTime.now(),
+            ),
+          );
+        });
+        scrollToBottom();
+      }
     });
 
     socket.onDisconnect((_) => print('Disconnected'));
     socket.onConnectError((err) => print('Connection Error: $err'));
     socket.onError((err) => print('Socket Error: $err'));
+  }
+
+  void _refreshChatHistory() {
+    context.read<GetAllChatHistoryBloc>().add(GetAllChatHistoryRequested());
+  }
+
+  void sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isNotEmpty) {
+      setState(() {
+        milanMessage.add(
+          ChatMessage(
+            text: text,
+            showImage: false,
+            isUser: true,
+            timestamp: DateTime.now(),
+          ),
+        );
+
+        isBotTyping = true;
+        _messageController.clear();
+        if (!isFirstMessageSent) {
+          isFirstMessageSent = true;
+          isSidebarVisible = true;
+        }
+      });
+
+      socket.emit('send_message', {"message": text});
+      scrollToBottom();
+
+      // Start the animation sequence
+      _animationController.reset();
+      _animationController.forward();
+
+      // Refresh chat history after sending message
+      _refreshChatHistory();
+    }
   }
 
   void imageSendMessage() async {
@@ -149,6 +231,13 @@ class _ChatScreenState extends State<ChatScreen> {
           });
 
           scrollToBottom();
+
+          // Start the animation sequence
+          _animationController.reset();
+          _animationController.forward();
+
+          // Refresh chat history after sending message
+          _refreshChatHistory();
         } else {
           print("❌ Image upload failed. No image URL returned.");
         }
@@ -191,32 +280,6 @@ class _ChatScreenState extends State<ChatScreen> {
       print("Upload exception: $e");
       _showCustomSnackBar("Error uploading image");
       return null;
-    }
-  }
-
-  void sendMessage() {
-    final text = _messageController.text.trim();
-    if (text.isNotEmpty) {
-      setState(() {
-        milanMessage.add(
-          ChatMessage(
-            text: text,
-            showImage: false,
-            isUser: true,
-            timestamp: DateTime.now(),
-          ),
-        );
-
-        isBotTyping = true;
-        _messageController.clear();
-        if (!isFirstMessageSent) {
-          isFirstMessageSent = true;
-          isSidebarVisible = true;
-        }
-      });
-
-      socket.emit('send_message', {"message": text});
-      scrollToBottom();
     }
   }
 
@@ -396,7 +459,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                   if (_isFileOptionsVisible)
                                     !responsive.isMobile
                                         ? Positioned(
-                                            bottom: 80,
+                                            bottom: MediaQuery.of(context)
+                                                    .size
+                                                    .height *
+                                                0.15,
                                             // Adjust based on your message input height
                                             left: 0,
                                             right: 0,
@@ -650,12 +716,12 @@ class _ChatScreenState extends State<ChatScreen> {
       right: 0,
       child: Center(
         child: Padding(
-          padding:  EdgeInsets.only(left:isSidebarVisible ? 250.0 : 0),
+          padding: EdgeInsets.only(left: isSidebarVisible ? 250.0 : 0),
           child: Container(
             width: responsive.isMobile
                 ? MediaQuery.of(context).size.width * 0.9
-                : MediaQuery.of(context).size.width *
-                    0.5, // Match input field width (50% for web)
+                : MediaQuery.of(context).size.width * 0.5,
+            // Match input field width (50% for web)
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
             decoration: BoxDecoration(
@@ -704,8 +770,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 _buildFileOptionItem(
                   icon: "assets/images/camera_option.png",
                   onTap: () async {
-                    final pickedFile =
-                        await ImagePicker().pickImage(source: ImageSource.camera);
+                    final pickedFile = await ImagePicker()
+                        .pickImage(source: ImageSource.camera);
                     if (pickedFile != null) {
                       setState(() {
                         _selectedImage = File(pickedFile.path);
@@ -905,7 +971,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildSidebar(
       BuildContext context, Responsive responsive, ChatState state) {
-    context.read<GetAllChatHistoryBloc>().add(GetAllChatHistoryRequested());
+    // context.read<GetAllChatHistoryBloc>().add(GetAllChatHistoryRequested());
 
     final sidebarPadding = responsive.getResponsiveValue(
       mobile: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -967,52 +1033,6 @@ class _ChatScreenState extends State<ChatScreen> {
                     ],
                   ),
                 ),
-
-                // New chat button
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(
-                //       horizontal: 18.0, vertical: 8.0),
-                //   child: AppButton.outlined(
-                //     onPressed: responsive.isMobile
-                //         ? () {
-                //       nextPage(context, '/chat');
-                //       context.read<ChatBloc>().add(ResetChatEvent());
-                //
-                //       Navigator.pop(context);
-                //     }
-                //         : () {
-                //       context.read<ChatBloc>().add(ResetChatEvent());
-                //     },
-                //     borderColor:
-                //     !isDarkMode ? AppColors.black : AppColors.white,
-                //     textColor: !isDarkMode ? AppColors.black : AppColors.white,
-                //     prefixIcon: SvgPicture.asset(
-                //       "assets/icons/create_chat_icon.svg",
-                //       colorFilter: ColorFilter.mode(
-                //           !isDarkMode ? AppColors.black : AppColors.white,
-                //           BlendMode.srcIn),
-                //     ),
-                //     height: responsive.getResponsiveValue(
-                //       mobile: 40.0,
-                //       tablet: 45.0,
-                //       desktop: 50.0,
-                //     ),
-                //     width: responsive.getResponsiveValue(
-                //       mobile: double.infinity,
-                //       tablet: 300.0,
-                //       desktop: 377.0,
-                //     ),
-                //     padding:
-                //     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                //     text: 'Start New Chat',
-                //     textStyle: responsive.getResponsiveValue(
-                //       mobile: AppTextStyles.medium14,
-                //       tablet: AppTextStyles.regular16,
-                //       desktop: AppTextStyles.regular18,
-                //     ),
-                //   ),
-                // ),
-                //
               ],
             ),
 
@@ -1381,6 +1401,7 @@ class _ChatScreenState extends State<ChatScreen> {
         color: !isDarkMode ? AppColors.lightTheme : AppColors.darkTheme,
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Show menu icon for mobile view
           if (responsive.isMobile)
@@ -1436,32 +1457,44 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
 
-          IconButton(
-            icon: SvgPicture.asset(
-              "assets/icons/create_new_chat_icon.svg",
-              height: responsive.getResponsiveValue(
-                mobile: 45.0,
-                tablet: 45.0,
-                desktop: 45.0,
-              ),
-              width: responsive.getResponsiveValue(
+          // New Chat button
+          Container(
+            constraints: BoxConstraints(
+              maxWidth: responsive.getResponsiveValue(
                 mobile: 45.0,
                 tablet: 45.0,
                 desktop: 45.0,
               ),
             ),
-            onPressed: () {
-              setState(() {
-                isFirstMessageSent = false;
-                isSidebarVisible = false;
-                milanMessage.clear();
-              });
-              nextReplacePage(context, '/chat');
-            },
-            iconSize: responsive.getResponsiveValue(
-              mobile: 12.0,
-              tablet: 13.0,
-              desktop: 14.0,
+            child: IconButton(
+              icon: SvgPicture.asset(
+                "assets/icons/create_new_chat_icon.svg",
+                height: responsive.getResponsiveValue(
+                  mobile: 45.0,
+                  tablet: 45.0,
+                  desktop: 45.0,
+                ),
+                width: responsive.getResponsiveValue(
+                  mobile: 45.0,
+                  tablet: 45.0,
+                  desktop: 45.0,
+                ),
+              ),
+              onPressed: () {
+                setState(() {
+                  isFirstMessageSent = false;
+                  isSidebarVisible = false;
+                  milanMessage.clear();
+                });
+                nextReplacePage(context, '/chat');
+              },
+              iconSize: responsive.getResponsiveValue(
+                mobile: 12.0,
+                tablet: 13.0,
+                desktop: 14.0,
+              ),
+              constraints: const BoxConstraints(),
+              padding: EdgeInsets.zero,
             ),
           ),
         ],
@@ -1541,14 +1574,37 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                       borderRadius: BorderRadius.circular(24),
                     ),
-                    child: Image.asset(
-                      'assets/images/chat_animation.gif',
-                      color: Theme.of(context).brightness == Brightness.light
-                          ? AppColors.darkTheme
-                          : AppColors.lightTheme,
-                      height: 20,
-                      width: 60,
-                      fit: BoxFit.contain,
+                    // child: Image.asset(
+                    //   'assets/images/chat_animation.gif',
+                    //   color: Theme.of(context).brightness == Brightness.light
+                    //       ? AppColors.darkTheme
+                    //       : AppColors.lightTheme,
+                    //   height: 20,
+                    //   width: 60,
+                    //   fit: BoxFit.contain,
+                    // ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          _getTypingText(),
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: isDarkMode ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 15, // Matches text height approx
+                          width: 18,
+                          child: Lottie.asset(
+                            'assets/animations/loading.json',
+                            repeat: true,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -1560,25 +1616,39 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  String _getTypingText() {
+    switch (_currentTypingState) {
+      case 0:
+        return 'Thinking';
+      case 1:
+        return 'Processing';
+      case 2:
+        return 'Generating';
+      case 3:
+        return 'Loading';
+      case 4:
+        return 'Analyzing';
+      case 5:
+        return 'Summarizing';
+      case 6:
+        return 'Almost there';
+      default:
+        return 'Thinking';
+    }
+  }
+
   Widget _buildMessageItem(ChatMessage message, Responsive responsive) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
-    final avatarRadius = responsive.getResponsiveValue(
-      mobile: 14.0,
-      tablet: 15.0,
-      desktop: 16.0,
-    );
-    final messageFontSize = responsive.getResponsiveValue(
-      mobile: 13.0,
-      tablet: 13.5,
-      desktop: 18.0,
-    );
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.5,
+          maxWidth: responsive.isMobile  ?    MediaQuery.of(context).size.width * 0.7 :
+              responsive.isTablet ? MediaQuery.of(context).size.width * 0.6 :
+              MediaQuery.of(context).size.width * 0.5,
         ),
         child: Column(
           crossAxisAlignment: message.isUser
@@ -1874,6 +1944,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 ),
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CircleAvatar(
                     backgroundColor:
@@ -2033,7 +2104,23 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   void dispose() {
+    socket.disconnect();  // Disconnect socket when widget is disposed
+    socket.off('send_message');  // Remove event listeners
+    socket.off('disconnect');
+    socket.off('connect_error');
+    socket.off('error');
     _messageController.dispose();
+    _animationController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(ChatScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (isBotTyping) {
+      _animationController.forward(); // Use forward() instead of repeat()
+    } else {
+      _animationController.stop();
+    }
   }
 }
