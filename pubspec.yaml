@@ -1,5 +1,5 @@
-name: ai_studio
-description: "A new Flutter project."
+name: silver_ai
+description: "Silver AI - Your Intelligent AI Assistant"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -80,6 +80,17 @@ flutter:
      - assets/icons/
      - assets/images/
      - assets/animations/
+     - assets/icons/ai_icon.svg
+     - assets/icons/send_message_icon.svg
+     - assets/icons/create_chat_icon.svg
+     - assets/icons/create_new_chat_icon.svg
+     - assets/icons/expand_icon.svg
+     - assets/images/chat_files_option.png
+     - assets/images/images_option.png
+     - assets/images/camera_option.png
+     - assets/images/voice_option.png
+     - assets/images/chat_animation.gif
+     - assets/animations/loading.json
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

@@ -1,5 +1,5 @@
-import 'package:ai_studio/model/update_user_model.dart';
-import 'package:ai_studio/services/post_services/post_services.dart';
+import 'package:silver_ai/model/update_user_model.dart';
+import 'package:silver_ai/services/post_services/post_services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 sealed class UpdateUserEvent {}

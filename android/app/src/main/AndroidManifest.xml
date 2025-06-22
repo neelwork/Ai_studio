@@ -3,7 +3,7 @@
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <application
-        android:label="ai_studio"
+        android:label="Silver AI"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

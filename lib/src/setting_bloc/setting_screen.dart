@@ -1,7 +1,7 @@
-import 'package:ai_studio/src/setting_bloc/delete_all_chat_bloc.dart';
-import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
-import 'package:ai_studio/src/setting_bloc/update_user_bloc.dart';
-import 'package:ai_studio/utils/text_styles.dart';
+import 'package:silver_ai/src/setting_bloc/delete_all_chat_bloc.dart';
+import 'package:silver_ai/src/setting_bloc/profile_bloc.dart';
+import 'package:silver_ai/src/setting_bloc/update_user_bloc.dart';
+import 'package:silver_ai/utils/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:provider/provider.dart';

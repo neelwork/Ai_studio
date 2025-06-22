@@ -1,9 +1,9 @@
-import 'package:ai_studio/services/shared_preference/shared_preference.dart';
-import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
-import 'package:ai_studio/utils/colors.dart';
-import 'package:ai_studio/utils/global_functions_variable.dart';
-import 'package:ai_studio/utils/responsive.dart';
-import 'package:ai_studio/utils/text_styles.dart';
+import 'package:silver_ai/services/shared_preference/shared_preference.dart';
+import 'package:silver_ai/src/setting_bloc/profile_bloc.dart';
+import 'package:silver_ai/utils/colors.dart';
+import 'package:silver_ai/utils/global_functions_variable.dart';
+import 'package:silver_ai/utils/responsive.dart';
+import 'package:silver_ai/utils/text_styles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';

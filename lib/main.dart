@@ -1,26 +1,60 @@
-import 'package:ai_studio/src/auth_bloc/auth_bloc.dart';
-import 'package:ai_studio/src/auth_bloc/auth_screen.dart';
-import 'package:ai_studio/src/chat_bloc/chat_bloc.dart';
-import 'package:ai_studio/src/chat_bloc/chat_screen.dart';
-import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
-import 'package:ai_studio/src/chat_bloc/get_prompt_by_id_bloc.dart';
-import 'package:ai_studio/src/login_bloc/login_bloc.dart';
-import 'package:ai_studio/src/login_bloc/login_screen.dart';
-import 'package:ai_studio/src/setting_bloc/delete_all_chat_bloc.dart';
-import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
-import 'package:ai_studio/src/setting_bloc/setting_screen.dart';
-import 'package:ai_studio/src/setting_bloc/update_user_bloc.dart';
-import 'package:ai_studio/src/signup_bloc/signup_bloc.dart';
-import 'package:ai_studio/src/signup_bloc/signup_screen.dart';
-import 'package:ai_studio/src/splash_screen/splash_screen.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:silver_ai/src/auth_bloc/auth_bloc.dart';
+import 'package:silver_ai/src/auth_bloc/auth_screen.dart';
+import 'package:silver_ai/src/chat_bloc/chat_screen.dart';
+import 'package:silver_ai/src/login_bloc/login_screen.dart';
+import 'package:silver_ai/src/setting_bloc/setting_screen.dart';
+import 'package:silver_ai/src/signup_bloc/signup_screen.dart';
+import 'package:silver_ai/src/splash_screen/splash_screen.dart';
+import 'package:silver_ai/utils/colors.dart';
+import 'package:silver_ai/utils/global_functions_variable.dart';
+import 'package:silver_ai/utils/responsive.dart';
+import 'package:silver_ai/utils/text_styles.dart';
+import 'package:silver_ai/widget/custom_snackbar.dart';
+import 'package:silver_ai/services/shared_preference/shared_preference.dart';
+import 'package:silver_ai/services/google_signin_services.dart';
+import 'package:silver_ai/services/post_services/post_services.dart';
+import 'package:silver_ai/src/chat_bloc/get_all_chat_history_bloc.dart';
+import 'package:silver_ai/src/chat_bloc/get_prompt_by_id_bloc.dart';
+import 'package:silver_ai/src/setting_bloc/profile_bloc.dart';
+import 'package:silver_ai/src/setting_bloc/delete_all_chat_bloc.dart';
+import 'package:silver_ai/src/setting_bloc/update_user_bloc.dart';
+import 'package:silver_ai/model/chat_model.dart';
+import 'package:silver_ai/model/delete_all_chat_model.dart';
+import 'package:silver_ai/model/get_chat_history_model.dart';
+import 'package:silver_ai/model/get_profile_model.dart';
+import 'package:silver_ai/model/get_prompt_by_id_model.dart';
+import 'package:silver_ai/model/login_model.dart';
+import 'package:silver_ai/model/signup_model.dart';
+import 'package:silver_ai/model/update_user_model.dart';
+import 'package:silver_ai/utils/api_endpoint.dart';
+import 'package:silver_ai/utils/global_variable.dart';
+import 'package:silver_ai/widget/app_button.dart';
+import 'package:silver_ai/widget/custom_textfield.dart';
+import 'package:silver_ai/demo.dart';
+import 'package:silver_ai/src/chat_bloc/chat_bloc.dart';
+import 'package:silver_ai/src/chat_bloc/chat_event.dart';
+import 'package:silver_ai/src/chat_bloc/chat_state.dart';
+import 'package:silver_ai/src/auth_bloc/auth_event.dart';
+import 'package:silver_ai/src/auth_bloc/auth_state.dart';
+import 'package:silver_ai/src/login_bloc/login_bloc.dart';
+import 'package:silver_ai/src/signup_bloc/signup_bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Test asset loading
+  try {
+    await rootBundle.load('assets/icons/ai_icon.svg');
+    print('✅ Asset loaded successfully: assets/icons/ai_icon.svg');
+  } catch (e) {
+    print('❌ Asset loading failed: assets/icons/ai_icon.svg - $e');
+  }
 
   if (kIsWeb) {
     await Firebase.initializeApp(
@@ -81,7 +115,7 @@ class MyApp extends StatelessWidget {
           builder: (context, themeProvider, _) {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
-              title: 'Flutter Demo',
+              title: 'Silver AI',
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
               themeMode: themeProvider.themeMode,

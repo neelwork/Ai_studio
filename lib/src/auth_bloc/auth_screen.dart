@@ -1,7 +1,7 @@
-import 'package:ai_studio/services/google_signin_services.dart';
-import 'package:ai_studio/src/signup_bloc/signup_bloc.dart';
-import 'package:ai_studio/src/login_bloc/login_bloc.dart';
-import 'package:ai_studio/utils/global_functions_variable.dart';
+import 'package:silver_ai/services/google_signin_services.dart';
+import 'package:silver_ai/src/signup_bloc/signup_bloc.dart';
+import 'package:silver_ai/src/login_bloc/login_bloc.dart';
+import 'package:silver_ai/utils/global_functions_variable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -62,10 +62,10 @@ class _AuthCardState extends State<_AuthCard> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'AI NAME',
-            style: AppTextStyles.bold16.copyWith(
-              letterSpacing: 1.2,
-              color: theme.textTheme.bodyLarge?.color,
+            'Silver AI',
+            style: AppTextStyles.regular24.copyWith(
+              fontWeight: FontWeight.w100,
+              color: !isDarkMode ? AppColors.black : AppColors.white,
             ),
           ),
           const SizedBox(height: 16),

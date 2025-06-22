@@ -1,12 +1,12 @@
 import 'dart:developer';
 
-import 'package:ai_studio/src/auth_bloc/auth_screen.dart';
-import 'package:ai_studio/src/chat_bloc/chat_screen.dart';
-import 'package:ai_studio/src/login_bloc/login_screen.dart';
-import 'package:ai_studio/src/setting_bloc/setting_screen.dart';
-import 'package:ai_studio/src/signup_bloc/signup_screen.dart';
-import 'package:ai_studio/src/splash_screen/splash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:silver_ai/src/auth_bloc/auth_screen.dart';
+import 'package:silver_ai/src/chat_bloc/chat_screen.dart';
+import 'package:silver_ai/src/login_bloc/login_screen.dart';
+import 'package:silver_ai/src/setting_bloc/setting_screen.dart';
+import 'package:silver_ai/src/signup_bloc/signup_screen.dart';
+import 'package:silver_ai/src/splash_screen/splash_screen.dart';
 
 Future<T?> nextPage<T>(BuildContext context, String routeName,
     {bool isHistory = false, Object? arguments}) {

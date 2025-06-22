@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1005197027466:android:682ac2a8e2398a368b6573",
         "android_client_info": {
-          "package_name": "com.example.ai_studio"
+          "package_name": "com.example.silver_ai"
         }
       },
       "oauth_client": [
@@ -17,7 +17,7 @@
           "client_id": "1005197027466-5ahs560b1elohbbaosrhfc6lkds2gpk6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.ai_studio",
+            "package_name": "com.example.silver_ai",
             "certificate_hash": "16eff8b2f3d1a29ec3ec78b83337393575ec4cce"
           }
         },
@@ -25,7 +25,7 @@
           "client_id": "1005197027466-u37k7mfeu79p6r13jggbhqjmmisqhjpc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.ai_studio",
+            "package_name": "com.example.silver_ai",
             "certificate_hash": "68d499699ea54fe12b8f359f1a05d4ee6965d85a"
           }
         },

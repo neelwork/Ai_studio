@@ -1,13 +1,13 @@
-import 'package:ai_studio/src/signup_bloc/signup_bloc.dart';
-import 'package:ai_studio/utils/global_functions_variable.dart';
-import 'package:ai_studio/widget/custom_textfield.dart';
+import 'package:silver_ai/src/signup_bloc/signup_bloc.dart';
+import 'package:silver_ai/utils/global_functions_variable.dart';
+import 'package:silver_ai/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import '../../utils/colors.dart';
-import '../../utils/text_styles.dart';
-import '../../utils/responsive.dart';
-import '../../widget/app_button.dart';
+import 'package:silver_ai/utils/colors.dart';
+import 'package:silver_ai/utils/text_styles.dart';
+import 'package:silver_ai/utils/responsive.dart';
+import 'package:silver_ai/widget/app_button.dart';
 
 class SignupScreen extends StatelessWidget {
   const SignupScreen({super.key});
@@ -47,9 +47,11 @@ class _SignupStep1Card extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'AI NAME',
-            style: AppTextStyles.bold16.copyWith(
-                letterSpacing: 1.2, color: theme.textTheme.bodyLarge?.color),
+            'Silver AI',
+            style: AppTextStyles.regular24.copyWith(
+              fontWeight: FontWeight.w100,
+              color: !isDarkMode ? AppColors.black : AppColors.white,
+            ),
           ),
           const SizedBox(height: 16),
           Container(
@@ -228,9 +230,11 @@ class _SignupStep2CardState extends State<_SignupStep2Card> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'AI NAME',
-            style: AppTextStyles.bold16.copyWith(
-                letterSpacing: 1.2, color: theme.textTheme.bodyLarge?.color),
+            'Silver AI',
+            style: AppTextStyles.regular24.copyWith(
+              fontWeight: FontWeight.w100,
+              color: !isDarkMode ? AppColors.black : AppColors.white,
+            ),
           ),
           const SizedBox(height: 16),
           Container(

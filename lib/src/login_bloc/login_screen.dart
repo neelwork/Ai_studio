@@ -1,6 +1,6 @@
-import 'package:ai_studio/src/login_bloc/login_bloc.dart';
-import 'package:ai_studio/utils/global_functions_variable.dart';
-import 'package:ai_studio/widget/custom_textfield.dart';
+import 'package:silver_ai/src/login_bloc/login_bloc.dart';
+import 'package:silver_ai/utils/global_functions_variable.dart';
+import 'package:silver_ai/widget/custom_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -52,10 +52,10 @@ class _LoginCard extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'AI NAME',
-              style: AppTextStyles.bold16.copyWith(
-                letterSpacing: 1.2,
-                color: theme.textTheme.bodyLarge?.color, // Use theme text color
+              'Silver AI',
+              style: AppTextStyles.regular24.copyWith(
+                fontWeight: FontWeight.w100,
+                color: !isDarkMode ? AppColors.black : AppColors.white,
               ),
             ),
             const SizedBox(height: 16),

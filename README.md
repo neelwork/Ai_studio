@@ -1,6 +1,6 @@
-# ai_studio
+# Silver AI
 
-A new Flutter project.
+Silver AI - Your Intelligent AI Assistant
 
 ## Getting Started
 

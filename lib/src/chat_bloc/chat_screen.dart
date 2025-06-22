@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
-import 'package:ai_studio/services/shared_preference/shared_preference.dart';
-import 'package:ai_studio/src/chat_bloc/get_all_chat_history_bloc.dart';
-import 'package:ai_studio/src/chat_bloc/get_prompt_by_id_bloc.dart';
-import 'package:ai_studio/src/setting_bloc/profile_bloc.dart';
-import 'package:ai_studio/utils/colors.dart';
-import 'package:ai_studio/utils/global_functions_variable.dart';
-import 'package:ai_studio/utils/text_styles.dart';
-import 'package:ai_studio/widget/app_button.dart';
+import 'package:silver_ai/services/shared_preference/shared_preference.dart';
+import 'package:silver_ai/src/chat_bloc/get_all_chat_history_bloc.dart';
+import 'package:silver_ai/src/chat_bloc/get_prompt_by_id_bloc.dart';
+import 'package:silver_ai/src/setting_bloc/profile_bloc.dart';
+import 'package:silver_ai/utils/colors.dart';
+import 'package:silver_ai/utils/global_functions_variable.dart';
+import 'package:silver_ai/utils/text_styles.dart';
+import 'package:silver_ai/widget/app_button.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
@@ -27,6 +27,7 @@ import '../../utils/responsive.dart';
 import 'chat_bloc.dart';
 import 'chat_event.dart';
 import 'chat_state.dart';
+import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key, this.isHistory = false});
@@ -51,6 +52,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   bool _isLoadingSession = true;
   late AnimationController _animationController;
   int _currentTypingState = 0; // 0: Thinking, 1: Processing, 2: Generating
+  
+  // New variables for typing animation
+  late AnimationController _typingAnimationController;
+  Timer? _typingTimer;
+  int _currentTypingIndex = -1; // Index of the message being typed
+  int _typingSpeed = 30; // Milliseconds per character
+  bool _enableTypingAnimation = true; // Enable/disable typing animation
 
   @override
   void initState() {
@@ -103,6 +111,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         }
       });
 
+    // Initialize typing animation controller
+    _typingAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+
     super.initState();
   }
 
@@ -135,16 +149,34 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       if (mounted) {  // Check if widget is still mounted
         setState(() {
           isBotTyping = false;
-          milanMessage.add(
-            ChatMessage(
+          
+          if (_enableTypingAnimation) {
+            // Add the message with typing animation
+            final newMessage = ChatMessage(
               text: data['message'],
               isUser: false,
               showImage: false,
               imageUrl: data['image_url'],
               timestamp: DateTime.now(),
-            ),
-          );
+              isTyping: true,
+              typingProgress: 0,
+            );
+            
+            milanMessage.add(newMessage);
+            _currentTypingIndex = milanMessage.length - 1;
+            
+            // Start the typing animation
+            _startTypingAnimation();
+          } else {
+            // Add the message without typing animation
+            _addMessageWithoutTyping(
+              data['message'],
+              false,
+              imageUrl: data['image_url'],
+            );
+          }
         });
+        
         scrollToBottom();
       }
     });
@@ -170,7 +202,6 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             timestamp: DateTime.now(),
           ),
         );
-
         isBotTyping = true;
         _messageController.clear();
         if (!isFirstMessageSent) {
@@ -299,6 +330,65 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     });
   }
 
+  void _startTypingAnimation() {
+    if (_currentTypingIndex < 0 || _currentTypingIndex >= milanMessage.length) {
+      return;
+    }
+
+    final message = milanMessage[_currentTypingIndex];
+    final fullText = message.text;
+    
+    // Cancel any existing timer
+    _typingTimer?.cancel();
+    
+    // Start the blinking cursor animation
+    _typingAnimationController.repeat();
+    
+    // Start the typing animation
+    _typingTimer = Timer.periodic(Duration(milliseconds: _typingSpeed), (timer) {
+      if (mounted) {
+        setState(() {
+          final currentProgress = milanMessage[_currentTypingIndex].typingProgress;
+          
+          if (currentProgress < fullText.length) {
+            // Update the typing progress
+            milanMessage[_currentTypingIndex] = milanMessage[_currentTypingIndex].copyWith(
+              typingProgress: currentProgress + 1,
+            );
+            scrollToBottom();
+          } else {
+            // Animation complete
+            milanMessage[_currentTypingIndex] = milanMessage[_currentTypingIndex].copyWith(
+              isTyping: false,
+            );
+            timer.cancel();
+            _typingAnimationController.stop();
+            _currentTypingIndex = -1;
+          }
+        });
+      } else {
+        timer.cancel();
+        _typingAnimationController.stop();
+      }
+    });
+  }
+
+  void _addMessageWithoutTyping(String text, bool isUser, {String? imageUrl, bool showImage = false}) {
+    setState(() {
+      milanMessage.add(
+        ChatMessage(
+          text: text,
+          isUser: isUser,
+          showImage: showImage,
+          imageUrl: imageUrl,
+          timestamp: DateTime.now(),
+          isTyping: false,
+          typingProgress: text.length,
+        ),
+      );
+    });
+  }
+
   bool isFirstMessageSent = false;
   bool isSidebarVisible = false;
 
@@ -351,6 +441,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                         ? 'https://api.mithrex.in/${e.imageUrl}'
                         : e.imageUrl,
                     timestamp: e.createdAt!,
+                    isTyping: false,
+                    typingProgress: e.userMessage.toString().length,
                   ),
                 );
                 milanMessage.add(
@@ -359,6 +451,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     isUser: false,
                     showImage: false,
                     timestamp: e.responseTime!,
+                    isTyping: false,
+                    typingProgress: e.aiResponse.toString().length,
                   ),
                 );
 
@@ -999,7 +1093,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     children: [
                       Expanded(
                         child: Text(
-                          'AI NAME',
+                          'Silver AI',
                           style: responsive
                               .getResponsiveValue(
                                 mobile: AppTextStyles.medium18,
@@ -1540,12 +1634,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           // Bot avatar
-          CircleAvatar(
-            backgroundColor: Colors.grey[300],
-            radius: avatarRadius,
-            child:
-                Icon(Icons.assistant, size: avatarRadius, color: Colors.grey),
-          ),
+          // CircleAvatar(
+          //   backgroundColor: Colors.grey[300],
+          //   radius: avatarRadius,
+          //   child:
+          //       Icon(Icons.assistant, size: avatarRadius, color: Colors.grey),
+          // ),
           SizedBox(
             width: responsive.getResponsiveValue(
               mobile: 8.0,
@@ -1641,6 +1735,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
 
+    // Get the text to display based on typing progress
+    String displayText = message.text;
+    if (message.isTyping) {
+      displayText = message.text.substring(0, message.typingProgress);
+    }
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -1675,16 +1775,24 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     color: !isDarkMode ? AppColors.white : AppColors.white),
                 borderRadius: BorderRadius.circular(24),
               ),
-              child: message.text.contains('```')
-                  ? _buildFormattedMessageText(
-                      message.text, isDarkMode ? Colors.white : Colors.black)
-                  : SelectableText(
-                      message.text,
-                      style: TextStyle(
-                          fontSize: 15,
-                          height: 1.5,
-                          color: isDarkMode ? Colors.white : Colors.black),
-                    ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Flexible(
+                    child: displayText.contains('```')
+                        ? _buildFormattedMessageText(
+                            displayText, isDarkMode ? Colors.white : Colors.black)
+                        : SelectableText(
+                            displayText,
+                            style: TextStyle(
+                                fontSize: 15,
+                                height: 1.5,
+                                color: isDarkMode ? Colors.white : Colors.black),
+                          ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -2111,6 +2219,8 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     socket.off('error');
     _messageController.dispose();
     _animationController.dispose();
+    _typingAnimationController.dispose();
+    _typingTimer?.cancel();
     super.dispose();
   }
 
@@ -2122,5 +2232,19 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     } else {
       _animationController.stop();
     }
+  }
+
+  // Method to toggle typing animation
+  void _toggleTypingAnimation() {
+    setState(() {
+      _enableTypingAnimation = !_enableTypingAnimation;
+    });
+  }
+
+  // Method to adjust typing speed
+  void _setTypingSpeed(int speedInMs) {
+    setState(() {
+      _typingSpeed = speedInMs;
+    });
   }
 }

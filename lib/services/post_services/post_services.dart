@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/foundation.dart';
-import 'package:ai_studio/model/delete_all_chat_model.dart';
-import 'package:ai_studio/model/get_chat_history_model.dart';
-import 'package:ai_studio/model/get_profile_model.dart';
-import 'package:ai_studio/model/get_prompt_by_id_model.dart';
-import 'package:ai_studio/model/login_model.dart';
-import 'package:ai_studio/model/signup_model.dart';
-import 'package:ai_studio/model/update_user_model.dart';
-import 'package:ai_studio/services/shared_preference/shared_preference.dart';
+import 'package:silver_ai/model/delete_all_chat_model.dart';
+import 'package:silver_ai/model/get_chat_history_model.dart';
+import 'package:silver_ai/model/get_profile_model.dart';
+import 'package:silver_ai/model/get_prompt_by_id_model.dart';
+import 'package:silver_ai/model/login_model.dart';
+import 'package:silver_ai/model/signup_model.dart';
+import 'package:silver_ai/model/update_user_model.dart';
+import 'package:silver_ai/services/shared_preference/shared_preference.dart';
 import 'package:http/http.dart' as http;
-import 'package:ai_studio/utils/api_endpoint.dart';
+import 'package:silver_ai/utils/api_endpoint.dart';
 
 class PostServices {
   Future<LoginModel?> login(String email, String password) async {
