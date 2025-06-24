@@ -115,7 +115,7 @@ class MyApp extends StatelessWidget {
           builder: (context, themeProvider, _) {
             return MaterialApp(
               debugShowCheckedModeBanner: false,
-              title: 'Silver AI',
+              title: 'SilverMind',
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
               themeMode: themeProvider.themeMode,

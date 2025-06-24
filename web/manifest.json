@@ -1,11 +1,11 @@
 {
-    "name": "Silver AI",
-    "short_name": "Silver AI",
+    "name": "SilverMind",
+    "short_name": "SilverMind",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Silver AI - Your Intelligent AI Assistant",
+    "description": "SilverMind - Your Intelligent AI Assistant",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

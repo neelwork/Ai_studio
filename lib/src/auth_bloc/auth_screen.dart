@@ -62,7 +62,7 @@ class _AuthCardState extends State<_AuthCard> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Silver AI',
+            'SilverMind',
             style: AppTextStyles.regular24.copyWith(
               fontWeight: FontWeight.w100,
               color: !isDarkMode ? AppColors.black : AppColors.white,

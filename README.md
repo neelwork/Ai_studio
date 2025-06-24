@@ -1,6 +1,6 @@
-# Silver AI
+# SilverMind
 
-Silver AI - Your Intelligent AI Assistant
+SilverMind - Your Intelligent AI Assistant
 
 ## Getting Started
 

@@ -1093,7 +1093,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     children: [
                       Expanded(
                         child: Text(
-                          'Silver AI',
+                          'SilverMind',
                           style: responsive
                               .getResponsiveValue(
                                 mobile: AppTextStyles.medium18,

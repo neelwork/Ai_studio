@@ -47,7 +47,7 @@ class _SignupStep1Card extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Silver AI',
+            'SilverMind',
             style: AppTextStyles.regular24.copyWith(
               fontWeight: FontWeight.w100,
               color: !isDarkMode ? AppColors.black : AppColors.white,
@@ -230,7 +230,7 @@ class _SignupStep2CardState extends State<_SignupStep2Card> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Silver AI',
+            'SilverMind',
             style: AppTextStyles.regular24.copyWith(
               fontWeight: FontWeight.w100,
               color: !isDarkMode ? AppColors.black : AppColors.white,
