@@ -8,14 +8,10 @@ import 'package:silver_ai/src/setting_bloc/profile_bloc.dart';
 import 'package:silver_ai/utils/colors.dart';
 import 'package:silver_ai/utils/global_functions_variable.dart';
 import 'package:silver_ai/utils/text_styles.dart';
-import 'package:silver_ai/widget/app_button.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:lottie/lottie.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -142,10 +138,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
     socket.connect();
 
-    socket.onConnect((_) => print('Connected'));
+    socket.onConnect((_) => debugPrint('Connected'));
 
     socket.on('send_message', (data) {
-      print('Bot says: $data');
+      debugPrint('Bot says: $data');
       if (mounted) {  // Check if widget is still mounted
         setState(() {
           isBotTyping = false;
@@ -181,9 +177,9 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       }
     });
 
-    socket.onDisconnect((_) => print('Disconnected'));
-    socket.onConnectError((err) => print('Connection Error: $err'));
-    socket.onError((err) => print('Socket Error: $err'));
+    socket.onDisconnect((_) => debugPrint('Disconnected'));
+    socket.onConnectError((err) => debugPrint('Connection Error: $err'));
+    socket.onError((err) => debugPrint('Socket Error: $err'));
   }
 
   void _refreshChatHistory() {
@@ -232,7 +228,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
         final imageUrl = cleanImagePath(result!);
 
-        print("image url return: $imageUrl");
+        debugPrint("image url return: $imageUrl");
 
         if (imageUrl != null) {
           // Step 2: Emit message + image URL to socket
@@ -270,10 +266,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           // Refresh chat history after sending message
           _refreshChatHistory();
         } else {
-          print("❌ Image upload failed. No image URL returned.");
+          debugPrint("❌ Image upload failed. No image URL returned.");
         }
       } catch (e) {
-        print("❌ Error in imageSendMessage(): $e");
+        debugPrint("❌ Error in imageSendMessage(): $e");
       }
     }
   }
@@ -297,18 +293,18 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       if (response.statusCode == 200) {
         var responseBody = await response.stream.bytesToString();
 
-        print("image upload response body: $responseBody");
+        debugPrint("image upload response body: $responseBody");
 
         var jsonResponse = jsonDecode(responseBody);
         _showCustomSnackBar("Image uploaded successfully");
         return jsonResponse["image_urls"]?[0]?["url"];
       } else {
-        print("Upload failed: ${response.statusCode}");
+        debugPrint("Upload failed: ${response.statusCode}");
         _showCustomSnackBar("Failed to upload image");
         return null;
       }
     } catch (e) {
-      print("Upload exception: $e");
+      debugPrint("Upload exception: $e");
       _showCustomSnackBar("Error uploading image");
       return null;
     }
@@ -1484,7 +1480,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       BuildContext context, Responsive responsive, ChatState state) {
     final theme = Theme.of(context);
     final isDarkMode = theme.brightness == Brightness.dark;
-    print("_isHoveringLogo :: $_isHoveringLogo");
+    debugPrint("_isHoveringLogo :: $_isHoveringLogo");
     return Container(
       padding: responsive.getResponsiveValue(
         mobile: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -2073,12 +2069,12 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     ),
                   ),
                   Expanded(
-                    child: RawKeyboardListener(
+                    child: KeyboardListener(
                       focusNode: FocusNode(),
-                      onKey: (RawKeyEvent event) {
-                        if (event is RawKeyDownEvent) {
+                      onKeyEvent: (KeyEvent event) {
+                        if (event is KeyDownEvent) {
                           if (event.logicalKey == LogicalKeyboardKey.enter) {
-                            if (event.isShiftPressed) {
+                            if (HardwareKeyboard.instance.isShiftPressed) {
                               _messageController.text += '\n';
                             } else {
                               if (_messageController.text.isNotEmpty ||

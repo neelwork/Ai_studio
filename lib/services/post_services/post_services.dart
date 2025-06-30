@@ -178,16 +178,16 @@ class PostServices {
       },
     );
 
-    print('deleteAllChats Status Code :: ${response.statusCode}');
-    print('deleteAllChats Body :: ${response.body}');
+    debugPrint('deleteAllChats Status Code :: ${response.statusCode}');
+    debugPrint('deleteAllChats Body :: ${response.body}');
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
       final result = DeleteAllChatModel.fromJson(data);
 
       return result;
     } else {
-      print('Failed to delete chats. Status code: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      debugPrint('Failed to delete chats. Status code: ${response.statusCode}');
+      debugPrint('Response body: ${response.body}');
     }
     return null;
   }
@@ -212,8 +212,8 @@ class PostServices {
       },
     );
 
-    log('get by id Response status: ${response.statusCode}');
-    print("get by id Response body: ${response.body}");
+    debugPrint("get by id Response status: ${response.statusCode}");
+    debugPrint("get by id Response body: ${response.body}");
 
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
